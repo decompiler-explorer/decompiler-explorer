@@ -1,0 +1,10 @@
+db.sqlite3
+uploads
+config
+staticfiles
+media
+.venv
+db_data
+secrets
+letsencrypt
+.vscode

@@ -1,0 +1,145 @@
+version: '3.8'
+
+
+x-decompiler:
+    &default-decompiler-options
+        init: true
+        environment:
+            - SERVER=${EXPLORER_URL:-http://explorer:8000}
+        networks:
+            - backend_net
+        command: [
+            "--timeout", "${DECOMPILER_TIMEOUT:-30}",
+            "--mem-limit-hard", "${DECOMPILER_MEM_LIMIT_HARD:-10000000000}",
+            "--mem-limit-soft", "${DECOMPILER_MEM_LIMIT_SOFT:-10000000000}"
+            ]
+        secrets:
+            - worker_auth_token
+        deploy:
+            replicas: 1
+
+
+services:
+    traefik:
+        image: traefik:v2.6
+        init: true
+        networks:
+            - backend_net
+            - default
+        volumes:
+            - "/var/run/docker.sock:/var/run/docker.sock:ro"
+        ports:
+            - "80:80"
+            - "8080:8080"
+            - "443:443"
+        command:
+            - --providers.docker=true
+            - --providers.docker.exposedbydefault=false
+            - --providers.docker.swarmMode=true
+            - --entrypoints.web.address=:80
+            - --entrypoints.websecure.address=:443
+            - --entrypoints.web.http.redirections.entryPoint.to=websecure
+            - --entrypoints.web.http.redirections.entryPoint.scheme=https
+            - --entrypoints.web.http.redirections.entrypoint.permanent=true
+            - --accesslog
+            - --log
+            - --log.level=DEBUG
+            - --api
+            - --api.insecure=true
+        deploy:
+            replicas: 1
+            placement:
+                constraints:
+                    - "node.role==manager"
+            labels:
+                - traefik.enable=true
+                - traefik.http.services.traefik.loadbalancer.server.port=8080
+                - traefik.http.middlewares.https-redirect.redirectscheme.scheme=https
+                - traefik.http.middlewares.https-redirect.redirectscheme.permanent=true
+                - traefik.http.middlewares.limit.buffering.maxRequestBodyBytes=${MAX_REQUEST_SIZE:-2000000}
+                - traefik.http.middlewares.limit.buffering.memRequestBodyBytes=2000000
+
+    database:
+        image: postgres:14
+        environment:
+            - POSTGRES_PASSWORD_FILE=/run/secrets/db_superuser_pass
+            - PGDATA=/var/lib/postgresql/data/pgdata
+        secrets:
+            - db_superuser_pass
+        volumes:
+            - ./db_data:/var/lib/postgresql/data/
+        networks:
+            - backend_net
+        deploy:
+            replicas: 1
+            placement:
+                constraints:
+                    - "node.role==manager"
+
+    explorer:
+        depends_on:
+            - database
+        init: true
+        build: .
+        image: decompiler_explorer
+        environment:
+            - PYTHONUNBUFFERED=1
+            - DJANGO_SETTINGS_MODULE=decompiler_explorer.settings.docker
+            - DEBUG=${DEBUG:-0}
+        networks:
+            - backend_net
+        volumes:
+            - staticfiles:/opt/decompiler_explorer/staticfiles
+            - mediafiles:/opt/decompiler_explorer/media
+        secrets:
+            - db_superuser_pass
+            - worker_auth_token
+        deploy:
+            replicas: 1
+            placement:
+                constraints:
+                    - "node.role==manager"
+            labels:
+                - traefik.enable=true
+                - traefik.http.services.explorer.loadbalancer.server.port=8000
+                - traefik.http.routers.explorer.rule=Host(`${DOMAIN:-dce.localhost}`)
+                - traefik.http.routers.explorer.entrypoints=websecure
+                - traefik.http.routers.explorer.tls=true
+                - traefik.http.routers.explorer.middlewares=limit@docker
+
+
+    # Decompilers
+    binja:
+        <<: *default-decompiler-options
+        image: decompiler_explorer_binja
+        build:
+            context: runners/decompiler
+            target: binja
+
+    ghidra:
+        <<: *default-decompiler-options
+        image: decompiler_explorer_ghidra
+        build:
+            context: runners/decompiler
+            target: ghidra
+
+    angr:
+        <<: *default-decompiler-options
+        image: decompiler_explorer_angr
+        build:
+            context: runners/decompiler
+            target: angr
+
+
+networks:
+    backend_net:
+
+volumes:
+    staticfiles:
+    mediafiles:
+
+secrets:
+    db_superuser_pass:
+        file: ./secrets/db_superuser_pass
+    worker_auth_token:
+        file: ./secrets/worker_auth_token

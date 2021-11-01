@@ -1,0 +1,7 @@
+version: '3.8'
+
+services:
+    explorer:
+        environment:
+            - DJANGO_FILE_STORAGE=storages.backends.s3boto3.S3Boto3Storage
+            - AWS_STORAGE_BUCKET_NAME=${AWS_STORAGE_BUCKET_NAME:?S3 bucket name unset}

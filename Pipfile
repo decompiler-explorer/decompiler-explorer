@@ -1,0 +1,18 @@
+[[source]]
+url = "https://pypi.org/simple"
+verify_ssl = true
+name = "pypi"
+
+[packages]
+django = "~=3.2"
+requests = "~=2.27"
+djangorestframework = "~=3.13"
+django-storages = "~=1.12"
+gunicorn = "~=20.1"
+psycopg2 = "~=2.9"
+whitenoise = {version = "~=6.0", extras = ["brotli"]}
+
+[dev-packages]
+
+[requires]
+python_version = "3.8"

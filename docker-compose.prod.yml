@@ -1,0 +1,26 @@
+version: '3.8'
+
+services:
+    traefik:
+        command:
+            - --providers.docker=true
+            - --providers.docker.swarmMode=true
+            - --providers.docker.exposedbydefault=false
+            - --entrypoints.web.address=:80
+            - --entrypoints.websecure.address=:443
+            - --entrypoints.web.http.redirections.entryPoint.to=websecure
+            - --entrypoints.web.http.redirections.entryPoint.scheme=https
+            - --entrypoints.web.http.redirections.entrypoint.permanent=true
+            - --accesslog
+            - --log
+            - --certificatesresolvers.myresolver.acme.tlschallenge=true
+            - --certificatesresolvers.myresolver.acme.email=${LETSENCRYPT_ACME_EMAIL:?ACME email unset}
+            - --certificatesresolvers.myresolver.acme.storage=/letsencrypt/acme.json
+        volumes:
+            - "./letsencrypt:/letsencrypt"
+
+    explorer:
+        deploy:
+            labels:
+                - "traefik.http.routers.explorer.entrypoints=websecure"
+                - "traefik.http.routers.explorer.tls.certresolver=myresolver"

@@ -1,0 +1,34 @@
+html, body {
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    padding: 0;
+}
+
+header {
+    background: #F8F9FA;
+}
+
+header a {
+    color: #000000;
+    text-decoration: none;
+}
+
+footer {
+    background: #F8F9FA;
+}
+
+button.btn {
+    background-color: #E9ECEF;
+    font-size: 0.875rem;
+    padding: 0.25em;
+    border: 1px solid #ced4da;
+}
+
+.decompiler {
+    border-left: 1px solid #000000;
+}
+
+.decompiler:first-child {
+    border-left: none;
+}
