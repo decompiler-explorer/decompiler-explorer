@@ -130,6 +130,13 @@ services:
             context: runners/decompiler
             target: angr
 
+    snowman:
+        <<: *default-decompiler-options
+        image: decompiler_explorer_snowman
+        build:
+            context: runners/decompiler
+            target: snowman
+
 
 networks:
     backend_net:

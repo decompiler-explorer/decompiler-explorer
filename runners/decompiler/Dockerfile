@@ -70,3 +70,24 @@ COPY decompile_ghidra.py .
 COPY entrypoint.sh .
 COPY runner_generic.py .
 ENTRYPOINT [ "./entrypoint.sh", "decompile_ghidra.py" ]
+
+# Snowman
+FROM base-x86 as snowman
+USER root
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends build-essential cmake git libboost-dev qtbase5-dev qt5-qmake qtbase5-dev-tools \
+    && rm -rf /var/lib/apt/lists/*
+
+USER decompiler_user
+WORKDIR /home/decompiler_user
+RUN git clone https://github.com/yegord/snowman.git \
+    && cmake -B snowman/build -DNC_QT5=YES -DCMAKE_INSTALL_PREFIX=install snowman/src/ \
+    && cmake --build snowman/build -j$(nproc) \
+    && cmake --install snowman/build \
+    && rm -rf snowman
+
+COPY decompile_snowman.py .
+
+COPY entrypoint.sh .
+COPY runner_generic.py .
+ENTRYPOINT [ "./entrypoint.sh", "decompile_snowman.py" ]
