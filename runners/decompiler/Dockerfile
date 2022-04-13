@@ -109,3 +109,24 @@ COPY decompile_retdec.py .
 COPY entrypoint.sh .
 COPY runner_generic.py .
 ENTRYPOINT [ "./entrypoint.sh", "decompile_retdec.py" ]
+
+# RecStudio
+FROM base-x86 as recstudio
+USER root
+RUN dpkg --add-architecture i386 \
+    && apt-get update \
+    && apt-get install -y --no-install-recommends wget libc6:i386 libstdc++6:i386 \
+    && rm -rf /var/lib/apt/lists/*
+
+USER decompiler_user
+WORKDIR /home/decompiler_user
+RUN wget http://www.backerstreet.com/rec/RecStudioLinux.tgz \
+    && tar xf 'RecStudioLinux.tgz' \
+    && rm 'RecStudioLinux.tgz' \
+    && mkdir output
+WORKDIR /home/decompiler_user
+COPY decompile_recstudio.py .
+
+COPY entrypoint.sh .
+COPY runner_generic.py .
+ENTRYPOINT [ "./entrypoint.sh", "decompile_recstudio.py" ]

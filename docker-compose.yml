@@ -144,6 +144,13 @@ services:
             context: runners/decompiler
             target: retdec
 
+    recstudio:
+        <<: *default-decompiler-options
+        image: decompiler_explorer_recstudio
+        build:
+            context: runners/decompiler
+            target: recstudio
+
 
 networks:
     backend_net:
