@@ -137,6 +137,13 @@ services:
             context: runners/decompiler
             target: snowman
 
+    retdec:
+        <<: *default-decompiler-options
+        image: decompiler_explorer_retdec
+        build:
+            context: runners/decompiler
+            target: retdec
+
 
 networks:
     backend_net:

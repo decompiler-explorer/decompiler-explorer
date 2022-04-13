@@ -91,3 +91,21 @@ COPY decompile_snowman.py .
 COPY entrypoint.sh .
 COPY runner_generic.py .
 ENTRYPOINT [ "./entrypoint.sh", "decompile_snowman.py" ]
+
+# RetDec
+FROM base-x86 as retdec
+USER root
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends wget xz-utils \
+    && rm -rf /var/lib/apt/lists/*
+
+USER decompiler_user
+WORKDIR /home/decompiler_user
+RUN wget https://retdec-tc.avast.com/repository/download/RetDec_LinuxBuild/.lastSuccessful/package/retdec-master-linux-64b.tar.xz?guest=1 \
+    && tar xf 'retdec-master-linux-64b.tar.xz?guest=1' \
+    && rm 'retdec-master-linux-64b.tar.xz?guest=1'
+COPY decompile_retdec.py .
+
+COPY entrypoint.sh .
+COPY runner_generic.py .
+ENTRYPOINT [ "./entrypoint.sh", "decompile_retdec.py" ]
