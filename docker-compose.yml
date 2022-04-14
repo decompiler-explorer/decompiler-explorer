@@ -151,6 +151,13 @@ services:
             context: runners/decompiler
             target: recstudio
 
+    reko:
+        <<: *default-decompiler-options
+        image: decompiler_explorer_reko
+        build:
+            context: runners/decompiler
+            target: reko
+
 
 networks:
     backend_net:

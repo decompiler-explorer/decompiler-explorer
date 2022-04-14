@@ -130,3 +130,39 @@ COPY decompile_recstudio.py .
 COPY entrypoint.sh .
 COPY runner_generic.py .
 ENTRYPOINT [ "./entrypoint.sh", "decompile_recstudio.py" ]
+
+# Reko
+FROM base-x86 as reko
+USER root
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends git build-essential cmake wget gcc g++ libcapstone-dev pkg-config p7zip-full unzip \
+    && wget https://packages.microsoft.com/config/debian/11/packages-microsoft-prod.deb -O packages-microsoft-prod.deb \
+    && dpkg -i packages-microsoft-prod.deb \
+    && rm packages-microsoft-prod.deb \
+    && apt-get update \
+    && apt-get install -y apt-transport-https \
+    && apt-get update \
+    && apt-get install -y dotnet-sdk-5.0 \
+    && rm -rf /var/lib/apt/lists/*
+
+USER decompiler_user
+WORKDIR /home/decompiler_user
+RUN git clone https://github.com/uxmal/reko.git \
+    && cd reko \
+    && dotnet msbuild -p:Platform=x64 -p:Configuration=UnixRelease -t:build_solution -m ./src/BuildTargets/BuildTargets.csproj \
+    && dotnet msbuild -p:Platform=x64 -p:Configuration=Release -t:create_runtime_nupkg -m ./src/BuildTargets/BuildTargets.csproj \
+    && dotnet msbuild -p:Platform=x64 -p:Configuration=Release -t:create_release -m ./src/BuildTargets/BuildTargets.csproj \
+    && cp bin/CmdLine*.zip ../CmdLine.zip \
+    && cd .. \
+    && rm -rf reko
+
+RUN mkdir reko \
+    && cd reko \
+    && unzip ../CmdLine.zip \
+
+WORKDIR /home/decompiler_user
+COPY decompile_reko.py .
+
+COPY entrypoint.sh .
+COPY runner_generic.py .
+ENTRYPOINT [ "./entrypoint.sh", "decompile_reko.py" ]
