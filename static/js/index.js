@@ -1,3 +1,8 @@
+let decompilerContainers = Object.fromEntries(
+    Object.values(document.getElementsByClassName("decompiler_container"))
+    .map(i => [i.id.replace(/(^container_)/, ''), i])
+);
+
 let decompilerFrames = Object.fromEntries(
     Object.values(document.getElementsByClassName("decompiler_output"))
     .map(i => [i.id, i])
@@ -18,8 +23,24 @@ let decompilerRerunButtons = Object.fromEntries(
     .map(i => [i.id.replace(/(^rerun_)/, ''), i])
 );
 
+let decompilerSelectChecks = Object.fromEntries(
+    Object.values(document.getElementsByClassName("decompiler_select"))
+    .map(i => [i.id.replace(/(^select_)/, ''), i])
+);
+
 let decompilerResultUrls = {};
 
+let decompilers = JSON.parse(document.getElementById("decompilers_json").textContent);
+
+Object.keys(decompilerSelectChecks).forEach((decompiler) => {
+    let check = decompilerSelectChecks[decompiler];
+    let info = decompilers[decompiler];
+    check.checked = info.featured;
+    check.addEventListener('change', () => {
+        info.featured = check.checked;
+        updateFrames();
+    });
+});
 
 document.querySelector("#binary_upload_form input[name='file']").required = true;
 
@@ -40,8 +61,21 @@ function clearOutput(decompiler_name) {
     delete decompilerResultUrls[decompiler_name];
 }
 
+function updateFrames() {
+    Object.keys(decompilerContainers).forEach((decompiler) => {
+        let info = decompilers[decompiler];
+        if (info.featured) {
+            decompilerContainers[decompiler].classList.remove('hidden');
+        } else {
+            decompilerContainers[decompiler].classList.add('hidden');
+        }
+    });
+}
 
 function displayResult(resultData) {
+    // If a new decompiler comes online before we refresh, it won't be in the list
+    if (Object.keys(decompilers).indexOf(resultData['decompiler']['name']) === -1)
+        return;
     let url = resultData['download_url'];
     let analysis_time = resultData['analysis_time'];
     let created = new Date(resultData['created']);
@@ -101,6 +135,8 @@ function getResult(decompiler_name) {
         })
         .then(data => {
             for (let i of data['results']) {
+                if (i['decompiler'] === null)
+                    continue;
                 let decompilerName = i['decompiler']['name'];
                 if (!finishedResults.includes(decompilerName)) {
                     displayResult(i);
@@ -205,6 +241,7 @@ Object.entries(decompilerRerunButtons)
             rerunDecompiler(name);
         })
     });
+updateFrames();
 
 let params = new URL(location).searchParams;
 let id = params.get("id");

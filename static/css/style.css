@@ -25,10 +25,14 @@ button.btn {
     border: 1px solid #ced4da;
 }
 
-.decompiler {
+.decompiler + .decompiler {
     border-left: 1px solid #000000;
 }
 
-.decompiler:first-child {
+.decompiler.hidden + .decompiler {
     border-left: none;
+}
+
+.decompiler.hidden {
+    display: none !important;
 }

@@ -39,6 +39,7 @@ class Decompiler(models.Model):
     version = models.CharField('Version Major.minor.patch', max_length=255)
     revision = models.CharField('Specific revision label', max_length=255, blank=True)
     last_health_check = models.DateTimeField(default=timezone.now, editable=False)
+    featured = models.BooleanField('Featured on homepage', default=True)
 
     def __str__(self):
         return f'Decompiler: {self.name} {self.version} {self.revision[:8]}'

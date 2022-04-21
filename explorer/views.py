@@ -1,3 +1,4 @@
+from django.forms import model_to_dict
 from django.http import FileResponse
 from django.shortcuts import get_object_or_404
 from django.utils import timezone
@@ -125,9 +126,15 @@ class IndexView(APIView):
 
     def get(self, request):
         decompilers = sorted(Decompiler.healthy_latest_versions(), key=lambda d: d.name.lower())
+
+        decompilers_json = {}
+        for d in decompilers:
+            decompilers_json[d.name] = model_to_dict(d)
+
         return Response({
             'serializer': BinarySerializer(),
             'decompilers': decompilers,
+            'decompilers_json': decompilers_json
         })
 
 class FaqView(APIView):

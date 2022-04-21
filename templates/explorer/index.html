@@ -32,6 +32,8 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.4.14/ace.min.js" type="text/javascript" charset="utf-8"></script>
 
     {% csrf_token %}
+
+    {{ decompilers_json|json_script:"decompilers_json" }}
 </head>
 <body>
 <div class="d-flex flex-column h-100" id="main">
@@ -63,9 +65,19 @@
         <div class="row">
             <h3>Decompiler Output</h3>
         </div>
+        <div class="row" id="decompiler_selectors">
+            {% for d in decompilers %}
+            <div class="col">
+                <label class="decompiler_selector" for="select_{{ d.name }}">
+                    <input type="checkbox" class="decompiler_select" id="select_{{ d.name }}">
+                    {{ d.name }}
+                </label>
+            </div>
+            {% endfor %}
+        </div>
         <div class="row my-3 flex-grow-1" id="decompilers">
             {% for d in decompilers %}
-            <div class="col d-flex flex-column decompiler">
+            <div class="col d-flex flex-column decompiler decompiler_container" id="container_{{d.name}}">
                 <div class="row">
                     <span>
                         <h5 class="d-inline-block decompiler_title" id="title_{{d.name}}">{{ d.name }}</h5>
