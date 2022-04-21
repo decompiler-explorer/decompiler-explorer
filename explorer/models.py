@@ -29,6 +29,9 @@ class Binary(models.Model):
     created = models.DateTimeField('Compile Date', default=timezone.now, editable=False)
     hash = models.CharField(max_length=128, editable=False, unique=True, blank=False, null=False)
 
+    def __str__(self):
+        return f'Binary: {self.file.name} ({self.id})'
+
 
 class Decompiler(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
@@ -36,6 +39,9 @@ class Decompiler(models.Model):
     version = models.CharField('Version Major.minor.patch', max_length=255)
     revision = models.CharField('Specific revision label', max_length=255, blank=True)
     last_health_check = models.DateTimeField(default=timezone.now, editable=False)
+
+    def __str__(self):
+        return f'Decompiler: {self.name} {self.version} {self.revision} ({self.id})'
 
     def __lt__(self, other):
         if not isinstance(other, (Decompiler,)):
@@ -73,6 +79,9 @@ class DecompilationRequest(models.Model):
     created = models.DateTimeField(default=timezone.now, editable=False)
     completed = models.BooleanField(default=False, editable=False)
 
+    def __str__(self):
+        return f'Decompilation Request: {self.decompiler.name} {self.decompiler.version}: File {self.binary.id} @ {self.created} ({self.id})'
+
     class Meta:
         constraints = [
             UniqueConstraint(fields=['binary', 'decompiler'], name='unique_binary_decompiler')
@@ -89,6 +98,9 @@ class Decompilation(models.Model):
     error = models.TextField('Error Message', null=True)
     created = models.DateTimeField('Decompile Date', default=timezone.now, editable=False)
     analysis_time = models.FloatField(default=0)
+
+    def __str__(self):
+        return f'Decompilation: {self.decompiler.name} {self.decompiler.version}: File {self.binary.id} @ {self.created} ({self.id})'
 
     class Meta:
         constraints = [
