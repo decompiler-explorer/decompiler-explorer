@@ -158,7 +158,7 @@ RUN git clone https://github.com/uxmal/reko.git \
 
 RUN mkdir reko \
     && cd reko \
-    && unzip ../CmdLine.zip \
+    && unzip ../CmdLine.zip
 
 WORKDIR /home/decompiler_user
 COPY decompile_reko.py .
@@ -166,3 +166,24 @@ COPY decompile_reko.py .
 COPY entrypoint.sh .
 COPY runner_generic.py .
 ENTRYPOINT [ "./entrypoint.sh", "decompile_reko.py" ]
+
+# Boomerang
+FROM base-x86 as boomerang
+USER root
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends wget bzip2 libexpat1 qtbase5-dev libcapstone-dev \
+    && rm -rf /var/lib/apt/lists/*
+
+RUN wget https://github.com/BoomerangDecompiler/boomerang/releases/download/v0.5.2/boomerang-v0.5.2-linux64.tar.gz -O boomerang.tar.gz \
+    && tar xf boomerang.tar.gz \
+    && rm boomerang.tar.gz \
+    && cp -r boomerang*/* /usr \
+    && ln -s /usr/lib/boomerang/libboomerang.so /usr/lib
+
+USER decompiler_user
+WORKDIR /home/decompiler_user
+COPY decompile_boomerang.py .
+
+COPY entrypoint.sh .
+COPY runner_generic.py .
+ENTRYPOINT [ "./entrypoint.sh", "decompile_boomerang.py" ]

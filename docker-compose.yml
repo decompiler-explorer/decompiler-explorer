@@ -151,6 +151,13 @@ services:
             context: runners/decompiler
             target: recstudio
 
+    boomerang:
+        <<: *default-decompiler-options
+        image: decompiler_explorer_boomerang
+        build:
+            context: runners/decompiler
+            target: boomerang
+
     reko:
         <<: *default-decompiler-options
         image: decompiler_explorer_reko
