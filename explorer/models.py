@@ -30,7 +30,7 @@ class Binary(models.Model):
     hash = models.CharField(max_length=128, editable=False, unique=True, blank=False, null=False)
 
     def __str__(self):
-        return f'Binary: {self.file.name} ({self.id})'
+        return f'Binary: {self.hash}'
 
 
 class Decompiler(models.Model):
@@ -41,7 +41,7 @@ class Decompiler(models.Model):
     last_health_check = models.DateTimeField(default=timezone.now, editable=False)
 
     def __str__(self):
-        return f'Decompiler: {self.name} {self.version} {self.revision} ({self.id})'
+        return f'Decompiler: {self.name} {self.version} {self.revision[:8]}'
 
     def __lt__(self, other):
         if not isinstance(other, (Decompiler,)):
@@ -80,7 +80,7 @@ class DecompilationRequest(models.Model):
     completed = models.BooleanField(default=False, editable=False)
 
     def __str__(self):
-        return f'Decompilation Request: {self.decompiler.name} {self.decompiler.version}: File {self.binary.id} @ {self.created} ({self.id})'
+        return f'<Decompilation Request: {self.id}>'
 
     class Meta:
         constraints = [
@@ -100,7 +100,7 @@ class Decompilation(models.Model):
     analysis_time = models.FloatField(default=0)
 
     def __str__(self):
-        return f'Decompilation: {self.decompiler.name} {self.decompiler.version}: File {self.binary.id} @ {self.created} ({self.id})'
+        return f'<Decompilation: {self.id}>'
 
     class Meta:
         constraints = [
