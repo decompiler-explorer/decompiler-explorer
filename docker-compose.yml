@@ -9,7 +9,7 @@ x-decompiler:
         networks:
             - backend_net
         command: [
-            "--timeout", "${DECOMPILER_TIMEOUT:-30}",
+            "--timeout", "${DECOMPILER_TIMEOUT:-120}",
             "--mem-limit-hard", "${DECOMPILER_MEM_LIMIT_HARD:-10000000000}",
             "--mem-limit-soft", "${DECOMPILER_MEM_LIMIT_SOFT:-10000000000}"
             ]
