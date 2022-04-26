@@ -62,10 +62,19 @@ function clearOutput(decompiler_name) {
 }
 
 function updateFrames() {
+    let hasPrevious = false;
     Object.keys(decompilerContainers).forEach((decompiler) => {
         let info = decompilers[decompiler];
+
+        if (hasPrevious) {
+            decompilerContainers[decompiler].classList.add('with_line');
+        } else {
+            decompilerContainers[decompiler].classList.remove('with_line');
+        }
+
         if (info.featured) {
             decompilerContainers[decompiler].classList.remove('hidden');
+            hasPrevious = true;
         } else {
             decompilerContainers[decompiler].classList.add('hidden');
         }

@@ -25,12 +25,8 @@ button.btn {
     border: 1px solid #ced4da;
 }
 
-.decompiler + .decompiler {
+.decompiler.with_line {
     border-left: 1px solid #000000;
-}
-
-.decompiler.hidden + .decompiler {
-    border-left: none;
 }
 
 .decompiler.hidden {
