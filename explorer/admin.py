@@ -14,7 +14,11 @@ class DecompilationRequestAdmin(admin.ModelAdmin):
 class DecompilationAdmin(admin.ModelAdmin):
 	model = Decompilation
 	ordering = ('-created', 'decompiler')
-	list_display = ('created', 'decompiler', 'binary', 'id')
+	list_display = ('created', 'decompiler', 'binary', '_succeeded', 'id')
+
+	def _succeeded(self, instance):
+		return instance.succeeded
+	_succeeded.boolean = True
 
 
 @admin.register(Decompiler)

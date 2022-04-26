@@ -114,6 +114,13 @@ class Decompilation(models.Model):
             )
         ]
 
+    @property
+    def succeeded(self) -> bool:
+        return not self.failed
+
+    @property
+    def failed(self) -> bool:
+        return self.error is not None or self.decompiled_file is None
 
 @receiver(post_save, sender=Binary)
 def create_decompilation_requests(sender, instance, created, *args, **kwargs):
