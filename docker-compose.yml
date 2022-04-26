@@ -143,6 +143,11 @@ services:
         build:
             context: runners/decompiler
             target: retdec
+        command: [
+            "--timeout", "${DECOMPILER_TIMEOUT:-120}",
+            # Do not specify hard limit #12
+            "--mem-limit-soft", "${DECOMPILER_MEM_LIMIT_SOFT:-10000000000}"
+            ]
 
     recstudio:
         <<: *default-decompiler-options
