@@ -28,6 +28,8 @@ class Binary(models.Model):
     file = models.FileField(upload_to=binary_upload_path, max_length=255)
     created = models.DateTimeField('Compile Date', default=timezone.now, editable=False)
     hash = models.CharField(max_length=128, editable=False, unique=True, blank=False, null=False)
+    featured = models.BooleanField(default=False)
+    featured_name = models.TextField(max_length=32, null=True)
 
     def __str__(self):
         return f'Binary: {self.hash}'

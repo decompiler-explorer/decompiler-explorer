@@ -209,19 +209,26 @@ function uploadBinary() {
         }
     })
     .then(data => {
-        const url = new URL(window.location);
-        url.searchParams.set('id', data['id']);
-        window.history.pushState({}, '', url);
-        resultUrl = data["decompilations_url"];
-        for (const decompiler_name of Object.keys(decompilerFrames)) {
-            getResult(decompiler_name);
-        }
+        addHistoryEntry(data['id']);
+        loadAllDecompilers(data['id']);
     })
     .catch(err => {
         logError(err, err, true);
     });
 }
 
+function loadAllDecompilers(binary_id) {
+    resultUrl = `${location.origin}${location.pathname}api/binaries/${binary_id}/decompilations/`;
+    for (const decompiler_name of Object.keys(decompilerFrames)) {
+        getResult(decompiler_name);
+    }
+}
+
+function addHistoryEntry(binary_id) {
+    const url = new URL(window.location);
+    url.searchParams.set('id', binary_id);
+    window.history.pushState({}, '', url);
+}
 
 function rerunDecompiler(decompiler_name) {
     const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
@@ -253,6 +260,15 @@ document.getElementById('upload_binary').addEventListener('click', (e) => {
     Object.values(decompilerRerunButtons).forEach(i => i.hidden = true);
     uploadBinary();
 });
+document.getElementById('try_sample').addEventListener('click', (e) => {
+    e.preventDefault();
+    Object.values(decompilerFrames).forEach(i => i.session.getDocument().setValue(""));
+    Object.values(decompilerFrames).forEach(i => i.resize());
+    Object.values(decompilerRerunButtons).forEach(i => i.hidden = true);
+    let id = document.getElementById('samples').value;
+    addHistoryEntry(id);
+    loadAllDecompilers(id);
+});
 
 Object.entries(decompilerRerunButtons)
     .forEach(([name, elem]) => {
@@ -266,8 +282,19 @@ updateFrames();
 let params = new URL(location).searchParams;
 let id = params.get("id");
 if (id !== null) {
-    resultUrl = `${location.origin}${location.pathname}api/binaries/${id}/decompilations/`;
-    for (const decompiler_name of Object.keys(decompilerFrames)) {
-        getResult(decompiler_name);
+    let wasSample = false;
+    let sampleSelect = document.getElementById('samples');
+    for (let i = 0; i < sampleSelect.childElementCount; i ++) {
+        if (sampleSelect.children[i].value === id) {
+            sampleSelect.value = id;
+            wasSample = true;
+            break;
+        }
     }
+
+    if (!wasSample) {
+        sampleSelect.value = "";
+    }
+
+    loadAllDecompilers(id);
 }

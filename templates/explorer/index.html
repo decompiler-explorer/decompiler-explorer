@@ -56,12 +56,29 @@
     </header>
     <section id="input" class="container">
         <div class="row my-3">
-            <h3>Upload File</h3>
-            <p>Your file must be <strong>less than 2MB</strong> in size.</p>
-            <form class="input-group" id="binary_upload_form">
-                <input type="file" class="form-control form-control-sm input-group-append" id="file" name="file" value required>
-                <button type="button" class="btn input-group-append" id="upload_binary">Upload</button>
-            </form>
+            <div class="col">
+                <h3>Upload File</h3>
+                <p>Your file must be <strong>less than 2MB</strong> in size.</p>
+                <form class="input-group" id="binary_upload_form">
+                    <input type="file" class="form-control form-control-sm input-group-append" id="file" name="file" value required>
+                    <button type="button" class="btn input-group-append" id="upload_binary">Upload</button>
+                </form>
+            </div>
+            {% if featured_binaries|length > 0 %}
+            <div class="col">
+                <h3>Samples</h3>
+                <p>Or check out one of these samples we've provided:</p>
+                <form class="input-group" id="sample_form">
+                    <select name="samples" id="samples" class="form-select form-select-sm input-group-append">
+                        <option value="">Select a Sample...</option>
+                        {% for b in featured_binaries %}
+                        <option value="{{ b.id }}">{{ b.featured_name }}</option>
+                        {% endfor %}
+                    </select>
+                    <button type="button" class="btn input-group-append" id="try_sample">Try Sample</button>
+                </form>
+            </div>
+            {% endif %}
         </div>
     </section>
     <section id="decompilers" class="container flex-grow-1 d-flex flex-column">

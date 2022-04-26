@@ -131,10 +131,13 @@ class IndexView(APIView):
         for d in decompilers:
             decompilers_json[d.name] = model_to_dict(d)
 
+        featured_binaries = sorted(Binary.objects.filter(featured=True), key=lambda b: b.featured_name)
+
         return Response({
             'serializer': BinarySerializer(),
             'decompilers': decompilers,
-            'decompilers_json': decompilers_json
+            'decompilers_json': decompilers_json,
+            'featured_binaries': featured_binaries
         })
 
 class FaqView(APIView):
