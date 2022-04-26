@@ -42,7 +42,7 @@ def main():
 def version():
     proc = subprocess.run([REKO_DECOMPILE, '--version'], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     # Decompile.exe version 0.11.2.0 (git:42a17f5d0)
-    output = proc.stdout.decode()
+    output = proc.stdout.decode().strip()
     assert 'Decompile.exe version ' in output
     version = output.split(' ')[2]
 
