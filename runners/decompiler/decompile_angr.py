@@ -34,7 +34,7 @@ def decompile():
 
 if __name__ == "__main__":
     if len(sys.argv) > 1 and sys.argv[1] == '--version':
-        print('.'.join(str(i) for i in angr.__version__))
+        print(angr.__version__)
         print('')  # No revision information known
         sys.exit(0)
     if len(sys.argv) > 1 and sys.argv[1] == '--name':
