@@ -18,7 +18,6 @@ DATA_DIR = BASE_DIR / 'db_data'
 
 DECOMPILERS = [
     ('angr',        'angr'),
-    ('binja',       'Binary Ninja'),
     ('boomerang',   'Boomerang'),
     ('ghidra',      'Ghidra'),
     ('recstudio',   'REC Studio'),
@@ -26,6 +25,13 @@ DECOMPILERS = [
     ('retdec',      'RetDec'),
     ('snowman',     'Snowman')
 ]
+
+if not (BASE_DIR / 'runners' / 'decompiler' / 'tools' / 'binja' / 'license.dat').exists():
+    print("Binary Ninja key not detected... Excluding from build")
+else:
+    DECOMPILERS.append(('binja', 'Binary Ninja'))
+
+DECOMPILERS.sort(key=lambda d: d[0])
 
 parser = argparse.ArgumentParser(description='Manage decompiler explorer')
 for decomp in DECOMPILERS:
