@@ -25,10 +25,8 @@ def main():
     subprocess.check_call([RECSTUDIO_CLI, infile.name, outfile.name], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     infile.close()
 
-    sys.stdout.buffer.write(b'<pre>')
     with open(outfile.name, 'rb') as f:
         sys.stdout.buffer.write(f.read())
-    sys.stdout.buffer.write(b'</pre>')
 
     shutil.rmtree(tempdir.name)
 

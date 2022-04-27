@@ -23,9 +23,7 @@ def main():
 
     shutil.rmtree(tempdir.name)
 
-    sys.stdout.buffer.write(b'<pre>')
     sys.stdout.buffer.write(decomp.stdout)
-    sys.stdout.buffer.write(b'</pre>')
 
 
 def version():

@@ -1,3 +1,5 @@
+ace.config.set('basePath', 'https://cdnjs.cloudflare.com/ajax/libs/ace/1.4.14/');
+
 let decompilerContainers = Object.fromEntries(
     Object.values(document.getElementsByClassName("decompiler_container"))
     .map(i => [i.id.replace(/(^container_)/, ''), i])
@@ -5,7 +7,12 @@ let decompilerContainers = Object.fromEntries(
 
 let decompilerFrames = Object.fromEntries(
     Object.values(document.getElementsByClassName("decompiler_output"))
-    .map(i => [i.id, i])
+    .map(i => {
+        let id = i.id;
+        let editor = ace.edit(id);
+        editor.session.setMode("ace/mode/c_cpp");
+        return [id, editor];
+    })
 );
 
 let decompilerTimes = Object.fromEntries(
@@ -55,7 +62,7 @@ function logError(err_title, err_msg, do_alert=false) {
 }
 
 function clearOutput(decompiler_name) {
-    decompilerFrames[decompiler_name].contentDocument.body.innerText = "";
+    decompilerFrames[decompiler_name].session.getDocument().setValue("");
     decompilerTimes[decompiler_name].innerText = "";
     decompilerRerunButtons[decompiler_name].hidden = true;
     delete decompilerResultUrls[decompiler_name];
@@ -106,7 +113,7 @@ function displayResult(resultData) {
     time_obj.innerText = `Analysed ${created}\nAnalysis took ${analysis_time.toFixed(2)} seconds`;
 
     if (resultData['error'] !== null) {
-        frame.contentDocument.body.innerText = `Error decompiling: ${resultData['error']}`;
+        frame.session.getDocument().setValue(`Error decompiling: ${resultData['error']}`);
         rerun_button.hidden = false;
         return;
     }
@@ -114,19 +121,19 @@ function displayResult(resultData) {
     fetch(url)
     .then(resp => resp.text())
     .then(data => {
-        frame.contentDocument.body.innerHTML = data;
+        frame.session.getDocument().setValue(data);
         rerun_button.hidden = false;
     })
     .catch(err => {
         logError("Error retrieving result", err);
-        frame.contentDocument.body.innerText = "Error retrieving result";
+        frame.session.getDocument().setValue("// Error retrieving result: " + err);
     })
 }
 
 
 function getResult(decompiler_name) {
     let finishedResults = [];
-    decompilerFrames[decompiler_name].contentDocument.body.innerText = "Waiting for data...";
+    decompilerFrames[decompiler_name].session.getDocument().setValue("// Waiting for data...");
     decompilerTimes[decompiler_name].innerText = "";
     decompilerRerunButtons[decompiler_name].hidden = true;
 
@@ -157,7 +164,7 @@ function getResult(decompiler_name) {
             }
             if (finishedResults.indexOf(decompiler_name) === -1) {
                 let elapsedSecs = ((Date.now() - startTime) / 1000).toFixed(0);
-                decompilerFrames[decompiler_name].contentDocument.body.innerText = "Waiting for data... (" + elapsedSecs + "s)";
+                decompilerFrames[decompiler_name].session.getDocument().setValue("// Waiting for data... (" + elapsedSecs + "s)");
             }
         })
     }, 1000);
@@ -238,7 +245,7 @@ function rerunDecompiler(decompiler_name) {
 document.getElementById('upload_binary').addEventListener('click', (e) => {
     e.preventDefault();
     Object.values(decompilerTimes).forEach(i => i.innerHTML = "");
-    Object.values(decompilerFrames).forEach(i => i.contentDocument.body.innerHTML = "");
+    Object.values(decompilerFrames).forEach(i => i.session.getDocument().setValue(""));
     Object.values(decompilerRerunButtons).forEach(i => i.hidden = true);
     uploadBinary();
 });

@@ -21,13 +21,10 @@ def main():
     decomp = subprocess.run([BOOMERANG_CLI, infile.name], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     infile.close()
 
-    sys.stdout.buffer.write(b'<pre>')
     outputs = Path('output') / Path(infile.name).name
     for source in outputs.glob('*.c'):
         with open(source, 'rb') as f:
             sys.stdout.buffer.write(f.read())
-
-    sys.stdout.buffer.write(b'</pre>')
 
     shutil.rmtree(tempdir.name)
 

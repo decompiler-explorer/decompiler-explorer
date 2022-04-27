@@ -39,7 +39,6 @@ def main():
         output_file
     ]
 
-    print("<pre>")
     if not os.path.exists(output_file):
         decomp = subprocess.run(decompile_command, capture_output=True)
         if decomp.returncode != 0 or not os.path.exists(output_file):
@@ -49,7 +48,6 @@ def main():
     with open(output_file, 'r') as f:
         print(f.read())
 
-    print("</pre>")
     shutil.rmtree(tempdir.name)
 
 

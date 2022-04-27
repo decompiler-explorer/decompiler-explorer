@@ -13,7 +13,6 @@ def decompile():
     t.write(conts)
     t.flush()
 
-    print("<pre>")
     p = angr.Project(t.name)
     cfg: CFGFast = p.analyses.CFGFast()
 
@@ -32,7 +31,6 @@ def decompile():
         except Exception as e:
             print(f"Exception thrown decompiling function at 0x{start:x}: {e}")
 
-    print("</pre>")
 
 if __name__ == "__main__":
     if len(sys.argv) > 1 and sys.argv[1] == '--version':
