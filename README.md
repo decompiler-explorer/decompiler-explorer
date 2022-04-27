@@ -42,7 +42,10 @@ docker-compose up binja --build --force-recreate --remove-orphans
 
 ## Running in docker (dev)
 ```shell
+python scripts/dce.py init
+python scripts/dce.py build
 python scripts/dce.py start
+# UI now accessible on port 80/443
 ```
 
 
