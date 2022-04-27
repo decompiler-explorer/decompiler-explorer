@@ -1,9 +1,9 @@
 import sys
 import tempfile
-import angr
+from typing import List
 
+import angr
 from angr.analyses import CFGFast, Decompiler
-from angr.analyses.decompiler import StructuredCodeGenerator
 from angr.knowledge_plugins import Function
 
 
@@ -13,32 +13,42 @@ def decompile():
     t.write(conts)
     t.flush()
 
-    p = angr.Project(t.name)
-    cfg: CFGFast = p.analyses.CFGFast()
+    p = angr.Project(t.name, auto_load_libs=False, load_debug_info=False)
+    cfg: CFGFast = p.analyses.CFGFast(
+        normalize=True,
+        resolve_indirect_jumps=True,
+        data_references=True,
+        cross_references=True,
+    )
+    p.analyses.CompleteCallingConventions(
+        cfg=cfg, recover_variables=True, analyze_callsites=True
+    )
 
-    for start in cfg.kb.functions:
+    funcs_to_decompile: List[Function] = [
+        func
+        for func in cfg.functions.values()
+        if not func.is_plt and not func.is_simprocedure and not func.alignment
+    ]
+
+    for func in funcs_to_decompile:
         try:
-            fn: Function = cfg.functions[start]
-            fn.normalize()
-            decompiler: Decompiler = p.analyses.Decompiler(fn)
+            decompiler: Decompiler = p.analyses.Decompiler(func)
 
-            if decompiler.kb.structured_code.available_flavors(start):
-                codegen: StructuredCodeGenerator = decompiler.codegen
-
-                if codegen:
-                    codegen.regenerate_text()
-                    print(f"{codegen.text}")
+            if decompiler.codegen is None:
+                print(f"// No decompilation output for function {func.name}\n")
+                continue
+            print(decompiler.codegen.text)
         except Exception as e:
-            print(f"Exception thrown decompiling function at 0x{start:x}: {e}")
+            print(f"Exception thrown decompiling function {func.name}: {e}")
 
 
 if __name__ == "__main__":
-    if len(sys.argv) > 1 and sys.argv[1] == '--version':
+    if len(sys.argv) > 1 and sys.argv[1] == "--version":
         print(angr.__version__)
-        print('')  # No revision information known
+        print("")  # No revision information known
         sys.exit(0)
-    if len(sys.argv) > 1 and sys.argv[1] == '--name':
-        print('angr')
+    if len(sys.argv) > 1 and sys.argv[1] == "--name":
+        print("angr")
         sys.exit(0)
 
     decompile()
