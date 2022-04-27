@@ -16,7 +16,24 @@ SECRETS_DIR = BASE_DIR / 'secrets'
 DATA_DIR = BASE_DIR / 'db_data'
 
 
+DECOMPILERS = [
+    ('angr',        'angr'),
+    ('binja',       'Binary Ninja'),
+    ('boomerang',   'Boomerang'),
+    ('ghidra',      'Ghidra'),
+    ('recstudio',   'REC Studio'),
+    ('reko',        'Reko'),
+    ('retdec',      'RetDec'),
+    ('snowman',     'Snowman')
+]
+
 parser = argparse.ArgumentParser(description='Manage decompiler explorer')
+for decomp in DECOMPILERS:
+    parser.add_argument(f'--without-{decomp[0]}', dest=decomp[0], action='store_false', help=f'Disable {decomp[1]} decompiler')
+
+for decomp in DECOMPILERS:
+    parser.add_argument(f'--with-{decomp[0]}', dest=decomp[0], action='store_true', help=f'Enable {decomp[1]} decompiler')
+
 subparsers = parser.add_subparsers(dest='subcommand_name')
 
 init_parser = subparsers.add_parser('init')
@@ -61,8 +78,18 @@ def build_server(args):
     config_files = '-f docker-compose.yml'
     if args.prod:
         config_files += ' -f docker-compose.prod.yml'
+
+    services = [
+        'traefik',
+        'database',
+        'explorer'
+    ]
+    for d in DECOMPILERS:
+        if getattr(args, d[0]):
+            services.append(d[0])
+
     cmd = f"docker-compose {config_files} build"
-    subprocess.run(cmd.split(' '))
+    subprocess.run(cmd.split(' ') + services)
 
 
 def start_server(args):
