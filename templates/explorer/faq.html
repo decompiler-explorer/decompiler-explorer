@@ -37,13 +37,13 @@
         <div class="container my-3">
             <div class="row align-items-center">
                 <div class="col-8">
-                    <a href="https://dogbolt.org" class="float-start">
+                    <a href="{% url 'explorer:index' %}" class="float-start">
                         <!-- TODO: Logo -->
                         <h1 class="my-0">Decompiler Explorer</h1>
                     </a>
                 </div>
                 <div class="col-4">
-                    <a href="https://dogbolt.org/faq.html" class="float-end">What is this?</a>
+                    <a href="{% url 'explorer:faq' %}" class="float-end">What is this?</a>
                     <!-- TODO: Sponsor Logos? -->
                 </div>
             </div>
@@ -55,7 +55,7 @@
             <h5>What is this?</h5>
             <p>This is the Decompiler Explorer! It is an interactive online decompiler which shows equivalent C-like output of decompiled programs from many popular decompilers. It's meant to be the reverse of the amazing <a href="https://godbolt.org/">Compiler Explorer</a>.</p>
             <h5>Who made it?</h5>
-            <p>Vector 35, the developers of <a href="https://binary.ninja">Binary Ninja</a> (which is also one of the decompilers featured in the site), created the original prototype. Thanks to input from the community, and some additional inspiration from tools like <a href="https://github.com/mborgerson/mdec">mdec</a>, improvements were made before release. Decompiler Explorer is now a fully open source project <a href="https://github.com/Vector35/decompiler-explorer">available on GitHub</a>.</p>
+            <p>Vector 35, the developers of <a href="https://binary.ninja">Binary Ninja</a> (which is also one of the decompilers featured in the site), created the original prototype. Thanks to input from the community, and some additional inspiration from tools like <a href="https://github.com/mborgerson/mdec">mdec</a>, improvements were made before release. Decompiler Explorer is now a fully open source project <a href="https://github.com/decompiler-explorer/decompiler-explorer">available on GitHub</a>.</p>
             <!-- TODO: add link to blog post? -->
             <h5>What's in it?</h5>
             <p>The following decompilers are currently a part of the Decompiler Explorer:</p>
@@ -70,7 +70,7 @@
                 <li><a href="https://github.com/yegord/snowman">Snowman</a></li>
             </ul>
             <h5>Where's the code?</h5>
-            <p>The Decompiler Explorer is completely open source and can be found at <a href="https://github.com/Vector35/decompiler-explorer">GitHub</a>.</p>
+            <p>The Decompiler Explorer is completely open source and can be found at <a href="https://github.com/decompiler-explorer/decompiler-explorer">GitHub</a>.</p>
             <h5>How's it being hosted?</h5>
             <p>Vector 35 is currently hosting it on <a href="https://digitalocean.com/">Digital Ocean</a> as a community service.</p>
             <p>Specifically, the infrastructure includes: </p>
@@ -79,13 +79,13 @@
                 <li>4 x "basic" quad-core, 8GB RAM worker instances</li>
             </ul>
             <h5>How can I contribute?</h5>
-            <p>Please submit a pull request to the main <a href="https://github.com/Vector35/decompiler-explorer">GitHub repository</a>. Thanks!</p>
+            <p>Please submit a pull request to the main <a href="https://github.com/decompiler-explorer/decompiler-explorer">GitHub repository</a>. Thanks!</p>
         </div>
     </section>
     <footer class="fixed-bottom">
         <div class="container">
             <div class="row justify-content-between text-center my-2">
-                <p class="mb-0 small">Decompiler Explorer is open source! Fork it on <a href="https://github.com/Vector35/decompiler-explorer">GitHub</a>!</p>
+                <p class="mb-0 small">Decompiler Explorer is open source! Fork it on <a href="https://github.com/decompiler-explorer/decompiler-explorer">GitHub</a>!</p>
             </div>
         </div>
     </footer>
