@@ -19,6 +19,7 @@ def main():
     infile.flush()
 
     decomp = subprocess.run([SNOWMAN_NOCODE, infile.name], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    decomp.check_returncode()
     infile.close()
 
     shutil.rmtree(tempdir.name)

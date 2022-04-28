@@ -37,7 +37,11 @@ def decompile_source(args, compiled):
         raise DecompileError("Exceeded time limit")
 
     if proc.returncode == 0:
-        return proc.stdout
+        result = proc.stdout
+        # Process did not crash but did not produce any stderr output.
+        if len(result) == 0:
+            raise DecompileError("Empty decompile result")
+        return result
     else:
         raise DecompileError(proc.stderr)
 

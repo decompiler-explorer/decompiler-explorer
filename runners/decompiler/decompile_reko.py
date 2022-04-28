@@ -19,6 +19,7 @@ def main():
     infile.flush()
 
     decomp = subprocess.run([REKO_DECOMPILE, infile.name], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    decomp.check_returncode()
     infile.close()
 
     outputs = Path(infile.name + ".reko")
