@@ -28,7 +28,12 @@ def main():
         cursor = obj.cursor
         while True:
             for line in cursor.lines:
-
+                if line.type in [
+                    LinearDisassemblyLineType.FunctionHeaderStartLineType,
+                    LinearDisassemblyLineType.FunctionHeaderEndLineType,
+                    LinearDisassemblyLineType.AnalysisWarningLineType,
+                ]:
+                    continue
                 for i in line.contents.tokens:
                     if i.type == InstructionTextTokenType.TagToken:
                         continue
