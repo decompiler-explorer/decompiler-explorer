@@ -43,7 +43,12 @@ docker-compose up binja --build --force-recreate --remove-orphans
 ## Running in docker (dev)
 ```shell
 python scripts/dce.py init
+
+# Build all decompilers with valid keys 
 python scripts/dce.py build
+# If you want to exclude certain decompilers
+# python scripts/dce.py --without-reko build
+
 python scripts/dce.py start
 # UI now accessible on port 80/443
 ```
