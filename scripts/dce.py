@@ -20,6 +20,7 @@ DECOMPILERS = [
     ('angr',        'angr'),
     ('boomerang',   'Boomerang'),
     ('ghidra',      'Ghidra'),
+    ('hexrays',     'Hex Rays'),
     ('recstudio',   'REC Studio'),
     ('reko',        'Reko'),
     ('retdec',      'RetDec'),

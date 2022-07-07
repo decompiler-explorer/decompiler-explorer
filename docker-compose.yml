@@ -170,6 +170,13 @@ services:
             context: runners/decompiler
             target: reko
 
+    hexrays:
+        <<: *default-decompiler-options
+        image: decompiler_explorer_reko
+        build:
+            context: runners/decompiler
+            target: hexrays
+
 
 networks:
     backend_net:

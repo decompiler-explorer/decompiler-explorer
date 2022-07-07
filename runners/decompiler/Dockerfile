@@ -187,3 +187,27 @@ COPY decompile_boomerang.py .
 COPY entrypoint.sh .
 COPY runner_generic.py .
 ENTRYPOINT [ "./entrypoint.sh", "decompile_boomerang.py" ]
+
+# Hex-Rays
+FROM base-x86 as hexrays
+
+COPY tools/hexrays/.idapro /home/decompiler_user/.idapro/
+COPY tools/hexrays/ida /home/decompiler_user/ida/
+COPY tools/hexrays/efd64 /home/decompiler_user/ida
+COPY tools/hexrays/batch.py /home/decompiler_user/ida
+COPY tools/hexrays/version.py /home/decompiler_user/ida
+
+USER root
+RUN /home/decompiler_user/ida/idapyswitch --force-path /usr/local/lib/libpython3.8.so \
+    && chmod +x /home/decompiler_user/ida/efd64 \
+    && chown -R decompiler_user /home/decompiler_user/ida \
+    && chown -R decompiler_user /home/decompiler_user/.idapro
+
+USER decompiler_user
+WORKDIR /home/decompiler_user
+
+COPY decompile_hexrays.py .
+
+COPY entrypoint.sh .
+COPY runner_generic.py .
+ENTRYPOINT [ "./entrypoint.sh", "decompile_hexrays.py" ]
