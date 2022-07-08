@@ -20,7 +20,6 @@ DECOMPILERS = [
     ('angr',        'angr'),
     ('boomerang',   'Boomerang'),
     ('ghidra',      'Ghidra'),
-    ('hexrays',     'Hex Rays'),
     ('recstudio',   'REC Studio'),
     ('reko',        'Reko'),
     ('retdec',      'RetDec'),
@@ -31,6 +30,13 @@ if not (BASE_DIR / 'runners' / 'decompiler' / 'tools' / 'binja' / 'license.dat')
     print("Binary Ninja key not detected... Excluding from build")
 else:
     DECOMPILERS.append(('binja', 'Binary Ninja'))
+
+if not (BASE_DIR / 'runners' / 'decompiler' / 'tools' / 'hexrays' / '.idapro' / 'ida.reg').exists() or \
+    not (BASE_DIR / 'runners' / 'decompiler' / 'tools' / 'hexrays' / 'ida' / 'idat64').exists() or \
+    not (BASE_DIR / 'runners' / 'decompiler' / 'tools' / 'hexrays' / 'efd64').exists():
+    print("IDA install key not detected... Excluding from build")
+else:
+    DECOMPILERS.append(('hexrays', 'Hex Rays'))
 
 DECOMPILERS.sort(key=lambda d: d[0])
 
