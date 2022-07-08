@@ -1,5 +1,13 @@
 version: '3.8'
 
+x-decompiler:
+    &default-decompiler-options
+        deploy:
+            replicas: 1
+            placement:
+                constraints:
+                    - "node.role!=manager"
+
 services:
     traefik:
         command:
@@ -24,3 +32,22 @@ services:
             labels:
                 - "traefik.http.routers.explorer.entrypoints=websecure"
                 - "traefik.http.routers.explorer.tls.certresolver=myresolver"
+
+    binja:
+        <<: *default-decompiler-options
+    ghidra:
+        <<: *default-decompiler-options
+    angr:
+        <<: *default-decompiler-options
+    snowman:
+        <<: *default-decompiler-options
+    retdec:
+        <<: *default-decompiler-options
+    recstudio:
+        <<: *default-decompiler-options
+    boomerang:
+        <<: *default-decompiler-options
+    reko:
+        <<: *default-decompiler-options
+    hexrays:
+        <<: *default-decompiler-options

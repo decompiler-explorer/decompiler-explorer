@@ -172,7 +172,7 @@ services:
 
     hexrays:
         <<: *default-decompiler-options
-        image: decompiler_explorer_reko
+        image: decompiler_explorer_hexrays
         build:
             context: runners/decompiler
             target: hexrays
