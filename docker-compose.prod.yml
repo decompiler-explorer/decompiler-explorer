@@ -32,6 +32,9 @@ services:
             labels:
                 - "traefik.http.routers.explorer.entrypoints=websecure"
                 - "traefik.http.routers.explorer.tls.certresolver=myresolver"
+        volumes:
+            - staticfiles:/opt/decompiler_explorer/staticfiles
+            - mediafiles:/opt/decompiler_explorer/media
 
     binja:
         <<: *default-decompiler-options

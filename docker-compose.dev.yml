@@ -1,0 +1,13 @@
+version: '3.8'
+
+services:
+    explorer:
+        build:
+            dockerfile: Dockerfile.dev
+        volumes:
+            - ./explorer:/opt/decompiler_explorer/explorer
+            - ./templates:/opt/decompiler_explorer/templates
+            - ./media:/opt/decompiler_explorer/media
+            - ./staticfiles:/opt/decompiler_explorer/staticfiles
+            - ./static:/opt/decompiler_explorer/static
+            - ./decompiler_explorer:/opt/decompiler_explorer/decompiler_explorer

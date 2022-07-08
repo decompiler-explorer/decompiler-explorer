@@ -91,6 +91,8 @@ def build_server(args):
     config_files = '-f docker-compose.yml'
     if args.prod:
         config_files += ' -f docker-compose.prod.yml'
+    else:
+        config_files += ' -f docker-compose.dev.yml'
 
     services = [
         'traefik',
@@ -109,6 +111,8 @@ def start_server(args):
     config_files = '-c docker-compose.yml'
     if args.prod:
         config_files += ' -c docker-compose.prod.yml'
+    else:
+        config_files += ' -c docker-compose.dev.yml'
 
     env = {
         'LETSENCRYPT_ACME_EMAIL': args.acme_email,

@@ -88,9 +88,6 @@ services:
             - DEBUG=${DEBUG:-0}
         networks:
             - backend_net
-        volumes:
-            - staticfiles:/opt/decompiler_explorer/staticfiles
-            - mediafiles:/opt/decompiler_explorer/media
         secrets:
             - db_superuser_pass
             - worker_auth_token
