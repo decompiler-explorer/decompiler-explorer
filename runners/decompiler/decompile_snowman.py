@@ -11,20 +11,19 @@ SNOWMAN_NOCODE = SNOWMAN_INSTALL / 'nocode'
 
 
 def main():
-    tempdir = tempfile.TemporaryDirectory()
+    with tempfile.TemporaryDirectory() as tempdir:
+        conts = sys.stdin.buffer.read()
+        infile = tempfile.NamedTemporaryFile(dir=tempdir, delete=False)
+        infile.write(conts)
+        infile.flush()
 
-    conts = sys.stdin.buffer.read()
-    infile = tempfile.NamedTemporaryFile(dir=tempdir.name, delete=False)
-    infile.write(conts)
-    infile.flush()
+        decomp = subprocess.run([SNOWMAN_NOCODE, infile.name], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        if decomp.returncode != 0:
+            print(f'{decomp.stdout.decode()}\n{decomp.stderr.decode()}')
+            sys.exit(1)
+        infile.close()
 
-    decomp = subprocess.run([SNOWMAN_NOCODE, infile.name], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-    decomp.check_returncode()
-    infile.close()
-
-    shutil.rmtree(tempdir.name)
-
-    sys.stdout.buffer.write(decomp.stdout)
+        sys.stdout.buffer.write(decomp.stdout)
 
 
 def version():

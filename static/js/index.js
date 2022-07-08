@@ -64,6 +64,7 @@ function logError(err_title, err_msg, do_alert=false) {
 
 function clearOutput(decompiler_name) {
     decompilerFrames[decompiler_name].session.getDocument().setValue("");
+    decompilerFrames[decompiler_name].resize();
     decompilerRerunButtons[decompiler_name].hidden = true;
     delete decompilerResultUrls[decompiler_name];
 }
@@ -113,6 +114,7 @@ function displayResult(resultData) {
 
     if (resultData['error'] !== null) {
         frame.session.getDocument().setValue(`Error decompiling: ${resultData['error']}`);
+        frame.resize();
         rerun_button.hidden = false;
         return;
     }
@@ -127,6 +129,7 @@ function displayResult(resultData) {
     .catch(err => {
         logError("Error retrieving result", err);
         frame.session.getDocument().setValue("// Error retrieving result: " + err);
+        frame.resize();
     })
 }
 
@@ -134,6 +137,7 @@ function displayResult(resultData) {
 function getResult(decompiler_name) {
     let finishedResults = [];
     decompilerFrames[decompiler_name].session.getDocument().setValue("// Waiting for data...");
+    decompilerFrames[decompiler_name].resize();
     decompilerRerunButtons[decompiler_name].hidden = true;
 
     let startTime = Date.now();
@@ -164,6 +168,7 @@ function getResult(decompiler_name) {
             if (finishedResults.indexOf(decompiler_name) === -1) {
                 let elapsedSecs = ((Date.now() - startTime) / 1000).toFixed(0);
                 decompilerFrames[decompiler_name].session.getDocument().setValue("// Waiting for data... (" + elapsedSecs + "s)");
+                decompilerFrames[decompiler_name].resize();
             }
         })
     }, 1000);
@@ -244,6 +249,7 @@ function rerunDecompiler(decompiler_name) {
 document.getElementById('upload_binary').addEventListener('click', (e) => {
     e.preventDefault();
     Object.values(decompilerFrames).forEach(i => i.session.getDocument().setValue(""));
+    Object.values(decompilerFrames).forEach(i => i.resize());
     Object.values(decompilerRerunButtons).forEach(i => i.hidden = true);
     uploadBinary();
 });

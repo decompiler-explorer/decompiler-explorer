@@ -11,44 +11,41 @@ GHIDRA_HEADLESS = GHIDRA_INSTALL / 'support' / 'analyzeHeadless'
 GHIDRA_APP_PROPERTIES = GHIDRA_INSTALL / 'Ghidra' / 'application.properties'
 
 def main():
-    tempdir = tempfile.TemporaryDirectory()
+    with tempfile.TemporaryDirectory() as tempdir:
+        conts = sys.stdin.buffer.read()
+        infile = tempfile.NamedTemporaryFile(dir=tempdir, delete=False)
+        infile.write(conts)
+        infile.flush()
+        inname = infile.name
+        infile.close()
 
-    conts = sys.stdin.buffer.read()
-    infile = tempfile.NamedTemporaryFile(dir=tempdir.name, delete=False)
-    infile.write(conts)
-    infile.flush()
-    inname = infile.name
-    infile.close()
+        project_dir = tempfile.TemporaryDirectory(dir=tempdir)
+        output_dir = tempfile.TemporaryDirectory(dir=tempdir)
 
-    project_dir = tempfile.TemporaryDirectory(dir=tempdir.name)
-    output_dir = tempfile.TemporaryDirectory(dir=tempdir.name)
+        output_file = output_dir.name + "/out"
+        parent_dir = Path(__file__).resolve().parent
 
-    output_file = output_dir.name + "/out"
-    parent_dir = Path(__file__).resolve().parent
+        decompile_command = [
+            f"{GHIDRA_HEADLESS}",
+            project_dir.name,
+            "temp",
+            "-import",
+            inname,
+            "-scriptPath",
+            f"{parent_dir}",
+            "-postScript",
+            f"{parent_dir}/DecompilerExplorer.java",
+            output_file
+        ]
 
-    decompile_command = [
-        f"{GHIDRA_HEADLESS}",
-        project_dir.name,
-        "temp",
-        "-import",
-        inname,
-        "-scriptPath",
-        f"{parent_dir}",
-        "-postScript",
-        f"{parent_dir}/DecompilerExplorer.java",
-        output_file
-    ]
+        if not os.path.exists(output_file):
+            decomp = subprocess.run(decompile_command, capture_output=True)
+            if decomp.returncode != 0 or not os.path.exists(output_file):
+                print(f'{decomp.stdout.decode()}\n{decomp.stderr.decode()}')
+                sys.exit(1)
 
-    if not os.path.exists(output_file):
-        decomp = subprocess.run(decompile_command, capture_output=True)
-        if decomp.returncode != 0 or not os.path.exists(output_file):
-            print(f'decompile failed:\n{decomp.stdout.decode()}\n{decomp.stderr.decode()}')
-            return
-
-    with open(output_file, 'r') as f:
-        print(f.read())
-
-    shutil.rmtree(tempdir.name)
+        with open(output_file, 'r') as f:
+            print(f.read())
 
 
 if __name__ == '__main__':

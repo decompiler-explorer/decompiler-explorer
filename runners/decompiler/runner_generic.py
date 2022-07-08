@@ -44,7 +44,7 @@ def decompile_source(args, compiled):
             raise DecompileError("Empty decompile result")
         return result
     else:
-        raise DecompileError(proc.stderr)
+        raise DecompileError(f"{proc.stdout.decode()}\n{proc.stderr.decode()}")
 
 
 class RunnerWrapper:

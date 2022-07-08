@@ -11,30 +11,29 @@ REKO_DECOMPILE = REKO_INSTALL / 'decompile'
 
 
 def main():
-    tempdir = tempfile.TemporaryDirectory()
+    with tempfile.TemporaryDirectory() as tempdir:
+        conts = sys.stdin.buffer.read()
+        infile = tempfile.NamedTemporaryFile(dir=tempdir, delete=False)
+        infile.write(conts)
+        infile.flush()
 
-    conts = sys.stdin.buffer.read()
-    infile = tempfile.NamedTemporaryFile(dir=tempdir.name, delete=False)
-    infile.write(conts)
-    infile.flush()
+        decomp = subprocess.run([REKO_DECOMPILE, infile.name], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        if decomp.returncode != 0:
+            print(f'{decomp.stdout.decode()}\n{decomp.stderr.decode()}')
+            sys.exit(1)
+        infile.close()
 
-    decomp = subprocess.run([REKO_DECOMPILE, infile.name], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-    decomp.check_returncode()
-    infile.close()
-
-    outputs = Path(infile.name + ".reko")
-    seen = set()
-    for source in outputs.glob('*text*.c'):
-        with open(source, 'rb') as f:
-            seen.add(source)
-            sys.stdout.buffer.write(f.read())
-    for source in outputs.glob('*.c'):
-        if source in seen:
-            continue
-        with open(source, 'rb') as f:
-            sys.stdout.buffer.write(f.read())
-
-    shutil.rmtree(tempdir.name)
+        outputs = Path(infile.name + ".reko")
+        seen = set()
+        for source in outputs.glob('*text*.c'):
+            with open(source, 'rb') as f:
+                seen.add(source)
+                sys.stdout.buffer.write(f.read())
+        for source in outputs.glob('*.c'):
+            if source in seen:
+                continue
+            with open(source, 'rb') as f:
+                sys.stdout.buffer.write(f.read())
 
 
 def version():

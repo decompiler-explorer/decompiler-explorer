@@ -13,22 +13,21 @@ IDA_VERSION_PY = IDA_INSTALL / 'version.py'
 
 
 def main():
-    tempdir = tempfile.TemporaryDirectory()
+    with tempfile.TemporaryDirectory() as tempdir:
+        conts = sys.stdin.buffer.read()
+        infile = tempfile.NamedTemporaryFile(dir=tempdir, delete=False)
+        infile.write(conts)
+        infile.flush()
+        output = infile.name + ".c"
 
-    conts = sys.stdin.buffer.read()
-    infile = tempfile.NamedTemporaryFile(dir=tempdir.name, delete=False)
-    infile.write(conts)
-    infile.flush()
+        decomp = subprocess.run([sys.executable, str(IDA_BATCH_PY), "--idadir", str(IDA_INSTALL), infile.name], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        if decomp.returncode != 0 or not Path(output).exists():
+            print(f'{decomp.stdout.decode()}\n{decomp.stderr.decode()}')
+            sys.exit(1)
+        infile.close()
 
-    decomp = subprocess.run([sys.executable, str(IDA_BATCH_PY), "--idadir", str(IDA_INSTALL), infile.name], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-    decomp.check_returncode()
-    infile.close()
-
-    output = infile.name + ".c"
-    with open(output, 'rb') as f:
-        sys.stdout.buffer.write(f.read())
-
-    shutil.rmtree(tempdir.name)
+        with open(output, 'rb') as f:
+            sys.stdout.buffer.write(f.read())
 
 
 def version():

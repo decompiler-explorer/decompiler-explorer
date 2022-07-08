@@ -11,23 +11,23 @@ BOOMERANG_CLI = BOOMERANG_INSTALL / 'boomerang-cli'
 
 
 def main():
-    tempdir = tempfile.TemporaryDirectory()
+    with tempfile.TemporaryDirectory() as tempdir:
+        conts = sys.stdin.buffer.read()
+        infile = tempfile.NamedTemporaryFile(dir=tempdir, delete=False)
+        infile.write(conts)
+        infile.flush()
 
-    conts = sys.stdin.buffer.read()
-    infile = tempfile.NamedTemporaryFile(dir=tempdir.name, delete=False)
-    infile.write(conts)
-    infile.flush()
+        decomp = subprocess.run([BOOMERANG_CLI, infile.name], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        if decomp.returncode != 0:
+            print(f'{decomp.stdout.decode()}\n{decomp.stderr.decode()}')
+            sys.exit(1)
 
-    decomp = subprocess.run([BOOMERANG_CLI, infile.name], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-    decomp.check_returncode()
-    infile.close()
+        infile.close()
 
-    outputs = Path('output') / Path(infile.name).name
-    for source in outputs.glob('*.c'):
-        with open(source, 'rb') as f:
-            sys.stdout.buffer.write(f.read())
-
-    shutil.rmtree(tempdir.name)
+        outputs = Path('output') / Path(infile.name).name
+        for source in outputs.glob('*.c'):
+            with open(source, 'rb') as f:
+                sys.stdout.buffer.write(f.read())
 
 
 def version():

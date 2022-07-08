@@ -64,7 +64,7 @@ RUN wget https://github.com/NationalSecurityAgency/ghidra/releases/download/Ghid
     && unzip ghidra.zip \
     && rm ghidra.zip
 
-COPY DecompilerExplorer.java .
+COPY tools/ghidra/DecompilerExplorer.java .
 COPY decompile_ghidra.py .
 
 COPY entrypoint.sh .
