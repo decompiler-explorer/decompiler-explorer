@@ -11,7 +11,7 @@ from explorer.mixins import WriteOnceMixin
 class DecompilerSerializer(serializers.ModelSerializer):
     class Meta:
         model = Decompiler
-        fields = ['id', 'name', 'version', 'revision']
+        fields = ['id', 'name', 'version', 'revision', 'url']
 
 
 class DecompilationSerializer(WriteOnceMixin, serializers.ModelSerializer):

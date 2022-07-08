@@ -42,6 +42,7 @@ docker-compose up binja --build --force-recreate --remove-orphans
 
 ## Running in docker (dev)
 ```shell
+pipenv run python -m pip install django whitenoise djangorestframework
 python scripts/dce.py init
 
 # Build all decompilers with valid keys 

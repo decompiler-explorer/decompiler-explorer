@@ -38,6 +38,7 @@ class Decompiler(models.Model):
     name = models.CharField(max_length=255)
     version = models.CharField('Version Major.minor.patch', max_length=255)
     revision = models.CharField('Specific revision label', max_length=255, blank=True)
+    url = models.URLField(max_length=255)
     last_health_check = models.DateTimeField(default=timezone.now, editable=False)
     featured = models.BooleanField('Featured on homepage', default=True)
 

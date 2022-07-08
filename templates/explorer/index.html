@@ -80,7 +80,7 @@
             <div class="col d-flex flex-column decompiler decompiler_container" id="container_{{d.name}}">
                 <div class="row">
                     <span>
-                        <h5 class="d-inline-block decompiler_title" id="title_{{d.name}}">{{ d.name }}</h5>
+                        <h5 class="d-inline-block decompiler_title" id="title_{{d.name}}"><a target="_blank" href="{{ d.url }}">{{ d.name }}</a></h5>
                         <button type="button" class="btn decompiler_rerun" id="rerun_{{d.name}}" hidden>Rerun</button>
                     </span>
                     <span id="runtime_{{d.name}}" class="decompiler_runtime"></span>

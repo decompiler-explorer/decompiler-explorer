@@ -59,6 +59,9 @@ if __name__ == "__main__":
     if len(sys.argv) > 1 and sys.argv[1] == '--name':
         print('BinaryNinja')
         sys.exit(0)
+    if len(sys.argv) > 1 and sys.argv[1] == '--url':
+        print('https://binary.ninja/')
+        sys.exit(0)
 
     main()
 

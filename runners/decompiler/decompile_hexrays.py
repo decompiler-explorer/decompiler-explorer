@@ -56,6 +56,9 @@ if __name__ == '__main__':
     if len(sys.argv) > 1 and sys.argv[1] == '--name':
         print('Hex-Rays')
         sys.exit(0)
+    if len(sys.argv) > 1 and sys.argv[1] == '--url':
+        print('https://hex-rays.com/ida-pro/')
+        sys.exit(0)
     if len(sys.argv) > 1 and sys.argv[1] == '--version':
         version()
         sys.exit(0)

@@ -48,6 +48,9 @@ if __name__ == '__main__':
     if len(sys.argv) > 1 and sys.argv[1] == '--name':
         print('RecStudio')
         sys.exit(0)
+    if len(sys.argv) > 1 and sys.argv[1] == '--url':
+        print('https://www.backerstreet.com/rec/rec.htm')
+        sys.exit(0)
     if len(sys.argv) > 1 and sys.argv[1] == '--version':
         version()
         sys.exit(0)

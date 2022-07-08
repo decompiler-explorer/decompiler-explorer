@@ -19,6 +19,7 @@ class DecompilerInfo:
     name: str
     version: str
     revision: str
+    url: str
 
 
 class DecompileError(Exception):
@@ -57,6 +58,7 @@ class RunnerWrapper:
         self.args = parser.parse_args()
 
         DECOMPILER_NAME = subprocess.check_output([sys.executable, self.args.script_name, '--name']).strip().decode()
+        DECOMPILER_URL = subprocess.check_output([sys.executable, self.args.script_name, '--url']).strip().decode()
         version = subprocess.check_output([sys.executable, self.args.script_name, '--version']).decode()
         DECOMPILER_VERSION = version.split('\n')[0].strip()
         DECOMPILER_REVISION = version.split('\n')[1].strip()
@@ -67,6 +69,7 @@ class RunnerWrapper:
 
         self.logger.info("RUNNER CONFIG:")
         self.logger.info(f"   DECOMPILER NAME: {DECOMPILER_NAME}")
+        self.logger.info(f"   DECOMPILER URL: {DECOMPILER_URL}")
         self.logger.info(f"   DECOMPILER VERSION: {DECOMPILER_VERSION}")
         self.logger.info(f"   DECOMPILER REVISION: {DECOMPILER_REVISION}")
         self.logger.info(f"   HOST SERVER: {SERVER}")
@@ -74,7 +77,8 @@ class RunnerWrapper:
         self.decompiler_info = DecompilerInfo(
             name=DECOMPILER_NAME,
             version=DECOMPILER_VERSION,
-            revision=DECOMPILER_REVISION
+            revision=DECOMPILER_REVISION,
+            url=DECOMPILER_URL
         )
 
         try:
@@ -107,6 +111,7 @@ class RunnerWrapper:
                 name=d['name'],
                 version=d['version'],
                 revision=d['revision'],
+                url=d['url'],
             )
             if info == self.decompiler_info:
                 decompiler_id = d['id']
