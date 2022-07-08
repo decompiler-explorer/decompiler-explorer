@@ -10,19 +10,20 @@ let decompilerFrames = Object.fromEntries(
     .map(i => {
         let id = i.id;
         let editor = ace.edit(id);
+        editor.setReadOnly(true);
         editor.session.setMode("ace/mode/c_cpp");
         return [id, editor];
     })
 );
 
-let decompilerTimes = Object.fromEntries(
-    Object.values(document.getElementsByClassName("decompiler_runtime"))
-    .map(i => [i.id.replace(/(^runtime_)/, ''), i])
-);
-
 let decompilerTitles = Object.fromEntries(
     Object.values(document.getElementsByClassName("decompiler_title"))
     .map(i => [i.id.replace(/(^title_)/, ''), i])
+);
+
+let decompilerVersions = Object.fromEntries(
+    Object.values(document.getElementsByClassName("decompiler_version"))
+    .map(i => [i.id.replace(/(^version_)/, ''), i])
 );
 
 let decompilerRerunButtons = Object.fromEntries(
@@ -63,7 +64,6 @@ function logError(err_title, err_msg, do_alert=false) {
 
 function clearOutput(decompiler_name) {
     decompilerFrames[decompiler_name].session.getDocument().setValue("");
-    decompilerTimes[decompiler_name].innerText = "";
     decompilerRerunButtons[decompiler_name].hidden = true;
     delete decompilerResultUrls[decompiler_name];
 }
@@ -99,18 +99,17 @@ function displayResult(resultData) {
     let decompiler_version = resultData['decompiler']['version'];
     let decompiler_revision = resultData['decompiler']['revision'];
     let frame = decompilerFrames[decompiler_name];
-    let time_obj = decompilerTimes[decompiler_name];
     let rerun_button = decompilerRerunButtons[decompiler_name];
     decompilerResultUrls[decompiler_name] = resultData['url'];
+    decompilerTitles[decompiler_name].innerText = `${decompiler_name}`;
     if (decompiler_revision !== '') {
         if (decompiler_revision.length > 8) {
             decompiler_revision = decompiler_revision.substring(0, 8);
         }
-        decompilerTitles[decompiler_name].innerText = `${decompiler_name} ${decompiler_version} (${decompiler_revision})`;
+        decompilerVersions[decompiler_name].innerText = `${decompiler_version} (${decompiler_revision})`;
     } else {
-        decompilerTitles[decompiler_name].innerText = `${decompiler_name} ${decompiler_version}`;
+        decompilerVersions[decompiler_name].innerText = `${decompiler_version}`;
     }
-    time_obj.innerText = `Analysed ${created}\nAnalysis took ${analysis_time.toFixed(2)} seconds`;
 
     if (resultData['error'] !== null) {
         frame.session.getDocument().setValue(`Error decompiling: ${resultData['error']}`);
@@ -122,6 +121,7 @@ function displayResult(resultData) {
     .then(resp => resp.text())
     .then(data => {
         frame.session.getDocument().setValue(data);
+        frame.resize();
         rerun_button.hidden = false;
     })
     .catch(err => {
@@ -134,7 +134,6 @@ function displayResult(resultData) {
 function getResult(decompiler_name) {
     let finishedResults = [];
     decompilerFrames[decompiler_name].session.getDocument().setValue("// Waiting for data...");
-    decompilerTimes[decompiler_name].innerText = "";
     decompilerRerunButtons[decompiler_name].hidden = true;
 
     let startTime = Date.now();
@@ -244,7 +243,6 @@ function rerunDecompiler(decompiler_name) {
 
 document.getElementById('upload_binary').addEventListener('click', (e) => {
     e.preventDefault();
-    Object.values(decompilerTimes).forEach(i => i.innerHTML = "");
     Object.values(decompilerFrames).forEach(i => i.session.getDocument().setValue(""));
     Object.values(decompilerRerunButtons).forEach(i => i.hidden = true);
     uploadBinary();

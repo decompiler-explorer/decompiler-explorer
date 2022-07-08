@@ -14,6 +14,23 @@ header a {
     text-decoration: none;
 }
 
+header h1 {
+    font-size: 1.5rem;
+}
+
+section#content {
+    padding-bottom: 40px;
+}
+
+section#input h3 {
+    font-size: 1.2rem;
+}
+
+section#decompilers {
+    max-width: 100%;
+    padding: 0 20px;
+}
+
 footer {
     background: #F8F9FA;
 }
@@ -31,4 +48,15 @@ button.btn {
 
 .decompiler.hidden {
     display: none !important;
+}
+
+.decompiler_title {
+    color: #000000;
+    text-decoration: none;
+}
+
+.decompiler_rerun {
+    font-size: 1rem;
+    color: #000000;
+    cursor: pointer;
 }
