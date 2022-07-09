@@ -14,6 +14,8 @@ REQUIRED_SECRETS = [
 BASE_DIR = Path(__file__).parent.parent
 SECRETS_DIR = BASE_DIR / 'secrets'
 DATA_DIR = BASE_DIR / 'db_data'
+MEDIA_DIR = BASE_DIR / 'media'
+STATICFILES_DIR = BASE_DIR / 'staticfiles'
 
 
 DECOMPILERS = [
@@ -84,6 +86,10 @@ def _generate_secrets(force=False):
 def init_server(args):
     if not DATA_DIR.exists():
         DATA_DIR.mkdir()
+    if not MEDIA_DIR.exists():
+        MEDIA_DIR.mkdir()
+    if not STATICFILES_DIR.exists():
+        STATICFILES_DIR.mkdir()
     _generate_secrets(args.force)
 
 

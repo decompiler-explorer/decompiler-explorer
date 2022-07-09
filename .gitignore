@@ -6,6 +6,8 @@ db_data
 secrets
 letsencrypt
 .vscode
+media
+staticfiles
 runners/decompiler/tools/binja/*
 !runners/decompiler/tools/binja/.gitkeep
 runners/decompiler/tools/hexrays/.idapro
