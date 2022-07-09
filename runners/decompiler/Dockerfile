@@ -60,9 +60,10 @@ RUN apt-get update \
     && rm -rf /var/lib/apt/lists/*
 USER decompiler_user
 
-RUN wget https://github.com/NationalSecurityAgency/ghidra/releases/download/Ghidra_10.1.2_build/ghidra_10.1.2_PUBLIC_20220125.zip -O ghidra.zip \
+RUN wget https://github.com/NationalSecurityAgency/ghidra/releases/download/Ghidra_10.1.4_build/ghidra_10.1.4_PUBLIC_20220519.zip -O ghidra.zip \
     && unzip ghidra.zip \
-    && rm ghidra.zip
+    && rm ghidra.zip \
+    && mv ghidra_* ghidra
 
 COPY tools/ghidra/DecompilerExplorer.java .
 COPY decompile_ghidra.py .
