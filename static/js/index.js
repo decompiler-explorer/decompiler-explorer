@@ -111,6 +111,7 @@ function displayResult(resultData) {
     } else {
         decompilerVersions[decompiler_name].innerText = `${decompiler_version}`;
     }
+    decompilerVersions[decompiler_name].setAttribute("title", `${decompiler_name} version ${decompiler_version}\nAnalysed ${created}\nAnalysis took ${analysis_time.toFixed(2)} seconds`);
 
     if (resultData['error'] !== null) {
         frame.session.getDocument().setValue(`Error decompiling: ${resultData['error']}`);
