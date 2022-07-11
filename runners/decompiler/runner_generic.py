@@ -87,6 +87,7 @@ class RunnerWrapper:
         except FileNotFoundError:
             self.logger.warning("Auth token file not found, using debug token")
             AUTH_TOKEN = "DEBUG_TOKEN"
+            self.logger.info(f"   DEBUG MODE: True")
 
         self.session = requests.Session()
         self.session.headers.update({'X-AUTH-TOKEN': AUTH_TOKEN})
@@ -94,6 +95,8 @@ class RunnerWrapper:
         self.decompiler_id = self.register_runner()
         self.pending_url = f'{SERVER}/api/decompilation_requests/?completed=false&decompiler={self.decompiler_id}'
         self.health_check_url = f'{SERVER}/api/decompilers/{self.decompiler_id}/health_check/'
+
+        self.logger.info(f"   REMOTE ID: {self.decompiler_id}")
 
         threading.Thread(target=self.health_check).start()
 
