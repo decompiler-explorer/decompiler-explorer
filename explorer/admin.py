@@ -1,4 +1,5 @@
 from django.contrib import admin
+from django.utils import timezone
 
 from .models import Decompilation, DecompilationRequest, Decompiler, Binary
 
@@ -25,7 +26,20 @@ class DecompilationAdmin(admin.ModelAdmin):
 class DecompilerAdmin(admin.ModelAdmin):
 	model = Decompiler
 	ordering = ('name', '-last_health_check', 'version')
-	list_display = ('name', 'version', 'revision', 'id')
+	list_display = ('name', 'version', '_revision', 'id', '_active', 'created')
+
+	def _revision(self, instance):
+		if instance.revision is None:
+			return "<none>"
+		if len(instance.revision) < 10:
+			return instance.revision
+		return instance.revision[:10] + '...'
+
+	def _active(self, instance):
+		if (timezone.now() - instance.last_health_check).seconds < 60:
+			return True
+		return False
+	_active.boolean = True
 
 
 @admin.register(Binary)

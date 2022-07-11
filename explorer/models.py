@@ -41,6 +41,7 @@ class Decompiler(models.Model):
     url = models.URLField(max_length=255)
     last_health_check = models.DateTimeField(default=timezone.now, editable=False)
     featured = models.BooleanField('Featured on homepage', default=True)
+    created = models.DateTimeField(default=timezone.now, editable=False)
 
     def __str__(self):
         return f'Decompiler: {self.name} {self.version} {self.revision[:8]}'
