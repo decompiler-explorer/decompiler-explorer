@@ -1,5 +1,6 @@
 from django.contrib import admin
 from django.utils import timezone
+from django.utils.safestring import mark_safe
 
 from .models import Decompilation, DecompilationRequest, Decompiler, Binary
 
@@ -46,4 +47,7 @@ class DecompilerAdmin(admin.ModelAdmin):
 class BinaryAdmin(admin.ModelAdmin):
 	model = Binary
 	ordering = ('-created', 'hash')
-	list_display = ('created', 'file', 'id')
+	list_display = ('created', 'file', '_id')
+
+	def _id(self, instance):
+		return mark_safe(f'<a href="/?id={instance.id}">{instance.id}</a>')
