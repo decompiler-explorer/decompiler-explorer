@@ -64,8 +64,11 @@
                     <button type="button" class="btn input-group-append" id="upload_binary">Upload</button>
                 </form>
             </div>
+            <div class="col"
             {% if featured_binaries|length > 0 %}
-            <div class="col">
+                style="display:none"
+            {% endif %}
+            >
                 <h3>Samples</h3>
                 <p>Or check out one of these samples we've provided:</p>
                 <form class="input-group" id="sample_form">
@@ -78,7 +81,6 @@
                     <button type="button" class="btn input-group-append" id="try_sample">Try Sample</button>
                 </form>
             </div>
-            {% endif %}
         </div>
     </section>
     <section id="decompilers" class="container flex-grow-1 d-flex flex-column">
