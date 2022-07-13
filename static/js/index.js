@@ -89,7 +89,7 @@ function updateFrames() {
     });
 }
 
-function displayResult(resultData) {
+function displayResult(resultData, is_sample) {
     // If a new decompiler comes online before we refresh, it won't be in the list
     if (Object.keys(decompilers).indexOf(resultData['decompiler']['name']) === -1)
         return;
@@ -116,7 +116,7 @@ function displayResult(resultData) {
     if (resultData['error'] !== null) {
         frame.session.getDocument().setValue(`Error decompiling: ${resultData['error']}`);
         frame.resize();
-        rerun_button.hidden = false;
+        rerun_button.hidden = is_sample;
         return;
     }
 
@@ -125,7 +125,7 @@ function displayResult(resultData) {
     .then(data => {
         frame.session.getDocument().setValue(data);
         frame.resize();
-        rerun_button.hidden = false;
+        rerun_button.hidden = is_sample;
     })
     .catch(err => {
         logError("Error retrieving result", err);
@@ -137,7 +137,7 @@ function displayResult(resultData) {
 let refreshSchedule = -1;
 let timerSchedule = -1;
 
-function loadResults() {
+function loadResults(is_sample) {
     let finishedResults = [];
     let startTime = Date.now();
 
@@ -176,7 +176,7 @@ function loadResults() {
                         continue;
                     let decompilerName = i['decompiler']['name'];
                     if (!finishedResults.includes(decompilerName)) {
-                        displayResult(i);
+                        displayResult(i, is_sample);
                         finishedResults.push(decompilerName);
                     }
                 }
@@ -230,16 +230,16 @@ function uploadBinary() {
     })
     .then(data => {
         addHistoryEntry(data['id']);
-        loadAllDecompilers(data['id']);
+        loadAllDecompilers(data['id'], false);
     })
     .catch(err => {
         logError(err, err, true);
     });
 }
 
-function loadAllDecompilers(binary_id) {
+function loadAllDecompilers(binary_id, is_sample) {
     resultUrl = `${location.origin}${location.pathname}api/binaries/${binary_id}/decompilations/`;
-    loadResults();
+    loadResults(is_sample);
 }
 
 function addHistoryEntry(binary_id) {
@@ -263,7 +263,7 @@ function rerunDecompiler(decompiler_name) {
     })
     .then(() => {
         clearOutput(decompiler_name);
-        loadResults();
+        loadResults(false);
     })
     .catch(err => {
         logError(err, err, true);
@@ -285,7 +285,7 @@ document.getElementById('try_sample').addEventListener('click', (e) => {
     Object.values(decompilerRerunButtons).forEach(i => i.hidden = true);
     let id = document.getElementById('samples').value;
     addHistoryEntry(id);
-    loadAllDecompilers(id);
+    loadAllDecompilers(id, true);
 });
 
 Object.entries(decompilerRerunButtons)
@@ -314,5 +314,5 @@ if (id !== null) {
         sampleSelect.value = "";
     }
 
-    loadAllDecompilers(id);
+    loadAllDecompilers(id, wasSample);
 }
