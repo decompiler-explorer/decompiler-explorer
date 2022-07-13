@@ -125,7 +125,7 @@ def start_server(args):
         'LETSENCRYPT_ACME_EMAIL': args.acme_email,
         'DOMAIN': args.domain,
         'PATH': os.environ['PATH'],
-        'REPLICAS': args.replicas
+        'REPLICAS': str(args.replicas)
     }
 
     if 'DECOMPILER_TIMEOUT' in os.environ:
