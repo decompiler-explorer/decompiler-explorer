@@ -9,7 +9,7 @@ from .models import Decompilation, DecompilationRequest, Decompiler, Binary
 class DecompilationRequestAdmin(admin.ModelAdmin):
 	model = DecompilationRequest
 	ordering = ('-created', 'decompiler')
-	list_display = ('created', 'decompiler', 'binary', 'completed', 'id')
+	list_display = ('created', 'decompiler', 'binary', 'completed', 'last_attempted', 'id')
 
 
 @admin.register(Decompilation)

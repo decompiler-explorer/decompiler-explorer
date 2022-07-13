@@ -1,5 +1,10 @@
 version: '3.8'
 
+x-decompiler:
+    &default-decompiler-options
+        deploy:
+            replicas: ${REPLICAS:-1}
+
 services:
     explorer:
         build:
@@ -11,3 +16,21 @@ services:
             - ./staticfiles:/opt/decompiler_explorer/staticfiles
             - ./static:/opt/decompiler_explorer/static
             - ./decompiler_explorer:/opt/decompiler_explorer/decompiler_explorer
+    binja:
+        <<: *default-decompiler-options
+    ghidra:
+        <<: *default-decompiler-options
+    angr:
+        <<: *default-decompiler-options
+    snowman:
+        <<: *default-decompiler-options
+    retdec:
+        <<: *default-decompiler-options
+    recstudio:
+        <<: *default-decompiler-options
+    boomerang:
+        <<: *default-decompiler-options
+    reko:
+        <<: *default-decompiler-options
+    hexrays:
+        <<: *default-decompiler-options

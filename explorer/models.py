@@ -83,6 +83,7 @@ class DecompilationRequest(models.Model):
     decompiler = models.ForeignKey(Decompiler, related_name='decompilation_requests', on_delete=models.SET_NULL, null=True, editable=False)
     created = models.DateTimeField(default=timezone.now, editable=False)
     completed = models.BooleanField(default=False, editable=False)
+    last_attempted = models.DateTimeField(default='0001-01-01 00:00:00', editable=False)
 
     def __str__(self):
         return f'<Decompilation Request: {self.id}>'

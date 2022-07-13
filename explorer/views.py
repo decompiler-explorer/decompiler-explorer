@@ -1,3 +1,5 @@
+import datetime
+
 from django.forms import model_to_dict
 from django.http import FileResponse
 from django.shortcuts import get_object_or_404
@@ -28,9 +30,16 @@ class DecompilationRequestViewSet(mixins.CreateModelMixin, mixins.RetrieveModelM
             completed = completed_str.lower() in ['true', '1']
             queryset = queryset.filter(completed=completed)
 
-        decompiler_name = self.request.query_params.get('decompiler')
-        if decompiler_name is not None:
-            queryset = queryset.filter(decompiler__id=decompiler_name)
+        decompiler_id = self.request.query_params.get('decompiler')
+        if decompiler_id is not None:
+            queryset = queryset.filter(decompiler__id=decompiler_id)
+            queryset = queryset.filter(last_attempted__lt=timezone.now() - datetime.timedelta(seconds=300))
+            if queryset.count() > 0:
+                earliest = queryset[0]
+                earliest.last_attempted = timezone.now()
+                earliest.save()
+                return [earliest]
+
         return queryset
 
 

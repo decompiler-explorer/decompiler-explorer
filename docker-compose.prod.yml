@@ -3,7 +3,7 @@ version: '3.8'
 x-decompiler:
     &default-decompiler-options
         deploy:
-            replicas: 1
+            replicas: ${REPLICAS:-1}
             placement:
                 constraints:
                     - "node.role!=manager"

@@ -62,6 +62,7 @@ start_parser.add_argument('--debug', action='store_true', help='Show debug outpu
 start_parser.add_argument('--prod', action='store_true', help='Start production server')
 start_parser.add_argument('--acme-email', default="admin@localhost", help='Email address for ACME notifications')
 start_parser.add_argument('--domain', default="dce.localhost", help='Domain name of host')
+start_parser.add_argument('--replicas', default=1, help='Number of replicas for the decompiler runners')
 start_parser.add_argument('--s3', action='store_true', help='Use S3 for storing uploaded files')
 start_parser.add_argument('--s3-bucket', required='--argument' in sys.argv, help='Name of S3 bucket that will store uploaded files')
 
@@ -123,7 +124,8 @@ def start_server(args):
     env = {
         'LETSENCRYPT_ACME_EMAIL': args.acme_email,
         'DOMAIN': args.domain,
-        'PATH': os.environ['PATH']
+        'PATH': os.environ['PATH'],
+        'REPLICAS': args.replicas
     }
 
     if 'DECOMPILER_TIMEOUT' in os.environ:
