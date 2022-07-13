@@ -54,7 +54,6 @@
                 </div>
                 <div class="col-md-3">
                     <a href="{% url 'explorer:faq' %}" class="float-end">What is this?</a>
-                    <!-- TODO: Sponsor Logos? -->
                 </div>
             </div>
         </div>
@@ -66,7 +65,8 @@
         <div class="row my-3">
             <div class="col">
                 <h3>Upload File</h3>
-                <p>Your file must be <strong>less than 2MB</strong> in size.</p>
+                <p>Your file must be <strong>less than 2MB</strong> in size. Uploaded binaries <a href="{% url 'explorer:faq' %}#">are retained</a>.
+                </p>
                 <form class="input-group" id="binary_upload_form">
                     <input type="file" class="form-control form-control-sm input-group-append" id="file" name="file" value required>
                     <button type="button" class="btn input-group-append" id="upload_binary">Upload</button>

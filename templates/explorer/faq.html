@@ -36,15 +36,14 @@
     <header>
         <div class="container my-3">
             <div class="row align-items-center">
-                <div class="col-8">
-                    <a href="{% url 'explorer:index' %}" class="float-start">
-                        <!-- TODO: Logo -->
+                <div class="col-md-9">
+                    <a class="page-title" href="{% url 'explorer:index' %}">
+                        <img alt="Dogbolt Logo" src="/static/img/dogbolt-small.png">
                         <h1 class="my-0">Decompiler Explorer</h1>
                     </a>
                 </div>
-                <div class="col-4">
+                <div class="col-md-3">
                     <a href="{% url 'explorer:faq' %}" class="float-end">What is this?</a>
-                    <!-- TODO: Sponsor Logos? -->
                 </div>
             </div>
         </div>
@@ -52,36 +51,55 @@
     <section id="content" class="container">
         <div class="row my-3">
             <h3>Frequently Asked Questions</h3>
-            <h5>What is this?</h5>
+            <section id="what-is-this">
+                <h5>What is this?</h5>
             <p>This is the Decompiler Explorer! It is an interactive online decompiler which shows equivalent C-like output of decompiled programs from many popular decompilers. It's meant to be the reverse of the amazing <a href="https://godbolt.org/">Compiler Explorer</a>.</p>
+            </section>
+            <section id="who-made-it">
             <h5>Who made it?</h5>
-            <p>Vector 35, the developers of <a href="https://binary.ninja">Binary Ninja</a> (which is also one of the decompilers featured in the site), created an internal original prototype with eventually became this thanks to input from the community, and some additional inspiration from tools like <a href="https://github.com/mborgerson/mdec">mdec</a>. Decompiler Explorer is now a fully open source project <a href="https://github.com/decompiler-explorer/decompiler-explorer">available on GitHub</a>.</p>
-            <p>The current iteration is meant to be a community maintained tool and as such, <a href="https://github.com/decompiler-explorer/decompiler-explorer">contributions are welcome</a>!</p>
-            <!-- TODO: add link to blog post? -->
-            <h5>What's in it?</h5>
-            <p>The following decompilers are currently a part of the Decompiler Explorer:</p>
-            <ul class="mx-3">
-                <li><a href="https://angr.io/">angr</a></li>
-                <li><a href="https://binary.ninja">Binary Ninja</a></li>
-                <li><a href="https://github.com/BoomerangDecompiler/boomerang">Boomerang</a></li>
-                <li><a href="https://ghidra-sre.org">Ghidra</a></li>
-                <li><a href="https://hex-rays.com/ida-pro/">Hex-Rays (IDA-Pro)</a></li>
-                <li><a href="https://www.backerstreet.com/rec/rec.htm">REC Studio</a></li>
-                <li><a href="https://github.com/uxmal/reko">Reko</a></li>
-                <li><a href="https://github.com/avast/retdec">RetDec</a></li>
-                <li><a href="https://github.com/yegord/snowman">Snowman</a></li>
-            </ul>
-            <h5>Where's the code?</h5>
-            <p>The Decompiler Explorer is completely open source and can be found at <a href="https://github.com/decompiler-explorer/decompiler-explorer">GitHub</a>.</p>
-            <h5>How's it being hosted?</h5>
-            <p>Vector 35 is currently hosting it on <a href="https://digitalocean.com/">Digital Ocean</a> as a community service.</p>
-            <p>Specifically, the infrastructure includes: </p>
-            <ul class="mx-3">
-                <li>1 x "basic" dual-core, 4GB RAM web-front-end -- note that "basic" doesn't specify the exact CPU specs</li>
-                <li>4 x "basic" quad-core, 8GB RAM worker instances</li>
-            </ul>
-            <h5>How can I contribute?</h5>
-            <p>Please submit a pull request to the main <a href="https://github.com/decompiler-explorer/decompiler-explorer">GitHub repository</a>. Thanks!</p>
+                <p>Vector 35, the developers of <a href="https://binary.ninja">Binary Ninja</a> (one of the decompilers used on the site), created an internal original prototype with eventually became this thanks to input from the community and some additional inspiration from tools like <a href="https://github.com/mborgerson/mdec">mdec</a>. Decompiler Explorer is now a fully open source project <a href="https://github.com/decompiler-explorer/decompiler-explorer">available on GitHub</a>.</p>
+                <p>The current iteration is meant to be a community maintained tool and as such, <a href="https://github.com/decompiler-explorer/decompiler-explorer">contributions are welcome</a>. More details are available on an <a href="https://binary.ninja/2022/07/13/introducing-decompiler-explorer.html">introductory blog post</a>.</p>
+            </section>
+            <section id="what-is-in-it">
+                <h5>What is in it?</h5>
+                <p>The following decompilers are currently a part of the Decompiler Explorer:</p>
+                <ul class="mx-3">
+                    <li><a href="https://angr.io/">angr</a></li>
+                    <li><a href="https://binary.ninja">Binary Ninja</a></li>
+                    <li><a href="https://github.com/BoomerangDecompiler/boomerang">Boomerang</a></li>
+                    <li><a href="https://ghidra-sre.org">Ghidra</a></li>
+                    <li><a href="https://hex-rays.com/ida-pro/">Hex-Rays (IDA-Pro)</a></li>
+                    <li><a href="https://www.backerstreet.com/rec/rec.htm">REC Studio</a></li>
+                    <li><a href="https://github.com/uxmal/reko">Reko</a></li>
+                    <li><a href="https://github.com/avast/retdec">RetDec</a></li>
+                    <li><a href="https://github.com/yegord/snowman">Snowman</a></li>
+                </ul>
+            </section>
+            <section id="what-happens-to-the-binaries">
+                <h5>What happens to the binaries?</h5>
+                <p>All submitted binaries are saved and made available to any of the authors of the tools used so they may improve their decompilers. If you're such an author who would like access, <a href="https://github.com/decompiler-explorer/decompiler-explorer/issues">let us know!</a>.</p>
+            </section>
+            <section id="where-is-the-code">
+                <h5>Where is the code?</h5>
+                <p>The Decompiler Explorer is completely open source and can be found at <a href="https://github.com/decompiler-explorer/decompiler-explorer">GitHub</a>.</p>
+            </section>
+            <section id="how-is-it-being-hosted">
+                <h5>How is it being hosted?</h5>
+                <p>Vector 35 is currently hosting it on <a href="https://digitalocean.com/">Digital Ocean</a> as a community service.</p>
+                <p>Specifically, the infrastructure includes: </p>
+                <ul class="mx-3">
+                    <li>1 x "basic" dual-core, 4GB RAM web-front-end -- note that "basic" doesn't specify the exact CPU specs</li>
+                    <li><strike>4</strike>8 x "basic" quad-core, 8GB RAM worker instances (temporarily scaled up to better handle launch load)</li> 
+                </ul>
+            </section>
+            <section id="how-can-i-contribute">
+                <h5>How can I contribute?</h5>
+                <p>Please submit a pull request to the main <a href="https://github.com/decompiler-explorer/decompiler-explorer">GitHub repository</a>. Thanks!</p>
+            </section>
+            <section id="what-is-a-decompiler">
+                <h5>What is a decompiler?</h5>
+                <p>A decompiler does the opposite of a compiler! It takes binaries and turns them back into source code (with varying degreees of success depending on the compiler, compiler settings, language, architecture, complexity, and many other factors).</p>
+            </section>
         </div>
     </section>
     <footer class="fixed-bottom">
