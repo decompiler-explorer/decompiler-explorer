@@ -24,7 +24,7 @@ class DecompilationRequestViewSet(mixins.CreateModelMixin, mixins.RetrieveModelM
     permission_classes = [IsWorkerOrAdmin]
 
     def get_queryset(self):
-        queryset = DecompilationRequest.objects.all()
+        queryset = DecompilationRequest.objects.all().order_by('created')
         completed_str = self.request.query_params.get('completed')
         if completed_str is not None:
             completed = completed_str.lower() in ['true', '1']
