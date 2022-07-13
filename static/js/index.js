@@ -134,44 +134,57 @@ function displayResult(resultData) {
     })
 }
 
+let resultInterval = -1;
 
 function getResult(decompiler_name) {
+    if (resultInterval !== -1) {
+        clearInterval(resultInterval);
+    }
+
     let finishedResults = [];
     decompilerFrames[decompiler_name].session.getDocument().setValue("// Waiting for data...");
     decompilerFrames[decompiler_name].resize();
     decompilerRerunButtons[decompiler_name].hidden = true;
 
+    let updateInterval = 5000; // ms
     let startTime = Date.now();
+    let lastCheck = 0;
+    resultInterval = setInterval(() => {
+        if (finishedResults.indexOf(decompiler_name) === -1) {
+            let elapsedSecs = ((Date.now() - startTime) / 1000).toFixed(0);
+            decompilerFrames[decompiler_name].session.getDocument().setValue("// Waiting for data... (" + elapsedSecs + "s)");
+            decompilerFrames[decompiler_name].resize();
+        }
 
-    let resultInterval = setInterval(() => {
+        if ((Date.now() - lastCheck) < updateInterval)
+            return;
+
+        lastCheck = Date.now();
+
         fetch(resultUrl)
-        .then(resp => {
-            if (resp.ok) {
-                return resp.json();
-            }
-            else {
-                throw Error("Error fetching results");
-            }
-        })
-        .then(data => {
-            for (let i of data['results']) {
-                if (i['decompiler'] === null)
-                    continue;
-                let decompilerName = i['decompiler']['name'];
-                if (!finishedResults.includes(decompilerName)) {
-                    displayResult(i);
-                    finishedResults.push(decompilerName);
+            .then(resp => {
+                if (resp.ok) {
+                    return resp.json();
+                } else {
+                    throw Error("Error fetching results");
                 }
-                if (finishedResults.length === numDecompilers) {
-                    clearInterval(resultInterval);
+            })
+            .then(data => {
+                for (let i of data['results']) {
+                    if (i['decompiler'] === null)
+                        continue;
+                    let decompilerName = i['decompiler']['name'];
+                    if (!finishedResults.includes(decompilerName)) {
+                        displayResult(i);
+                        finishedResults.push(decompilerName);
+                    }
+                    if (finishedResults.length === numDecompilers) {
+                        clearInterval(resultInterval);
+                    }
                 }
-            }
-            if (finishedResults.indexOf(decompiler_name) === -1) {
-                let elapsedSecs = ((Date.now() - startTime) / 1000).toFixed(0);
-                decompilerFrames[decompiler_name].session.getDocument().setValue("// Waiting for data... (" + elapsedSecs + "s)");
-                decompilerFrames[decompiler_name].resize();
-            }
-        })
+            })
+            .catch(() => {
+            })
     }, 1000);
 }
 
