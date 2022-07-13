@@ -24,6 +24,7 @@ services:
             - --certificatesresolvers.myresolver.acme.tlschallenge=true
             - --certificatesresolvers.myresolver.acme.email=${LETSENCRYPT_ACME_EMAIL:?ACME email unset}
             - --certificatesresolvers.myresolver.acme.storage=/letsencrypt/acme.json
+            - --log.level=ERROR
         volumes:
             - "./letsencrypt:/letsencrypt"
 

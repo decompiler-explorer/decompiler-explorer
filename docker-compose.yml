@@ -43,7 +43,6 @@ services:
             - --entrypoints.web.http.redirections.entrypoint.permanent=true
             - --accesslog
             - --log
-            - --log.level=DEBUG
             - --api
             - --api.insecure=true
         deploy:

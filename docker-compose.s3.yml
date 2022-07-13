@@ -1,6 +1,9 @@
 version: '3.8'
 
 services:
+    traefik:
+        command:
+            - --log.level=DEBUG
     explorer:
         environment:
             - DJANGO_FILE_STORAGE=storages.backends.s3boto3.S3Boto3Storage
