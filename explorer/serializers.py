@@ -66,10 +66,11 @@ class BinarySerializer(WriteOnceMixin, serializers.ModelSerializer):
 class DecompilationRequestSerializer(serializers.ModelSerializer):
     download_url = serializers.SerializerMethodField()
     decompilations_url = serializers.SerializerMethodField()
+    binary_id = serializers.SerializerMethodField()
 
     class Meta:
         model = DecompilationRequest
-        fields = ['id', 'decompiler', 'created', 'completed', 'last_attempted', 'download_url', 'decompilations_url']
+        fields = ['id', 'binary_id', 'decompiler', 'created', 'completed', 'last_attempted', 'download_url', 'decompilations_url']
 
     def get_download_url(self, obj):
         return reverse('binary-download', args=[obj.binary.pk], request=self.context['request'])
@@ -77,3 +78,5 @@ class DecompilationRequestSerializer(serializers.ModelSerializer):
     def get_decompilations_url(self, obj):
         return reverse('decompilation-list', args=[obj.binary.pk], request=self.context['request'])
 
+    def get_binary_id(self, obj):
+        return obj.binary.pk

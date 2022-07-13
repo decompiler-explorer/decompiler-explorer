@@ -153,6 +153,7 @@ class RunnerWrapper:
                 req = self.session.get(self.pending_url).json()
 
                 for pending_req in req['results'][:1]:
+                    self.logger.info(f"Got decompilation request for {pending_req['binary_id']} (req: {pending_req['id']})")
                     self.logger.debug(f"<<< %s", pending_req)
                     compiled_conts = self.session.get(pending_req['download_url']).content
                     self.logger.debug("Starting decompilation")
@@ -173,6 +174,7 @@ class RunnerWrapper:
                         r = self.session.post(pending_req['decompilations_url'], data=data, files=files)
 
                         self.logger.debug(">>> %s", r.text)
+                        self.logger.info(f"Decompilation request for {pending_req['binary_id']} (req: {pending_req['id']}) finished with success")
                     except DecompileError as e:
                         end_time = time.time()
                         self.logger.error(f"DECOMPILE ERROR: {e.message}")
