@@ -134,32 +134,33 @@ function displayResult(resultData) {
     })
 }
 
-let resultInterval = -1;
+let refreshSchedule = -1;
+let timerSchedule = -1;
 
-function getResult(decompiler_name) {
-    if (resultInterval !== -1) {
-        clearInterval(resultInterval);
-    }
-
+function loadResults() {
     let finishedResults = [];
-    decompilerFrames[decompiler_name].session.getDocument().setValue("// Waiting for data...");
-    decompilerFrames[decompiler_name].resize();
-    decompilerRerunButtons[decompiler_name].hidden = true;
-
-    let updateInterval = 5000; // ms
     let startTime = Date.now();
-    let lastCheck = 0;
-    resultInterval = setInterval(() => {
-        if (finishedResults.indexOf(decompiler_name) === -1) {
-            let elapsedSecs = ((Date.now() - startTime) / 1000).toFixed(0);
-            decompilerFrames[decompiler_name].session.getDocument().setValue("// Waiting for data... (" + elapsedSecs + "s)");
-            decompilerFrames[decompiler_name].resize();
+
+    let timerUpdate = () => {
+        if (timerSchedule !== -1) {
+            clearTimeout(timerSchedule);
         }
 
-        if ((Date.now() - lastCheck) < updateInterval)
-            return;
-
-        lastCheck = Date.now();
+        for (let decompilerName of Object.keys(decompilers)) {
+            if (finishedResults.indexOf(decompilerName) === -1) {
+                let elapsedSecs = ((Date.now() - startTime) / 1000).toFixed(0);
+                decompilerFrames[decompilerName].session.getDocument().setValue("// Waiting for data... (" + elapsedSecs + "s)");
+                decompilerFrames[decompilerName].resize();
+            }
+        }
+        if (finishedResults.length < numDecompilers) {
+            timerSchedule = setTimeout(timerUpdate, 1000);
+        }
+    };
+    let refresh = () => {
+        if (refreshSchedule !== -1) {
+            clearTimeout(refreshSchedule);
+        }
 
         fetch(resultUrl)
             .then(resp => {
@@ -178,14 +179,19 @@ function getResult(decompiler_name) {
                         displayResult(i);
                         finishedResults.push(decompilerName);
                     }
-                    if (finishedResults.length === numDecompilers) {
-                        clearInterval(resultInterval);
-                    }
                 }
             })
             .catch(() => {
             })
-    }, 1000);
+            .finally(() => {
+                if (finishedResults.length < numDecompilers) {
+                    refreshSchedule = setTimeout(refresh, 5000);
+                }
+            })
+    };
+
+    refresh();
+    timerUpdate();
 }
 
 
@@ -233,9 +239,7 @@ function uploadBinary() {
 
 function loadAllDecompilers(binary_id) {
     resultUrl = `${location.origin}${location.pathname}api/binaries/${binary_id}/decompilations/`;
-    for (const decompiler_name of Object.keys(decompilerFrames)) {
-        getResult(decompiler_name);
-    }
+    loadResults();
 }
 
 function addHistoryEntry(binary_id) {
@@ -259,7 +263,7 @@ function rerunDecompiler(decompiler_name) {
     })
     .then(() => {
         clearOutput(decompiler_name);
-        getResult(decompiler_name);
+        loadResults();
     })
     .catch(err => {
         logError(err, err, true);
