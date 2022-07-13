@@ -18,7 +18,6 @@ def decompile():
         normalize=True,
         resolve_indirect_jumps=True,
         data_references=True,
-        cross_references=True,
     )
     p.analyses.CompleteCallingConventions(
         cfg=cfg, recover_variables=True, analyze_callsites=True
