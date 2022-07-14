@@ -55,6 +55,20 @@ class DecompilerViewSet(mixins.CreateModelMixin, mixins.RetrieveModelMixin, mixi
         instance.save(update_fields=['last_health_check'])
         return Response()
 
+    def perform_create(self, serializer):
+        name = serializer.validated_data['name']
+        # Request featured status of previous version of this
+        latest = None
+        for decompiler in Decompiler.objects.filter(name=name):
+            if latest is None or latest < decompiler:
+                latest = decompiler
+
+        featured = False
+        if latest is not None and latest.featured:
+            featured = True
+
+        serializer.save(featured=featured)
+
 
 class BinaryViewSet(mixins.CreateModelMixin, mixins.RetrieveModelMixin, mixins.ListModelMixin, viewsets.GenericViewSet):
     queryset = Binary.objects.all()
