@@ -29,7 +29,7 @@ class Binary(models.Model):
     created = models.DateTimeField('Compile Date', default=timezone.now, editable=False)
     hash = models.CharField(max_length=128, editable=False, unique=True, blank=False, null=False)
     featured = models.BooleanField(default=False)
-    featured_name = models.TextField(max_length=32, null=True)
+    featured_name = models.TextField(max_length=128, null=True)
 
     def __str__(self):
         return f'Binary: {self.hash}'
