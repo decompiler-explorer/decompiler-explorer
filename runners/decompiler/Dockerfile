@@ -44,7 +44,7 @@ ENTRYPOINT [ "./entrypoint.sh", "decompile_bn.py" ]
 
 # angr
 FROM base-x86 as angr
-RUN pip install --user 'angr>=9.2.1,<10.0'
+RUN pip install --user 'angr>=9.2.10,<10.0'
 COPY decompile_angr.py .
 
 COPY entrypoint.sh .
