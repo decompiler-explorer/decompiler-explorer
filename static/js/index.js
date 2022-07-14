@@ -271,21 +271,23 @@ function rerunDecompiler(decompiler_name) {
 }
 
 
-document.getElementById('upload_binary').addEventListener('click', (e) => {
+document.getElementById('file').addEventListener('change', (e) => {
     e.preventDefault();
     Object.values(decompilerFrames).forEach(i => i.session.getDocument().setValue(""));
     Object.values(decompilerFrames).forEach(i => i.resize());
     Object.values(decompilerRerunButtons).forEach(i => i.hidden = true);
     uploadBinary();
 });
-document.getElementById('try_sample').addEventListener('click', (e) => {
-    e.preventDefault();
-    Object.values(decompilerFrames).forEach(i => i.session.getDocument().setValue(""));
-    Object.values(decompilerFrames).forEach(i => i.resize());
-    Object.values(decompilerRerunButtons).forEach(i => i.hidden = true);
+document.getElementById('samples').addEventListener('click', (e) => {
     let id = document.getElementById('samples').value;
-    addHistoryEntry(id);
-    loadAllDecompilers(id, true);
+    if (id != '') {
+        e.preventDefault();
+        Object.values(decompilerFrames).forEach(i => i.session.getDocument().setValue(""));
+        Object.values(decompilerFrames).forEach(i => i.resize());
+        Object.values(decompilerRerunButtons).forEach(i => i.hidden = true);
+        addHistoryEntry(id);
+        loadAllDecompilers(id, true);
+    }
 });
 
 Object.entries(decompilerRerunButtons)
