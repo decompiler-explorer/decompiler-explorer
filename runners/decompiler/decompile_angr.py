@@ -6,6 +6,8 @@ import angr
 from angr.analyses import CFGFast, Decompiler
 from angr.knowledge_plugins import Function
 
+import warnings
+warnings.filterwarnings('ignore')
 
 def decompile():
     conts = sys.stdin.buffer.read()
