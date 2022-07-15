@@ -1,21 +1,34 @@
 import sys
-import tempfile
+import time
+import traceback
 from typing import List
 
 import angr
 from angr.analyses import CFGFast, Decompiler
 from angr.knowledge_plugins import Function
+from flask import Flask, jsonify, make_response, request
 
-import warnings
-warnings.filterwarnings('ignore')
+app = Flask(__name__)
 
+decompiler_metadata = {
+    "name": "angr",
+    "version": angr.__version__,
+    "url": "https://angr.io",
+}
+
+
+@app.route("/metadata")
+def metadata():
+    return make_response(jsonify(decompiler_metadata))
+
+
+@app.route("/decompile")
 def decompile():
-    conts = sys.stdin.buffer.read()
-    t = tempfile.NamedTemporaryFile()
-    t.write(conts)
-    t.flush()
+    path = request.args.get("path")
 
-    p = angr.Project(t.name, auto_load_libs=False, load_debug_info=False)
+    start = time.time()
+
+    p = angr.Project(path, auto_load_libs=False, load_debug_info=False)
     cfg: CFGFast = p.analyses.CFGFast(
         normalize=True,
         resolve_indirect_jumps=True,
@@ -31,28 +44,34 @@ def decompile():
         if not func.is_plt and not func.is_simprocedure and not func.alignment
     ]
 
+    output = ""
     for func in funcs_to_decompile:
         try:
             decompiler: Decompiler = p.analyses.Decompiler(func)
 
+            if decompiler.codegen:
+                output += decompiler.codegen.text
+                output += "\n"
             if decompiler.codegen is None:
-                print(f"// No decompilation output for function {func.name}\n")
-                continue
-            print(decompiler.codegen.text)
+                output += f"// No decompilation output for function {func.name}\n"
         except Exception as e:
-            print(f"Exception thrown decompiling function {func.name}: {e}")
+            output += "// An error occurred while decompiling function {func.name}\n"
+            print(f"Exception thrown decompiling function {func.name}:")
+            print(traceback.format_exc())
+
+    end = time.time()
+
+    return make_response(
+        jsonify(
+            {
+                "decompiler_metedata": decompiler_metadata,
+                "output": output,
+                "time": end - start,
+            }
+        )
+    )
 
 
 if __name__ == "__main__":
-    if len(sys.argv) > 1 and sys.argv[1] == "--version":
-        print(angr.__version__)
-        print("")  # No revision information known
-        sys.exit(0)
-    if len(sys.argv) > 1 and sys.argv[1] == "--name":
-        print("angr")
-        sys.exit(0)
-    if len(sys.argv) > 1 and sys.argv[1] == "--url":
-        print("https://angr.io/")
-        sys.exit(0)
-
-    decompile()
+    client = app.test_client()
+    print(client.get("/decompile?path=" + sys.argv[1]).json["output"])
