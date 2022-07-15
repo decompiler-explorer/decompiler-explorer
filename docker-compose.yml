@@ -80,7 +80,7 @@ services:
             - database
         init: true
         build: .
-        image: decompiler_explorer
+        image: ${IMAGE_NAME:-decompiler_explorer}:explorer
         environment:
             - PYTHONUNBUFFERED=1
             - DJANGO_SETTINGS_MODULE=decompiler_explorer.settings.docker
@@ -107,35 +107,35 @@ services:
     # Decompilers
     binja:
         <<: *default-decompiler-options
-        image: decompiler_explorer_binja
+        image: ${IMAGE_NAME:-decompiler_explorer}:binja
         build:
             context: runners/decompiler
             target: binja
 
     ghidra:
         <<: *default-decompiler-options
-        image: decompiler_explorer_ghidra
+        image: ${IMAGE_NAME:-decompiler_explorer}:ghidra
         build:
             context: runners/decompiler
             target: ghidra
 
     angr:
         <<: *default-decompiler-options
-        image: decompiler_explorer_angr
+        image: ${IMAGE_NAME:-decompiler_explorer}:angr
         build:
             context: runners/decompiler
             target: angr
 
     snowman:
         <<: *default-decompiler-options
-        image: decompiler_explorer_snowman
+        image: ${IMAGE_NAME:-decompiler_explorer}:snowman
         build:
             context: runners/decompiler
             target: snowman
 
     retdec:
         <<: *default-decompiler-options
-        image: decompiler_explorer_retdec
+        image: ${IMAGE_NAME:-decompiler_explorer}:retdec
         build:
             context: runners/decompiler
             target: retdec
@@ -147,28 +147,28 @@ services:
 
     recstudio:
         <<: *default-decompiler-options
-        image: decompiler_explorer_recstudio
+        image: ${IMAGE_NAME:-decompiler_explorer}:recstudio
         build:
             context: runners/decompiler
             target: recstudio
 
     boomerang:
         <<: *default-decompiler-options
-        image: decompiler_explorer_boomerang
+        image: ${IMAGE_NAME:-decompiler_explorer}:boomerang
         build:
             context: runners/decompiler
             target: boomerang
 
     reko:
         <<: *default-decompiler-options
-        image: decompiler_explorer_reko
+        image: ${IMAGE_NAME:-decompiler_explorer}:reko
         build:
             context: runners/decompiler
             target: reko
 
     hexrays:
         <<: *default-decompiler-options
-        image: decompiler_explorer_hexrays
+        image: ${IMAGE_NAME:-decompiler_explorer}:hexrays
         build:
             context: runners/decompiler
             target: hexrays
