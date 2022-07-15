@@ -1,4 +1,6 @@
 import argparse
+import shlex
+import signal
 from dataclasses import dataclass, asdict
 import logging
 import os
@@ -27,24 +29,8 @@ class DecompileError(Exception):
         self.message = message
 
 
-def limit_memory(soft, hard):
-    resource.setrlimit(resource.RLIMIT_AS, (soft, hard))
-
-
-def decompile_source(args, compiled):
-    try:
-        proc = subprocess.run([sys.executable, args.script_name], input=compiled, capture_output=True, timeout=args.timeout, preexec_fn=lambda: limit_memory(args.mem_limit_soft, args.mem_limit_hard))
-    except subprocess.TimeoutExpired:
-        raise DecompileError("Exceeded time limit")
-
-    if proc.returncode == 0:
-        result = proc.stdout
-        # Process did not crash but did not produce any stderr output.
-        if len(result) == 0:
-            raise DecompileError("Empty decompile result")
-        return result
-    else:
-        raise DecompileError(f"{proc.stdout.decode()}\n{proc.stderr.decode()}")
+def set_limits(soft_mem, hard_mem):
+    resource.setrlimit(resource.RLIMIT_AS, (soft_mem, hard_mem))
 
 
 class RunnerWrapper:
@@ -56,6 +42,9 @@ class RunnerWrapper:
         parser.add_argument('--mem-limit-soft', type=int, default=resource.RLIM_INFINITY, help='Soft memory limit for decompiling each file')
         parser.add_argument('--debug', action='store_true', help='Log extra debug output')
         self.args = parser.parse_args()
+
+        if os.getenv('DEBUG', '0') == '1':
+            self.args.debug = True
 
         DECOMPILER_NAME = subprocess.check_output([sys.executable, self.args.script_name, '--name']).strip().decode()
         DECOMPILER_URL = subprocess.check_output([sys.executable, self.args.script_name, '--url']).strip().decode()
@@ -74,6 +63,9 @@ class RunnerWrapper:
         self.logger.info(f"   DECOMPILER REVISION: {DECOMPILER_REVISION}")
         self.logger.info(f"   HOST SERVER: {SERVER}")
 
+        if self.args.debug:
+            self.logger.info(f"   DEBUG LOGGING: True")
+
         self.decompiler_info = DecompilerInfo(
             name=DECOMPILER_NAME,
             version=DECOMPILER_VERSION,
@@ -87,7 +79,7 @@ class RunnerWrapper:
         except FileNotFoundError:
             self.logger.warning("Auth token file not found, using debug token")
             AUTH_TOKEN = "DEBUG_TOKEN"
-            self.logger.info(f"   DEBUG MODE: True")
+            self.logger.info(f"   DEVELOPMENT MODE: True")
 
         self.session = requests.Session()
         self.session.headers.update({'X-AUTH-TOKEN': AUTH_TOKEN})
@@ -159,7 +151,7 @@ class RunnerWrapper:
                     self.logger.debug("Starting decompilation")
                     start_time = time.time()
                     try:
-                        decompiled = decompile_source(self.args, compiled_conts)
+                        decompiled = self.decompile_source(self.args, compiled_conts)
                         end_time = time.time()
                         self.logger.debug("Decompilation finished")
 
@@ -199,6 +191,29 @@ class RunnerWrapper:
                 retry_count = 0
 
             time.sleep(1)
+
+    def decompile_source(self, args, compiled):
+        try:
+            # Use the shell's job monitor to cleanup children for us
+            # https://stackoverflow.com/a/4054436
+            child_proc = shlex.join([sys.executable, args.script_name])
+            bash_timeout = args.timeout + 10
+            bash_cmd = f'set -o monitor ; timeout {bash_timeout} {child_proc} < /dev/stdin ; if [ kill -0 %1 ]; then kill -9 %1 ; fi'
+            self.logger.debug(bash_cmd)
+            proc = subprocess.run(['/bin/bash', '-c', bash_cmd], input=compiled,
+                                  capture_output=True, timeout=args.timeout,
+                                  preexec_fn=lambda: set_limits(args.mem_limit_soft, args.mem_limit_hard))
+        except subprocess.TimeoutExpired:
+            raise DecompileError("Exceeded time limit")
+
+        if proc.returncode == 0:
+            result = proc.stdout
+            # Process did not crash but did not produce any stderr output.
+            if len(result) == 0:
+                raise DecompileError("Empty decompile result")
+            return result
+        else:
+            raise DecompileError(f"{proc.stdout.decode()}\n{proc.stderr.decode()}")
 
 
 if __name__ == '__main__':

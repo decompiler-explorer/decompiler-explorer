@@ -6,6 +6,7 @@ x-decompiler:
         init: true
         environment:
             - SERVER=${EXPLORER_URL:-http://explorer:8000}
+            - DEBUG=${DEBUG:-0}
         networks:
             - backend_net
         command: [

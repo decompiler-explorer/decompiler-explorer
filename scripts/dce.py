@@ -65,6 +65,7 @@ start_parser.add_argument('--domain', default="dce.localhost", help='Domain name
 start_parser.add_argument('--replicas', default=1, help='Number of replicas for the decompiler runners')
 start_parser.add_argument('--s3', action='store_true', help='Use S3 for storing uploaded files')
 start_parser.add_argument('--s3-bucket', required='--argument' in sys.argv, help='Name of S3 bucket that will store uploaded files')
+start_parser.add_argument('--timeout', help='Timeout duration for runners (default: 120)')
 
 stop_parser = subparsers.add_parser('stop')
 stop_parser.add_argument('--prod', action='store_true', help='Stop production server')
@@ -131,6 +132,8 @@ def start_server(args):
 
     if 'DECOMPILER_TIMEOUT' in os.environ:
         env['DECOMPILER_TIMEOUT'] = os.environ['DECOMPILER_TIMEOUT']
+    elif args.timeout is not None:
+        env['DECOMPILER_TIMEOUT'] = args.timeout
 
     if args.s3:
         config_files += ' -c docker-compose.s3.yml'

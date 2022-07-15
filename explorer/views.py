@@ -123,12 +123,13 @@ class DecompilationViewSet(viewsets.ModelViewSet):
     @action(methods=['POST'], detail=True)
     def rerun(self, *args, **kwargs):
         instance = self.get_object()
-        req = instance.request
+        req: DecompilationRequest = instance.request
         if not req.completed:
             return Response(status=400)
         self.perform_destroy(instance)
         req.created = timezone.now()
         req.completed = False
+        req.last_attempted = timezone.datetime.utcfromtimestamp(0)
         req.save()
         return Response()
 
