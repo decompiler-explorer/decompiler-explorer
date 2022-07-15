@@ -46,6 +46,7 @@ services:
             - --log
             - --api
             - --api.insecure=true
+            - --api.dashboard=true
         deploy:
             replicas: 1
             placement:
