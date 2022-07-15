@@ -138,7 +138,7 @@ def start_server(args):
     if args.debug:
         env['DEBUG'] = '1'
 
-    cmd = f"docker stack deploy {config_files} --prune dogbolt"
+    cmd = f"docker stack deploy {config_files} --with-registry-auth --prune dogbolt"
 
     subprocess.run(cmd.split(' '), env=env)
 
