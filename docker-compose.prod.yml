@@ -7,6 +7,11 @@ x-decompiler:
             placement:
                 constraints:
                     - "node.role!=manager"
+            resources:
+                limits:
+                    cpus: '1'
+                reservations:
+                    cpus: '1'
 
 services:
     traefik:
