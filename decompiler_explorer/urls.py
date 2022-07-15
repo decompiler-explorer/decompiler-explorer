@@ -32,4 +32,5 @@ urlpatterns = [
     path('', include('explorer.urls')),
     path('api/', include(router.urls)),
     path('admin/', admin.site.urls),
+    path('api/queue', views.QueueView.as_view())
 ]

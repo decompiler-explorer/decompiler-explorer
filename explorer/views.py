@@ -1,4 +1,5 @@
 import datetime
+from collections import OrderedDict
 
 from django.forms import model_to_dict
 from django.http import FileResponse
@@ -24,7 +25,7 @@ class DecompilationRequestViewSet(mixins.CreateModelMixin, mixins.RetrieveModelM
     permission_classes = [IsWorkerOrAdmin]
 
     def get_queryset(self):
-        queryset = DecompilationRequest.objects.all().order_by('created')
+        queryset = DecompilationRequest.objects.all()
         completed_str = self.request.query_params.get('completed')
         if completed_str is not None:
             completed = completed_str.lower() in ['true', '1']
@@ -35,12 +36,12 @@ class DecompilationRequestViewSet(mixins.CreateModelMixin, mixins.RetrieveModelM
             queryset = queryset.filter(decompiler__id=decompiler_id)
             queryset = queryset.filter(last_attempted__lt=timezone.now() - datetime.timedelta(seconds=300))
             if queryset.count() > 0:
-                earliest = queryset[0]
+                earliest = queryset.order_by('created')[0]
                 earliest.last_attempted = timezone.now()
                 earliest.save()
                 return [earliest]
 
-        return queryset
+        return queryset.order_by('created')
 
 
 class DecompilerViewSet(mixins.CreateModelMixin, mixins.RetrieveModelMixin, mixins.ListModelMixin, viewsets.GenericViewSet):
@@ -162,12 +163,17 @@ class IndexView(APIView):
             decompilers_json[d.name] = model_to_dict(d)
 
         featured_binaries = sorted(Binary.objects.filter(featured=True), key=lambda b: b.featured_name)
+        queue = DecompilationRequest.get_queue()
+        show_banner = False
+        if queue['general']['oldest_unfinished'] is not None:
+            show_banner = queue['general']['oldest_unfinished'] < timezone.now() - datetime.timedelta(minutes=10)
 
         return Response({
             'serializer': BinarySerializer(),
             'decompilers': decompilers,
             'decompilers_json': decompilers_json,
-            'featured_binaries': featured_binaries
+            'featured_binaries': featured_binaries,
+            'show_banner': show_banner
         })
 
 
@@ -179,3 +185,10 @@ class FaqView(APIView):
             'serializer': BinarySerializer(),
             'decompilers': Decompiler.healthy_latest_versions(),
         })
+
+
+class QueueView(APIView):
+    permission_classes = [permissions.AllowAny]
+
+    def get(self, request):
+        return Response(DecompilationRequest.get_queue())

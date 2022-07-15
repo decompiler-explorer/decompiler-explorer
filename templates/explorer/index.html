@@ -58,9 +58,11 @@
             </div>
         </div>
     </header>
+    {% if show_banner %}
     <section id="banner" class="container-fluid mb-5 text-light bg-dark">
         <div class="row py-2 px-4">Welcome visitors! We are experiencing a lot of load, sorry if the service is unavailable when you stop by. In the meantime, check out one of the already generated results in the "Samples" section.</div>    
     </section>
+    {% endif %}
     <section id="input" class="container">
         <div class="row my-3">
             <div class="col">
