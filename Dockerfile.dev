@@ -6,7 +6,7 @@ RUN mkdir /opt/decompiler_explorer \
     && chown backend_user:backend_user /opt/decompiler_explorer
 
 RUN apt-get update \
-    && apt-get install -y --no-install-recommends libpq-dev gcc libc6-dev \
+    && apt-get install -y --no-install-recommends libpq-dev gcc libc6-dev curl \
     && rm -rf /var/lib/apt/lists/*
 
 USER backend_user

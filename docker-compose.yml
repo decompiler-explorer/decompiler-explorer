@@ -92,6 +92,8 @@ services:
         secrets:
             - db_superuser_pass
             - worker_auth_token
+        healthcheck:
+            test: ["CMD", "curl", "-f", "http://localhost:8000"]
         deploy:
             replicas: 1
             placement:
