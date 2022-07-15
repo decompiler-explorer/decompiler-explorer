@@ -39,7 +39,6 @@ services:
 
     explorer:
         deploy:
-            replicas: 2
             update_config:
                 parallelism: 1
                 delay: 10s
