@@ -108,7 +108,13 @@ class DecompilationViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         binary = self.get_binary()
-        return Decompilation.objects.filter(binary=binary)
+        queryset = Decompilation.objects.filter(binary=binary)
+        completed_str = self.request.query_params.get('completed')
+        if completed_str is not None:
+            completed = completed_str.lower() in ['true', '1']
+            queryset = queryset.filter(request__completed=completed)
+
+        return queryset
 
     @action(methods=['GET'], detail=True)
     def download(self, *args, **kwargs):
@@ -163,6 +169,7 @@ class IndexView(APIView):
             'decompilers_json': decompilers_json,
             'featured_binaries': featured_binaries
         })
+
 
 class FaqView(APIView):
     renderer_classes = [TemplateHTMLRenderer]

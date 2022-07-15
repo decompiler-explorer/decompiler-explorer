@@ -238,7 +238,7 @@ function uploadBinary() {
 }
 
 function loadAllDecompilers(binary_id, is_sample) {
-    resultUrl = `${location.origin}${location.pathname}api/binaries/${binary_id}/decompilations/`;
+    resultUrl = `${location.origin}${location.pathname}api/binaries/${binary_id}/decompilations/?completed=true`;
     loadResults(is_sample);
 }
 
