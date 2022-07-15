@@ -121,13 +121,13 @@ def start_server(args):
     else:
         config_files += ' -c docker-compose.dev.yml'
 
-    env = {
+    env = os.environ.copy()
+    env.update({
         'LETSENCRYPT_ACME_EMAIL': args.acme_email,
         'DOMAIN': args.domain,
-        'PATH': os.environ['PATH'],
         'REPLICAS': str(args.replicas),
         'IMAGE_NAME': os.environ.get('IMAGE_NAME', 'decompiler_explorer')
-    }
+    })
 
     if 'DECOMPILER_TIMEOUT' in os.environ:
         env['DECOMPILER_TIMEOUT'] = os.environ['DECOMPILER_TIMEOUT']
