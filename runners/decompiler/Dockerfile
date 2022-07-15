@@ -155,7 +155,7 @@ RUN git clone https://github.com/uxmal/reko.git \
     && dotnet msbuild -p:Platform=x64 -p:Configuration=Release -t:create_release -m ./src/BuildTargets/BuildTargets.csproj \
     && cp bin/CmdLine*.zip ../CmdLine.zip \
     && cd .. \
-    && rm -rf reko
+    && rm -rf reko .nuget
 
 RUN mkdir reko \
     && cd reko \
