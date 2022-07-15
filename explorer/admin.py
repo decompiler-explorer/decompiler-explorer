@@ -9,14 +9,20 @@ from .models import Decompilation, DecompilationRequest, Decompiler, Binary
 class DecompilationRequestAdmin(admin.ModelAdmin):
 	model = DecompilationRequest
 	ordering = ('-created', 'decompiler')
-	list_display = ('created', 'decompiler', 'binary', 'completed', 'last_attempted', 'id')
+	list_display = ('created', 'decompiler', '_binary', 'completed', 'last_attempted', 'id')
+
+	def _binary(self, instance):
+		return mark_safe(f'<a href="/?id={instance.binary.id}">{instance.binary.id}</a>')
 
 
 @admin.register(Decompilation)
 class DecompilationAdmin(admin.ModelAdmin):
 	model = Decompilation
 	ordering = ('-created', 'decompiler')
-	list_display = ('created', 'decompiler', 'binary', '_succeeded', 'id')
+	list_display = ('created', 'decompiler', '_binary', '_succeeded', 'id')
+
+	def _binary(self, instance):
+		return mark_safe(f'<a href="/?id={instance.binary.id}">{instance.binary.id}</a>')
 
 	def _succeeded(self, instance):
 		return instance.succeeded
