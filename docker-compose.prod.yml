@@ -4,6 +4,10 @@ x-decompiler:
     &default-decompiler-options
         deploy:
             replicas: ${REPLICAS:-1}
+            update_config:
+                parallelism: 1
+                delay: 10s
+                order: start-first
             placement:
                 constraints:
                     - "node.role!=manager"
@@ -35,6 +39,11 @@ services:
 
     explorer:
         deploy:
+            replicas: 2
+            update_config:
+                parallelism: 1
+                delay: 10s
+                order: start-first
             labels:
                 - "traefik.http.routers.explorer.entrypoints=websecure"
                 - "traefik.http.routers.explorer.tls.certresolver=myresolver"
