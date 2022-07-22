@@ -2,6 +2,8 @@ from django.contrib import admin
 from django.utils import timezone
 from django.utils.safestring import mark_safe
 
+from rest_framework.reverse import reverse
+
 from .models import Decompilation, DecompilationRequest, Decompiler, Binary
 
 
@@ -53,7 +55,13 @@ class DecompilerAdmin(admin.ModelAdmin):
 class BinaryAdmin(admin.ModelAdmin):
 	model = Binary
 	ordering = ('-created', 'hash')
-	list_display = ('created', 'file', '_id')
+	list_display = ('created', '_file', '_id')
+	list_filter = ('featured',)
+	search_fields = ('id', 'hash')
+
+	def _file(self, instance):
+		download_url = reverse('binary-download', args=[instance.pk])
+		return mark_safe(f'<a href="{download_url}">{instance.file}</a>')
 
 	def _id(self, instance):
 		return mark_safe(f'<a href="/?id={instance.id}">{instance.id}</a>')
