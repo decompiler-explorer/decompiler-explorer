@@ -35,6 +35,9 @@ class Binary(models.Model):
     featured = models.BooleanField(default=False)
     featured_name = models.TextField(max_length=128, null=True)
 
+    class Meta:
+        verbose_name_plural = "binaries"
+
     def __str__(self):
         return f'Binary: {self.hash}'
 
