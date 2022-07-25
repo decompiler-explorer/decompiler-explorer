@@ -22,7 +22,7 @@ def decompile():
         data_references=True,
     )
     p.analyses.CompleteCallingConventions(
-        cfg=cfg, recover_variables=True, analyze_callsites=True
+        cfg=cfg.model, recover_variables=True, analyze_callsites=True
     )
 
     funcs_to_decompile: List[Function] = [
@@ -33,7 +33,7 @@ def decompile():
 
     for func in funcs_to_decompile:
         try:
-            decompiler: Decompiler = p.analyses.Decompiler(func)
+            decompiler: Decompiler = p.analyses.Decompiler(func, cfg=cfg.model)
 
             if decompiler.codegen is None:
                 print(f"// No decompilation output for function {func.name}\n")
