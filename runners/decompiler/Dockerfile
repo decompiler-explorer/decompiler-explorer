@@ -219,6 +219,26 @@ COPY entrypoint.sh .
 COPY runner_generic.py .
 ENTRYPOINT [ "./entrypoint.sh", "decompile_hexrays.py" ]
 
+# Dewolf
+FROM binja as dewolf
+
+USER root
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends astyle libgraph-easy-perl git \
+    && pip install pipenv \
+    && rm -rf /var/lib/apt/lists/*
+
+USER decompiler_user
+WORKDIR /home/decompiler_user
+
+RUN git clone --depth=1 --branch=v0.1.3 https://github.com/fkie-cad/dewolf.git \
+    && cd dewolf \
+    && pipenv install -r ./requirements.txt \
+    && pipenv run python /home/decompiler_user/binaryninja/scripts/install_api.py
+
+COPY decompile_dewolf.py .
+ENTRYPOINT [ "./entrypoint.sh", "decompile_dewolf.py" ]
+
 # Relyze
 FROM base-x86 as relyze
 USER root

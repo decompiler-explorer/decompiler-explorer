@@ -32,6 +32,7 @@ if not (BASE_DIR / 'runners' / 'decompiler' / 'tools' / 'binja' / 'license.dat')
     print("Binary Ninja key not detected... Excluding from build")
 else:
     DECOMPILERS.append(('binja', 'Binary Ninja'))
+    DECOMPILERS.append(('dewolf', 'dewolf'))
 
 if not (BASE_DIR / 'runners' / 'decompiler' / 'tools' / 'hexrays' / '.idapro' / 'ida.reg').exists() or \
     not (BASE_DIR / 'runners' / 'decompiler' / 'tools' / 'hexrays' / 'ida' / 'idat64').exists() or \

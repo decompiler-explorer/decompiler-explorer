@@ -177,6 +177,13 @@ services:
             context: runners/decompiler
             target: hexrays
 
+    dewolf:
+        <<: *default-decompiler-options
+        image: ${IMAGE_NAME:-decompiler_explorer}:dewolf
+        build:
+            context: runners/decompiler
+            target: dewolf
+
     relyze:
         <<: *default-decompiler-options
         image: ${IMAGE_NAME:-decompiler_explorer}:relyze
