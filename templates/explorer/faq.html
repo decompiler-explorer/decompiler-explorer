@@ -79,6 +79,11 @@
                 <h5>What happens to the binaries?</h5>
                 <p>All submitted binaries are saved and made available to any of the authors of the tools used so they may improve their decompilers. If you're such an author who would like access, <a href="https://github.com/decompiler-explorer/decompiler-explorer/issues">let us know!</a>.</p>
             </section>
+            <section id="can-i-run-my-own">
+                <h5>Can I run my own version of this site?</h5>
+                <p>In short, no. You may not run your own version and include any of the commercial tools. This public service is being run with the express permission of the commercial entities involved and we do not intend for other public versions of this website to be run as they are not compatible with their existing licenses. In particular, third-parties running their own copy will run afoul of the specific license limitations on <a href="https://docs.binary.ninja/about/license.html#commercial-license-named">time-sharing services</a> and <a href="https://hex-rays.com/ida_eula.pdf">derivative works</a> in Binary Ninja and IDA Pro respectively.</p>
+                <p>Vector 35 has custom "headless" licenses for Binary Ninja that may be used for longer-term internal deployments. To find out more about these licenses, use the Binary Ninja <a href="https://binary.ninja/support/">support page</a>.
+            </section>
             <section id="where-is-the-code">
                 <h5>Where is the code?</h5>
                 <p>The Decompiler Explorer is completely open source and can be found at <a href="https://github.com/decompiler-explorer/decompiler-explorer">GitHub</a>.</p>
@@ -89,7 +94,7 @@
                 <p>Specifically, the infrastructure includes: </p>
                 <ul class="mx-3">
                     <li>1 x "basic" dual-core, 4GB RAM web-front-end -- note that "basic" doesn't specify the exact CPU specs</li>
-                    <li>8 x "basic" quad-core, 8GB RAM worker instances (previously 4, temporarily scaled up to better handle launch load)</li> 
+                    <li>4 x "basic" quad-core, 8GB RAM worker instances (sometimes scales temporarily to 8 depending on load)</li> 
                 </ul>
             </section>
             <section id="how-can-i-contribute">
