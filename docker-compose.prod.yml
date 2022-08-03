@@ -68,3 +68,5 @@ services:
         <<: *default-decompiler-options
     hexrays:
         <<: *default-decompiler-options
+    relyze:
+        <<: *default-decompiler-options

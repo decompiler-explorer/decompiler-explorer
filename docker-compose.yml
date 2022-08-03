@@ -177,6 +177,12 @@ services:
             context: runners/decompiler
             target: hexrays
 
+    relyze:
+        <<: *default-decompiler-options
+        image: ${IMAGE_NAME:-decompiler_explorer}:relyze
+        build:
+            context: runners/decompiler
+            target: relyze
 
 networks:
     backend_net:

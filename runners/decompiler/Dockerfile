@@ -212,3 +212,40 @@ COPY decompile_hexrays.py .
 COPY entrypoint.sh .
 COPY runner_generic.py .
 ENTRYPOINT [ "./entrypoint.sh", "decompile_hexrays.py" ]
+
+# Relyze
+FROM base-x86 as relyze
+USER root
+RUN apt-get update \
+	&& apt-get install -y --no-install-recommends wget unzip
+RUN wget -nc --no-check-certificate -O /usr/share/keyrings/winehq-archive.key https://dl.winehq.org/wine-builds/winehq.key \
+	&& wget -nc --no-check-certificate -P /etc/apt/sources.list.d/ https://dl.winehq.org/wine-builds/debian/dists/bullseye/winehq-bullseye.sources
+RUN dpkg --add-architecture i386 \
+	&& apt-get update \
+	&& apt-get install -y --no-install-recommends winehq-stable \
+	&& rm -rf /var/lib/apt/lists/*
+	
+USER decompiler_user
+WORKDIR /home/decompiler_user
+
+RUN wget -O ./update_wine64.xml https://www.relyze.com/update?family=RLZ\&prod=core\&plat=wine\&arch=x64 \
+	&& wget -O ./Relyze_Core_wine64.zip https://www.relyze.com/$(grep -oP "(?<=<Installer>)(\S+)(?=</Installer>)" update_wine64.xml) \
+	&& rm ./update_wine64.xml
+RUN unzip ./Relyze_Core_wine64.zip -d ./RelyzeCore \
+	&& rm ./Relyze_Core_wine64.zip
+ENV WINEPREFIX=/home/decompiler_user/.wine-relyze
+RUN winecfg 2>/dev/null && wineserver --kill
+ENV WINEDLLOVERRIDES="dbghelp=n;symsrv=n"
+RUN rm -rf $WINEPREFIX/drive_c/users/decompiler_user/Documents
+RUN mkdir $WINEPREFIX/drive_c/users/decompiler_user/Documents
+RUN mkdir -p $WINEPREFIX/drive_c/ProgramData/Relyze64
+RUN ln -s /home/decompiler_user/RelyzeCore/symbols $WINEPREFIX/drive_c/ProgramData/Relyze64/Symbols
+RUN touch ./RelyzeCore/symsrv.yes
+RUN mkdir -p $WINEPREFIX/drive_c/users/decompiler_user/AppData/Roaming/Relyze
+
+COPY tools/relyze/License.txt $WINEPREFIX/drive_c/users/decompiler_user/AppData/Roaming/Relyze
+COPY tools/relyze/decompiler_explorer.rb ./
+COPY decompile_relyze.py .
+COPY entrypoint.sh .
+COPY runner_generic.py .
+ENTRYPOINT [ "./entrypoint.sh", "decompile_relyze.py" ]

@@ -40,6 +40,11 @@ if not (BASE_DIR / 'runners' / 'decompiler' / 'tools' / 'hexrays' / '.idapro' / 
 else:
     DECOMPILERS.append(('hexrays', 'Hex Rays'))
 
+if not (BASE_DIR / 'runners' / 'decompiler' / 'tools' / 'relyze' / 'License.txt').exists():
+    print("Relyze license file not detected... Excluding from build")
+else:
+    DECOMPILERS.append(('relyze', 'Relyze'))
+
 DECOMPILERS.sort(key=lambda d: d[0])
 
 parser = argparse.ArgumentParser(description='Manage decompiler explorer')
