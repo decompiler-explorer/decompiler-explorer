@@ -11,9 +11,10 @@ class Plugin < Relyze::Plugin::Analysis
             :license     => 'Relyze Plugin License',
             :references  => [ 'https://www.relyze.com' ],
             :options     => {
-                '/in'          => nil,
-                '/out'         => nil,
-                '/max_threads' => nil
+                '/in'           => nil,
+                '/out'          => nil,
+                '/max_threads'  => nil,
+                '/func_timeout' => nil
             }
         } )
         @eol = "\n"
@@ -35,10 +36,20 @@ class Plugin < Relyze::Plugin::Analysis
             require 'etc'
             options['/max_threads'] = ::Etc.nprocessors
         end
-        
+
         if( options['/max_threads'].to_i <= 0 )
             print_message( "Error: /max_threads must be > 0" )
-            return        
+            return
+        end
+
+        func_timeout = nil
+
+        if( not options['/func_timeout'].nil? )
+            func_timeout = options['/func_timeout'].to_i
+            if( func_timeout <= 0 )
+                print_message( "Error: /func_timeout must be > 0 (The max number of seconds to spend decompiling a single function)" )
+                return
+            end
         end
 
         model = @relyze.analyze_file( options['/in'] )
@@ -47,35 +58,39 @@ class Plugin < Relyze::Plugin::Analysis
             print_message( "Error: Failed to analyze '#{options['/in']}'" )
             return
         end
-        
+
         work = model.functions
 
         pseudocode = {}
-        
+
         lock = ::Mutex.new
-        
+
         threads = []
 
         1.upto( options['/max_threads'].to_i ) do
             threads << ::Thread.new do
                 begin
                     while true do
-                    
+
                         func = lock.synchronize do
                             work.pop
                         end
-                        
+
                         break if func.nil?
 
-                        pseudo = func.to_pseudo
-                        
-                        txt  = "// VA=0x#{ model.rva2va( func.rva ).to_s(16) }#{@eol}"
-                        txt << (pseudo.nil? ? "// Failed to decompile.#{@eol}" : pseudo.gsub!("\r\n", @eol) )
-                            
+                        txt = "// VA=0x#{ model.rva2va( func.rva ).to_s(16) }#{@eol}"
+
+                        begin
+                            pseudo = func.to_pseudo( { :timeout => func_timeout } )
+                            txt << (pseudo.nil? ? "// Failed to decompile.#{@eol}" : pseudo.gsub!("\r\n", @eol) )
+                        rescue
+                            txt << "// Decompilation timed out after #{func_timeout} seconds.#{@eol}"
+                        end
+
                         lock.synchronize do
                             pseudocode[func.rva] = txt
                         end
-                    end                        
+                    end
                 rescue
                     print_message( "Exception in worker thread: #{$!}" )
                 end
@@ -85,9 +100,9 @@ class Plugin < Relyze::Plugin::Analysis
         threads.each do | thread |
             thread.join
         end
-        
+
         pseudocode = pseudocode.sort.to_h
-        
+
         ::File.open( options['/out'], "w" ) do | f |
             pseudocode.each_value do | txt |
                 f.write( txt )

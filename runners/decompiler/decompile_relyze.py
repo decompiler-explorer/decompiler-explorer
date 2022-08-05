@@ -14,7 +14,7 @@ def relyze_cli_run(params):
     logfile = Path('log.tmp')
 
     cli = subprocess.run(['wine64', str(RELYZE_CLI), '/output', logfile.name] + params, stdout=subprocess.PIPE, stderr=subprocess.DEVNULL)
-    
+
     logdata = ''
 
     if logfile.is_file():
@@ -31,16 +31,18 @@ def main():
 
     infile  = Path('in.tmp')
     outfile = Path('out.tmp')
-    
+
     with open(infile.name, 'wb') as f:
         f.write(sys.stdin.buffer.read())
 
+    func_timeout = int(os.getenv('DECOMPILER_FUNC_TIMEOUT', 15))
+
     success, res = relyze_cli_run([
-        '/run', 
-        '/plugin', 
-        'decompiler_explorer.rb', 
-        '/plugin_commandline', 
-        f'/in={infile.name} /out={outfile.name}'
+        '/run',
+        '/plugin',
+        'decompiler_explorer.rb',
+        '/plugin_commandline',
+        f'/in={infile.name} /out={outfile.name} /func_timeout={func_timeout}'
     ])
 
     os.remove(infile.name)
@@ -57,7 +59,7 @@ def main():
     else:
         print('no output file.')
         return 1
-    
+
     return 0
 
 def version():
