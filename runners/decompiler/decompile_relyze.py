@@ -4,7 +4,7 @@ import subprocess
 import sys
 from pathlib import Path
 
-RELYZE_INSTALL = Path(os.getenv("RELYZE_INSTALL_PATH", "/home/decompiler_user/RelyzeCore"))
+RELYZE_INSTALL = Path(os.getenv("RELYZE_INSTALL_PATH", "/home/decompiler_user/RelyzeDesktop/app"))
 RELYZE_CLI     = RELYZE_INSTALL / 'RelyzeCLI.exe'
 
 def relyze_cli_run(params):
