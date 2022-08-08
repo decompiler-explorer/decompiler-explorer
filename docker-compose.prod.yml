@@ -15,7 +15,7 @@ x-decompiler:
                 limits:
                     cpus: '1'
                 reservations:
-                    cpus: '1'
+                    cpus: '0.50'
 
 services:
     traefik:
