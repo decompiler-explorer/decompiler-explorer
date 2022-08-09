@@ -44,6 +44,12 @@ ENTRYPOINT [ "./entrypoint.sh", "decompile_bn.py" ]
 
 # angr
 FROM base-x86 as angr
+USER root
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends build-essential \
+    && rm -rf /var/lib/apt/lists/*
+
+USER decompiler_user
 RUN pip install --user 'angr>=9.2.10,<10.0'
 COPY decompile_angr.py .
 
