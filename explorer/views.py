@@ -115,6 +115,24 @@ class DecompilationViewSet(viewsets.ModelViewSet):
             completed = completed_str.lower() in ['true', '1']
             queryset = queryset.filter(request__completed=completed)
 
+            # TODO: Whenever multi-version is ready, remove this nonsense
+            # Filter decomps for which there is an active request for a newer decompiler
+            results = list(queryset.all())
+            for q in results:
+                if q.decompiler in Decompiler.healthy_latest_versions():
+                    continue
+
+                print(f"{q.binary.id} with {q.decompiler}")
+
+                same_decomp = DecompilationRequest.objects.filter(binary=binary, decompiler__name=q.decompiler.name)
+                for req in same_decomp:
+                    print(f"{q.decompiler} vs {req.decompiler}")
+                    if q.decompiler < req.decompiler:
+                        results.remove(q)
+                        print("Old req is out!!")
+                        break
+            return results
+
         return queryset
 
     @action(methods=['GET'], detail=True)
@@ -131,13 +149,29 @@ class DecompilationViewSet(viewsets.ModelViewSet):
     def rerun(self, *args, **kwargs):
         instance = self.get_object()
         req: DecompilationRequest = instance.request
+
         if not req.completed:
             return Response(status=400)
-        self.perform_destroy(instance)
-        req.created = timezone.now()
-        req.completed = False
-        req.last_attempted = timezone.datetime.utcfromtimestamp(0)
-        req.save()
+
+        new_decompiler = None
+        # TODO: Whenever multi-version is ready, use the one they request
+        for d in Decompiler.healthy_latest_versions():
+            if d.name == req.decompiler.name:
+                new_decompiler = d
+                break
+
+        if new_decompiler is None:
+            return Response({
+                "error": "Not re-running decompliation for decompiler with no active runners."
+            }, status=400)
+
+        binary = req.binary
+
+        if new_decompiler.id == req.decompiler.id:
+            self.perform_destroy(instance)
+            req.delete()
+
+        DecompilationRequest.objects.create(binary=binary, decompiler=new_decompiler)
         return Response()
 
 
@@ -156,6 +190,7 @@ class IndexView(APIView):
     permission_classes = [permissions.AllowAny]
 
     def get(self, request):
+        # TODO: Whenever multi-version is ready, show em all
         decompilers = sorted(Decompiler.healthy_latest_versions(), key=lambda d: d.name.lower())
 
         decompilers_json = {}
@@ -183,6 +218,7 @@ class FaqView(APIView):
     def get(self, request):
         return Response({
             'serializer': BinarySerializer(),
+            # TODO: Whenever multi-version is ready, ???
             'decompilers': Decompiler.healthy_latest_versions(),
         })
 
