@@ -120,7 +120,7 @@ class DecompilationViewSet(viewsets.ModelViewSet):
             results = []
             for q in queryset.all():
                 print(f"{q.binary.id} with {q.decompiler}")
-                if q.decompiler in Decompiler.healthy_latest_versions():
+                if q.decompiler in Decompiler.healthy_latest_versions().values():
                     results.append(q)
                     continue
 
@@ -128,9 +128,8 @@ class DecompilationViewSet(viewsets.ModelViewSet):
                 same_decomp = DecompilationRequest.objects.filter(binary=binary, decompiler__name=q.decompiler.name).exclude(decompiler=q.decompiler)
                 for req in same_decomp:
                     print(f"{q.decompiler} vs {req.decompiler}")
-                    # Sometimes the versions break with extra spaces at the end
-                    if not req.decompiler < q.decompiler:
-                        print("Old req is out!!")
+                    if q.decompiler < req.decompiler:
+                        print("Old req found, this one is out!!")
                         latest = False
                         break
                 if latest:
@@ -160,7 +159,7 @@ class DecompilationViewSet(viewsets.ModelViewSet):
 
         new_decompiler = None
         # TODO: Whenever multi-version is ready, use the one they request
-        for d in Decompiler.healthy_latest_versions():
+        for d in Decompiler.healthy_latest_versions().values():
             if d.name == req.decompiler.name:
                 new_decompiler = d
                 break
@@ -196,7 +195,7 @@ class IndexView(APIView):
 
     def get(self, request):
         # TODO: Whenever multi-version is ready, show em all
-        decompilers = sorted(Decompiler.healthy_latest_versions(), key=lambda d: d.name.lower())
+        decompilers = sorted(Decompiler.healthy_latest_versions().values(), key=lambda d: d.name.lower())
 
         decompilers_json = {}
         for d in decompilers:
@@ -224,7 +223,7 @@ class FaqView(APIView):
         return Response({
             'serializer': BinarySerializer(),
             # TODO: Whenever multi-version is ready, ???
-            'decompilers': Decompiler.healthy_latest_versions(),
+            'decompilers': Decompiler.healthy_latest_versions().values(),
         })
 
 

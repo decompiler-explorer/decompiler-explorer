@@ -91,7 +91,7 @@ class Decompiler(models.Model):
         for decompiler in Decompiler.objects.filter(last_health_check__gte=timezone.now() - HEALTHY_CUTOFF):
             if decompiler.name not in latest_versions or latest_versions[decompiler.name] < decompiler:
                 latest_versions[decompiler.name] = decompiler
-        return latest_versions.values()
+        return latest_versions
 
     @property
     def healthy(self):
@@ -125,7 +125,7 @@ class DecompilationRequest(models.Model):
     def get_queue():
         queue = OrderedDict()
 
-        for d in sorted(Decompiler.healthy_latest_versions(), key=lambda d: d.id):
+        for d in sorted(Decompiler.healthy_latest_versions().values(), key=lambda d: d.id):
             unfulfilled = DecompilationRequest.unfulfilled().filter(decompiler__id=d.id).order_by('created')
             oldest_unfinished = unfulfilled.first()
             if oldest_unfinished is not None:
@@ -187,7 +187,7 @@ class Decompilation(models.Model):
 @receiver(post_save, sender=Binary)
 def create_decompilation_requests(sender, instance, created, *args, **kwargs):
     # TODO: Whenever multi-version is ready, send to what the user requests
-    for decompiler in Decompiler.healthy_latest_versions():
+    for decompiler in Decompiler.healthy_latest_versions().values():
         if not DecompilationRequest.objects.filter(binary=instance, decompiler=decompiler).exists():
             DecompilationRequest.objects.create(binary=instance, decompiler=decompiler)
 
