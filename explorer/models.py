@@ -184,6 +184,23 @@ class Decompilation(models.Model):
         return self.error is not None or self.decompiled_file is None
 
 
+def rerun_decompilation_request(binary: Binary, decompiler: Decompiler):
+    existing_req = DecompilationRequest.objects.filter(binary=binary, decompiler=decompiler).all()
+    if len(existing_req) == 0:
+        existing_req = None
+    else:
+        existing_req = existing_req[0]
+
+    if existing_req is not None:
+        if not existing_req.completed:
+            raise ValueError("Trying to rerun incomplete request")
+
+        existing_req.decompilation.delete()
+        existing_req.delete()
+
+    DecompilationRequest.objects.create(binary=binary, decompiler=decompiler)
+
+
 @receiver(post_save, sender=Binary)
 def create_decompilation_requests(sender, instance, created, *args, **kwargs):
     # TODO: Whenever multi-version is ready, send to what the user requests

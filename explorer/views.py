@@ -13,12 +13,13 @@ from rest_framework.renderers import TemplateHTMLRenderer
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from .models import Binary, Decompilation, DecompilationRequest, Decompiler
+from .models import Binary, Decompilation, DecompilationRequest, Decompiler, rerun_decompilation_request
 from .serializers import DecompilationRequestSerializer, DecompilationSerializer, BinarySerializer, \
     DecompilerSerializer
 from decompiler_explorer.throttle import AnonBurstRateThrottle, AnonSustainedRateThrottle
 
 from .permissions import IsWorkerOrAdmin, ReadOnly
+
 
 class DecompilationRequestViewSet(mixins.CreateModelMixin, mixins.RetrieveModelMixin, mixins.ListModelMixin, viewsets.GenericViewSet):
     serializer_class = DecompilationRequestSerializer
@@ -93,6 +94,19 @@ class BinaryViewSet(mixins.CreateModelMixin, mixins.RetrieveModelMixin, mixins.L
         response['Content-Disposition'] = f'attachment; filename="{instance.file.name}"'
         return response
 
+    @action(methods=['POST'], detail=True)
+    def rerun_all(self, *args, **kwargs):
+        instance = self.get_object()
+        # Create requests for all healthy decomps
+
+        # TODO: Whenever multi-version is ready, use all or something?
+        for decompiler in Decompiler.healthy_latest_versions().values():
+            try:
+                rerun_decompilation_request(instance, decompiler)
+            except ValueError:
+                pass
+        return Response()
+
 
 class DecompilationViewSet(viewsets.ModelViewSet):
     queryset = Decompilation.objects.none()
@@ -154,28 +168,15 @@ class DecompilationViewSet(viewsets.ModelViewSet):
         instance = self.get_object()
         req: DecompilationRequest = instance.request
 
-        if not req.completed:
-            return Response(status=400)
-
-        new_decompiler = None
         # TODO: Whenever multi-version is ready, use the one they request
-        for d in Decompiler.healthy_latest_versions().values():
-            if d.name == req.decompiler.name:
-                new_decompiler = d
-                break
-
+        new_decompiler = Decompiler.healthy_latest_versions().get(req.decompiler.name, None)
         if new_decompiler is None:
             return Response({
                 "error": "Not re-running decompliation for decompiler with no active runners."
             }, status=400)
 
         binary = req.binary
-
-        if new_decompiler.id == req.decompiler.id:
-            self.perform_destroy(instance)
-            req.delete()
-
-        DecompilationRequest.objects.create(binary=binary, decompiler=new_decompiler)
+        rerun_decompilation_request(binary, new_decompiler)
         return Response()
 
 
