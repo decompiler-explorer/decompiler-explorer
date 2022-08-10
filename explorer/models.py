@@ -53,7 +53,10 @@ class Decompiler(models.Model):
     created = models.DateTimeField(default=timezone.now, editable=False)
 
     def __str__(self):
-        return f'Decompiler: {self.name} {self.version} {self.revision[:8]}'
+        if len(self.revision) > 0:
+            return f'Decompiler: {self.name} {self.version} {self.revision[:8]}'
+        else:
+            return f'Decompiler: {self.name} {self.version}'
 
     def __lt__(self, other):
         if not isinstance(other, (Decompiler,)):
@@ -66,12 +69,20 @@ class Decompiler(models.Model):
                     return True
                 elif int(this_version[i]) > int(other_version[i]):
                     return False
-            except:
+            except ValueError:
                 if this_version[i] < other_version[i]:
                     return True
                 elif this_version[i] > other_version[i]:
                     return False
-        return len(this_version) < len(other_version)
+        if len(this_version) < len(other_version):
+            return True
+        if len(this_version) > len(other_version):
+            return False
+        if self.last_health_check < other.last_health_check:
+            return True
+        if self.last_health_check > other.last_health_check:
+            return False
+        return False
 
     @classmethod
     def healthy_latest_versions(cls):

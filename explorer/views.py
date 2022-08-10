@@ -117,20 +117,25 @@ class DecompilationViewSet(viewsets.ModelViewSet):
 
             # TODO: Whenever multi-version is ready, remove this nonsense
             # Filter decomps for which there is an active request for a newer decompiler
-            results = list(queryset.all())
-            for q in results:
+            results = []
+            for q in queryset.all():
+                print(f"{q.binary.id} with {q.decompiler}")
                 if q.decompiler in Decompiler.healthy_latest_versions():
+                    results.append(q)
                     continue
 
-                print(f"{q.binary.id} with {q.decompiler}")
-
-                same_decomp = DecompilationRequest.objects.filter(binary=binary, decompiler__name=q.decompiler.name)
+                latest = True
+                same_decomp = DecompilationRequest.objects.filter(binary=binary, decompiler__name=q.decompiler.name).exclude(decompiler=q.decompiler)
                 for req in same_decomp:
                     print(f"{q.decompiler} vs {req.decompiler}")
-                    if q.decompiler < req.decompiler:
-                        results.remove(q)
+                    # Sometimes the versions break with extra spaces at the end
+                    if not req.decompiler < q.decompiler:
                         print("Old req is out!!")
+                        latest = False
                         break
+                if latest:
+                    results.append(q)
+
             return results
 
         return queryset
