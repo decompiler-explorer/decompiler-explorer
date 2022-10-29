@@ -89,6 +89,12 @@ function updateFrames() {
     });
 }
 
+function clearFrameInputs() {
+    Object.values(decompilerFrames).forEach(i => i.session.getDocument().setValue(""));
+    Object.values(decompilerFrames).forEach(i => i.resize());
+    Object.values(decompilerRerunButtons).forEach(i => i.hidden = true);
+}
+
 function displayResult(resultData, is_sample) {
     // If a new decompiler comes online before we refresh, it won't be in the list
     if (Object.keys(decompilers).indexOf(resultData['decompiler']['name']) === -1)
@@ -273,18 +279,14 @@ function rerunDecompiler(decompiler_name) {
 
 document.getElementById('file').addEventListener('change', (e) => {
     e.preventDefault();
-    Object.values(decompilerFrames).forEach(i => i.session.getDocument().setValue(""));
-    Object.values(decompilerFrames).forEach(i => i.resize());
-    Object.values(decompilerRerunButtons).forEach(i => i.hidden = true);
+    clearFrameInputs();
     uploadBinary();
 });
-document.getElementById('samples').addEventListener('click', (e) => {
+document.getElementById('samples').addEventListener('change', (e) => {
     let id = document.getElementById('samples').value;
     if (id != '') {
         e.preventDefault();
-        Object.values(decompilerFrames).forEach(i => i.session.getDocument().setValue(""));
-        Object.values(decompilerFrames).forEach(i => i.resize());
-        Object.values(decompilerRerunButtons).forEach(i => i.hidden = true);
+        clearFrameInputs();
         addHistoryEntry(id);
         loadAllDecompilers(id, true);
     }
