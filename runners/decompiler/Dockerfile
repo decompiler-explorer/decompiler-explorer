@@ -87,7 +87,7 @@ RUN apt-get update \
 
 USER decompiler_user
 WORKDIR /home/decompiler_user
-RUN git clone https://github.com/yegord/snowman.git \
+RUN git clone --depth=1 https://github.com/yegord/snowman.git \
     && cmake -B snowman/build -DNC_QT5=YES -DCMAKE_INSTALL_PREFIX=install snowman/src/ \
     && cmake --build snowman/build -j$(nproc) \
     && cmake --install snowman/build \
@@ -154,7 +154,7 @@ RUN apt-get update \
 
 USER decompiler_user
 WORKDIR /home/decompiler_user
-RUN git clone https://github.com/uxmal/reko.git \
+RUN git clone --depth=1 https://github.com/uxmal/reko.git \
     && cd reko \
     && dotnet msbuild -p:Platform=x64 -p:Configuration=UnixRelease -t:build_solution -m ./src/BuildTargets/BuildTargets.csproj \
     && dotnet msbuild -p:Platform=x64 -p:Configuration=Release -t:create_runtime_nupkg -m ./src/BuildTargets/BuildTargets.csproj \
