@@ -50,7 +50,7 @@ RUN apt-get update \
     && rm -rf /var/lib/apt/lists/*
 
 USER decompiler_user
-RUN pip install --user 'angr>=9.2.10,<10.0'
+RUN pip install --user 'angr>=9.2.25,<10.0'
 COPY decompile_angr.py .
 
 COPY entrypoint.sh .
@@ -62,11 +62,11 @@ ENTRYPOINT [ "./entrypoint.sh", "decompile_angr.py" ]
 FROM base as ghidra
 USER root
 RUN apt-get update \
-    && apt-get install -y --no-install-recommends openjdk-11-jdk unzip wget \
+    && apt-get install -y --no-install-recommends openjdk-17-jdk unzip wget \
     && rm -rf /var/lib/apt/lists/*
 USER decompiler_user
 
-RUN wget https://github.com/NationalSecurityAgency/ghidra/releases/download/Ghidra_10.1.5_build/ghidra_10.1.5_PUBLIC_20220726.zip -O ghidra.zip \
+RUN wget https://github.com/NationalSecurityAgency/ghidra/releases/download/Ghidra_10.2.2_build/ghidra_10.2.2_PUBLIC_20221115.zip -O ghidra.zip \
     && unzip ghidra.zip \
     && rm ghidra.zip \
     && mv ghidra_* ghidra
