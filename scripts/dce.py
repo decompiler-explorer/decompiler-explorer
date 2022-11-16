@@ -118,7 +118,7 @@ def build_server(args):
             services.append(d[0])
 
     cmd = f"docker-compose {config_files} build"
-    subprocess.run(cmd.split(' ') + services)
+    subprocess.run(cmd.split(' ') + services, check=True)
 
 
 def start_server(args):
@@ -150,12 +150,12 @@ def start_server(args):
 
     cmd = f"docker stack deploy {config_files} --with-registry-auth --prune dogbolt"
 
-    subprocess.run(cmd.split(' '), env=env)
+    subprocess.run(cmd.split(' '), env=env, check=True)
 
 
 def stop_server():
     cmd = f"docker stack rm dogbolt"
-    subprocess.run(cmd.split(' '))
+    subprocess.run(cmd.split(' '), check=True)
 
 
 args = parser.parse_args()
