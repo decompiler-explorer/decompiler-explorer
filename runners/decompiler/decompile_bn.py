@@ -53,6 +53,8 @@ if __name__ == "__main__":
         version = binaryninja.core_version()
         if '-' in version:
             version = version.split('-')[0]
+        if ' ' in version:
+            version = version.split(' ')[0]
         print(version)
         print(f'{binaryninja.core_build_id():x}')
         sys.exit(0)
