@@ -87,7 +87,7 @@ RUN apt-get update \
 
 USER decompiler_user
 WORKDIR /home/decompiler_user
-RUN git clone --depth=1 https://github.com/yegord/snowman.git \
+RUN git clone https://github.com/yegord/snowman.git \
     && cmake -B snowman/build -DNC_QT5=YES -DCMAKE_INSTALL_PREFIX=install snowman/src/ \
     && cmake --build snowman/build -j$(nproc) \
     && cmake --install snowman/build \
