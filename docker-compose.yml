@@ -67,6 +67,8 @@ services:
             - PGDATA=/var/lib/postgresql/data/pgdata
         secrets:
             - db_superuser_pass
+        healthcheck:
+            test: ["CMD", "pg_isready", "-d", "postgres"]
         volumes:
             - ./db_data:/var/lib/postgresql/data/
         networks:
