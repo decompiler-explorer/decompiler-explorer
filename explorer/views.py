@@ -40,6 +40,7 @@ class DecompilationRequestViewSet(mixins.CreateModelMixin, mixins.RetrieveModelM
             )
             if queryset.count() > 0:
                 earliest = queryset.order_by('created')[0]
+                print(f"Giving request {earliest} to {self.request.META['REMOTE_ADDR']}")
                 earliest.last_attempted = timezone.now()
                 earliest.save()
                 return [earliest]
@@ -135,11 +136,12 @@ class DecompilationViewSet(viewsets.ModelViewSet):
             # Filter decomps for which there is an active request for a newer decompiler
             results = []
             for q in queryset.all():
-                print(f"{q.binary.id} with {q.decompiler}")
                 if q.decompiler in Decompiler.healthy_latest_versions().values():
+                    print(f"Found incomplete {q.binary.id} for healthy {q.decompiler}")
                     results.append(q)
                     continue
 
+                print(f"Found incomplete {q.binary.id} for unhealthy {q.decompiler}")
                 latest = True
                 same_decomp = DecompilationRequest.objects.filter(binary=binary, decompiler__name=q.decompiler.name).exclude(decompiler=q.decompiler)
                 for req in same_decomp:
