@@ -205,6 +205,10 @@ COPY tools/hexrays/batch.py /home/decompiler_user/ida
 COPY tools/hexrays/version.py /home/decompiler_user/ida
 
 USER root
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends libsecret-1-0 \
+    && rm -rf /var/lib/apt/lists/*
+
 RUN /home/decompiler_user/ida/idapyswitch --force-path /usr/local/lib/libpython3.8.so \
     && chmod +x /home/decompiler_user/ida/efd64 \
     && chown -R decompiler_user /home/decompiler_user/ida \
