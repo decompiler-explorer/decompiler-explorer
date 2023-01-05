@@ -119,9 +119,10 @@ class DecompilationRequest(models.Model):
 
     @staticmethod
     def unfulfilled():
-        queryset = DecompilationRequest.objects.all()
-        queryset = queryset.filter(decompilation__isnull=True)
-        queryset = queryset.filter(decompiler__last_health_check__gte=timezone.now() - HEALTHY_CUTOFF)
+        queryset = DecompilationRequest.objects.filter(
+            decompilation__isnull=True,
+            decompiler__last_health_check__gte=timezone.now() - HEALTHY_CUTOFF
+        )
         return queryset
 
     @staticmethod

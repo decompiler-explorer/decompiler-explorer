@@ -34,8 +34,10 @@ class DecompilationRequestViewSet(mixins.CreateModelMixin, mixins.RetrieveModelM
 
         decompiler_id = self.request.query_params.get('decompiler')
         if decompiler_id is not None:
-            queryset = queryset.filter(decompiler__id=decompiler_id)
-            queryset = queryset.filter(last_attempted__lt=timezone.now() - datetime.timedelta(seconds=300))
+            queryset = queryset.filter(
+                decompiler__id=decompiler_id,
+                last_attempted__lt=timezone.now() - datetime.timedelta(seconds=300)
+            )
             if queryset.count() > 0:
                 earliest = queryset.order_by('created')[0]
                 earliest.last_attempted = timezone.now()
