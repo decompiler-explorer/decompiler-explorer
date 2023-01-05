@@ -103,7 +103,6 @@ class DecompilationRequest(models.Model):
     binary = models.ForeignKey(Binary, related_name='decompilation_requests', on_delete=models.CASCADE)
     decompiler = models.ForeignKey(Decompiler, related_name='decompilation_requests', on_delete=models.SET_NULL, null=True, editable=False)
     created = models.DateTimeField(default=timezone.now, editable=False)
-    completed = models.BooleanField(default=False, editable=False)
     last_attempted = models.DateTimeField(default='0001-01-01 00:00:00', editable=False)
 
     def __str__(self):
@@ -114,10 +113,14 @@ class DecompilationRequest(models.Model):
             UniqueConstraint(fields=['binary', 'decompiler'], name='unique_binary_decompiler')
         ]
 
+    @property
+    def completed(self):
+        return self.decompilation is not None
+
     @staticmethod
     def unfulfilled():
         queryset = DecompilationRequest.objects.all()
-        queryset = queryset.filter(completed=False)
+        queryset = queryset.filter(decompilation__isnull=True)
         queryset = queryset.filter(decompiler__last_health_check__gte=timezone.now() - HEALTHY_CUTOFF)
         return queryset
 
@@ -207,12 +210,3 @@ def create_decompilation_requests(sender, instance, created, *args, **kwargs):
     for decompiler in Decompiler.healthy_latest_versions().values():
         if not DecompilationRequest.objects.filter(binary=instance, decompiler=decompiler).exists():
             DecompilationRequest.objects.create(binary=instance, decompiler=decompiler)
-
-
-@receiver(post_save, sender=Decompilation)
-def complete_decompilation_request(sender, instance, created, *args, **kwargs):
-    if not created:
-        return
-    req = instance.request
-    req.completed = True
-    req.save()

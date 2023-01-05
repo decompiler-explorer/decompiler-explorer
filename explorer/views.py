@@ -30,7 +30,7 @@ class DecompilationRequestViewSet(mixins.CreateModelMixin, mixins.RetrieveModelM
         completed_str = self.request.query_params.get('completed')
         if completed_str is not None:
             completed = completed_str.lower() in ['true', '1']
-            queryset = queryset.filter(completed=completed)
+            queryset = queryset.filter(decompilation__isnull=(not completed))
 
         decompiler_id = self.request.query_params.get('decompiler')
         if decompiler_id is not None:
@@ -127,7 +127,7 @@ class DecompilationViewSet(viewsets.ModelViewSet):
         completed_str = self.request.query_params.get('completed')
         if completed_str is not None:
             completed = completed_str.lower() in ['true', '1']
-            queryset = queryset.filter(request__completed=completed)
+            queryset = queryset.filter(request__decompilation__isnull=(not completed))
 
             # TODO: Whenever multi-version is ready, remove this nonsense
             # Filter decomps for which there is an active request for a newer decompiler
