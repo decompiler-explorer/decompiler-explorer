@@ -38,7 +38,7 @@ class DecompilationRequestViewSet(mixins.CreateModelMixin, mixins.RetrieveModelM
                 decompiler__id=decompiler_id,
                 last_attempted__lt=timezone.now() - datetime.timedelta(seconds=300)
             )
-            if queryset.count() > 0:
+            if queryset.exists():
                 earliest = queryset.order_by('created')[0]
                 print(f"Giving request {earliest} to {self.request.META['REMOTE_ADDR']}")
                 earliest.last_attempted = timezone.now()
