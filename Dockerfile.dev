@@ -17,7 +17,7 @@ RUN pip install --user pipenv
 ENV PATH=/home/backend_user/.local/bin:$PATH
 
 COPY Pipfile.lock .
-RUN pipenv sync
+RUN pipenv sync --dev
 
 COPY manage.py .
 COPY entrypoint.sh .
