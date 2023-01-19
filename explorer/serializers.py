@@ -70,7 +70,7 @@ class DecompilationRequestSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = DecompilationRequest
-        fields = ['id', 'binary_id', 'decompiler', 'created', 'last_attempted', 'download_url', 'decompilations_url']
+        fields = ['id', 'binary_id', 'decompiler', 'created', 'last_attempted', 'completed', 'download_url', 'decompilations_url']
 
     def get_download_url(self, obj):
         return reverse('binary-download', args=[obj.binary.pk], request=self.context['request'])

@@ -10,6 +10,7 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/3.2/ref/settings/
 """
 import json
+import os
 import secrets
 from pathlib import Path
 
@@ -34,7 +35,8 @@ else:
 SECRET_KEY = secrets_config['SECRET_KEY']
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = os.environ.get('DEBUG', '0') == '1'
+
 
 ALLOWED_HOSTS = [
     '*'
@@ -177,3 +179,24 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 UPLOAD_COMPILED_PATH = 'uploads/binaries'
 UPLOAD_DECOMPILED_PATH = 'uploads/decompilations'
+
+def show_toolbar(request):
+    return True
+
+if DEBUG:
+    INSTALLED_APPS += [
+        "debug_toolbar",
+    ]
+
+    MIDDLEWARE = [
+        "debug_toolbar.middleware.DebugToolbarMiddleware",
+    ] + MIDDLEWARE
+
+    DEBUG_TOOLBAR_CONFIG = {
+        'SHOW_TOOLBAR_CALLBACK' : 'decompiler_explorer.settings.base.show_toolbar'
+    }
+
+    INTERNAL_IPS = [
+        "127.0.0.1",
+        "dce.local",
+    ]

@@ -3,8 +3,6 @@ import os
 
 from .base import *
 
-DEBUG = os.environ.get('DEBUG', '0') == '1'
-
 with open('/run/secrets/db_superuser_pass', 'r') as f:
     _DB_PASS = f.read()
 

@@ -104,6 +104,7 @@ class DecompilationRequest(models.Model):
     decompiler = models.ForeignKey(Decompiler, related_name='decompilation_requests', on_delete=models.SET_NULL, null=True, editable=False)
     created = models.DateTimeField(default=timezone.now, editable=False)
     last_attempted = models.DateTimeField(default='0001-01-01 00:00:00', editable=False)
+    completed = models.BooleanField(default=False, editable=False)
 
     def __str__(self):
         return f'<Decompilation Request: {self.id}>'
@@ -113,36 +114,30 @@ class DecompilationRequest(models.Model):
             UniqueConstraint(fields=['binary', 'decompiler'], name='unique_binary_decompiler')
         ]
 
-    @property
-    def completed(self):
-        return self.decompilation is not None
-
-    @staticmethod
-    def unfulfilled():
-        queryset = DecompilationRequest.objects.filter(
-            decompilation__isnull=True,
-            decompiler__last_health_check__gte=timezone.now() - HEALTHY_CUTOFF
-        )
-        return queryset
-
     @staticmethod
     def get_queue():
         queue = OrderedDict()
 
+        unfulfilled = DecompilationRequest.objects.filter(
+            completed=False,
+            decompiler__last_health_check__gte=timezone.now() - HEALTHY_CUTOFF,
+        ).order_by('created')
+
+
         for d in sorted(Decompiler.healthy_latest_versions().values(), key=lambda d: d.id):
-            unfulfilled = DecompilationRequest.unfulfilled().filter(decompiler__id=d.id).order_by('created')
-            oldest_unfinished = unfulfilled.first()
+            decompiler_queue = unfulfilled.filter(decompiler__id=d.id)
+            oldest_unfinished = decompiler_queue.first()
             if oldest_unfinished is not None:
                 oldest_unfinished = oldest_unfinished.created
             queue[str(d.id)] = {
                 'oldest_unfinished': oldest_unfinished,
-                'queue_length': unfulfilled.count()
+                'queue_length': decompiler_queue.count()
             }
 
-        unfulfilled = DecompilationRequest.unfulfilled().order_by('created')
         oldest_unfinished = unfulfilled.first()
         if oldest_unfinished is not None:
             oldest_unfinished = oldest_unfinished.created
+
         general_queue = {
             'oldest_unfinished': oldest_unfinished,
             'queue_length': unfulfilled.count()
@@ -211,3 +206,10 @@ def create_decompilation_requests(sender, instance, created, *args, **kwargs):
     for decompiler in Decompiler.healthy_latest_versions().values():
         if not DecompilationRequest.objects.filter(binary=instance, decompiler=decompiler).exists():
             DecompilationRequest.objects.create(binary=instance, decompiler=decompiler)
+
+
+@receiver(post_save, sender=Decompilation)
+def mark_request_completed(sender, instance, created, *args, **kwargs):
+    if created and not instance.request.completed:
+        instance.request.completed = True
+        instance.request.save(update_fields=['completed'])

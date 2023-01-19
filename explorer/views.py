@@ -30,7 +30,7 @@ class DecompilationRequestViewSet(mixins.CreateModelMixin, mixins.RetrieveModelM
         completed_str = self.request.query_params.get('completed')
         if completed_str is not None:
             completed = completed_str.lower() in ['true', '1']
-            queryset = queryset.filter(decompilation__isnull=(not completed))
+            queryset = queryset.filter(completed=completed)
 
         decompiler_id = self.request.query_params.get('decompiler')
         if decompiler_id is not None:
@@ -130,7 +130,7 @@ class DecompilationViewSet(viewsets.ModelViewSet):
         completed_str = self.request.query_params.get('completed')
         if completed_str is not None:
             completed = completed_str.lower() in ['true', '1']
-            queryset = queryset.filter(request__decompilation__isnull=(not completed))
+            queryset = queryset.filter(request__completed=completed)
 
             # TODO: Whenever multi-version is ready, remove this nonsense
             # Filter decomps for which there is an active request for a newer decompiler
@@ -209,8 +209,9 @@ class IndexView(APIView):
         featured_binaries = sorted(Binary.objects.filter(featured=True), key=lambda b: b.featured_name)
         queue = DecompilationRequest.get_queue()
         show_banner = False
-        if queue['general']['oldest_unfinished'] is not None:
-            show_banner = queue['general']['oldest_unfinished'] < timezone.now() - datetime.timedelta(minutes=10)
+        oldest_unfinished = queue['general']['oldest_unfinished']
+        if oldest_unfinished is not None:
+            show_banner = oldest_unfinished < timezone.now() - datetime.timedelta(minutes=10)
 
         return Response({
             'serializer': BinarySerializer(),
