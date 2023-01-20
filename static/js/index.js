@@ -11,6 +11,8 @@ let decompilerFrames = Object.fromEntries(
         let id = i.id;
         let editor = ace.edit(id);
         editor.setReadOnly(true);
+        editor.setHighlightActiveLine(true);
+        editor.setHighlightGutterLine(true);
         editor.session.setMode("ace/mode/c_cpp");
         return [id, editor];
     })
@@ -55,6 +57,10 @@ document.querySelector("#binary_upload_form input[name='file']").required = true
 let numDecompilers = Object.keys(decompilerFrames).length;
 let resultUrl;
 
+// For keeping track of line change events-- they will also trigger when we update the contents
+// of the textbox, so we need to ignore those.
+let loading = {};
+
 function logError(err_title, err_msg, do_alert=false) {
     console.error(err_title, err_msg);
     if (do_alert) {
@@ -63,8 +69,7 @@ function logError(err_title, err_msg, do_alert=false) {
 }
 
 function clearOutput(decompiler_name) {
-    decompilerFrames[decompiler_name].session.getDocument().setValue("");
-    decompilerFrames[decompiler_name].resize();
+    updateTextEdit(decompiler_name, "");
     decompilerRerunButtons[decompiler_name].hidden = true;
     delete decompilerResultUrls[decompiler_name];
 }
@@ -90,10 +95,17 @@ function updateFrames() {
 }
 
 function clearFrameInputs() {
-    Object.values(decompilerFrames).forEach(i => i.session.getDocument().setValue(""));
-    Object.values(decompilerFrames).forEach(i => i.resize());
+    Object.keys(decompilerFrames).forEach(i => updateTextEdit(i, ""));
     Object.values(decompilerRerunButtons).forEach(i => i.hidden = true);
 }
+
+function updateTextEdit(decompiler_name, contents) {
+    loading[decompiler_name] = true;
+    decompilerFrames[decompiler_name].session.getDocument().setValue(contents);
+    decompilerFrames[decompiler_name].resize();
+    loading[decompiler_name] = false;
+}
+
 
 function displayResult(resultData, is_sample) {
     // If a new decompiler comes online before we refresh, it won't be in the list
@@ -120,8 +132,7 @@ function displayResult(resultData, is_sample) {
     decompilerVersions[decompiler_name].setAttribute("title", `${decompiler_name} version ${decompiler_version}\nAnalysed ${created}\nAnalysis took ${analysis_time.toFixed(2)} seconds`);
 
     if (resultData['error'] !== null) {
-        frame.session.getDocument().setValue(`Error decompiling: ${resultData['error']}`);
-        frame.resize();
+        updateTextEdit(decompiler_name, `Error decompiling: ${resultData['error']}`);
         rerun_button.hidden = is_sample;
         return;
     }
@@ -129,14 +140,19 @@ function displayResult(resultData, is_sample) {
     fetch(url)
     .then(resp => resp.text())
     .then(data => {
-        frame.session.getDocument().setValue(data);
-        frame.resize();
+        updateTextEdit(decompiler_name, data);
+        loading[decompiler_name] = true;
+        let lineNumbers = new URLSearchParams(window.location.hash.substring(1));
+        let row = lineNumbers.get(decompiler_name);
+        if (row !== null) {
+            frame.gotoLine(parseInt(row));
+        }
         rerun_button.hidden = is_sample;
+        loading[decompiler_name] = false;
     })
     .catch(err => {
         logError("Error retrieving result", err);
-        frame.session.getDocument().setValue("// Error retrieving result: " + err);
-        frame.resize();
+        updateTextEdit(decompiler_name, "// Error retrieving result: " + err);
     })
 }
 
@@ -155,8 +171,7 @@ function loadResults(is_sample) {
         for (let decompilerName of Object.keys(decompilers)) {
             if (finishedResults.indexOf(decompilerName) === -1) {
                 let elapsedSecs = ((Date.now() - startTime) / 1000).toFixed(0);
-                decompilerFrames[decompilerName].session.getDocument().setValue("// Waiting for data... (" + elapsedSecs + "s)");
-                decompilerFrames[decompilerName].resize();
+                updateTextEdit(decompilerName, "// Waiting for data... (" + elapsedSecs + "s)");
             }
         }
         if (finishedResults.length < numDecompilers) {
@@ -291,6 +306,17 @@ document.getElementById('samples').addEventListener('change', (e) => {
         loadAllDecompilers(id, true);
     }
 });
+
+for (const decompiler of Object.keys(decompilerFrames)) {
+    decompilerFrames[decompiler].session.selection.on("changeCursor", function(e, selection) {
+        if (loading[decompiler])
+            return;
+        const row = selection.getCursor()['row'] + 1;
+        let lineNumbers = new URLSearchParams(window.location.hash.substring(1));
+        lineNumbers.set(decompiler, row);
+        window.location.hash = lineNumbers.toString();
+    });
+}
 
 Object.entries(decompilerRerunButtons)
     .forEach(([name, elem]) => {
