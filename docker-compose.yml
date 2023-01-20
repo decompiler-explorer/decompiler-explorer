@@ -68,7 +68,7 @@ services:
         secrets:
             - db_superuser_pass
         healthcheck:
-            test: ["CMD", "pg_isready", "-d", "postgres"]
+            test: ["CMD", "pg_isready", "-U", "postgres", "-d", "postgres"]
         volumes:
             - ./db_data:/var/lib/postgresql/data/
         networks:
