@@ -42,7 +42,7 @@ class DecompilationRequestViewSet(mixins.CreateModelMixin, mixins.RetrieveModelM
                 earliest = queryset.order_by('created')[0]
                 print(f"Giving request {earliest} to {self.request.META['REMOTE_ADDR']}")
                 earliest.last_attempted = timezone.now()
-                earliest.save()
+                earliest.save(update_fields=['last_attempted'])
                 return [earliest]
 
         return queryset.order_by('created')
