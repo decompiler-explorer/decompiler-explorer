@@ -1,0 +1,18 @@
+name: Update angr
+
+on:
+  schedule:
+    - cron: '0 19 * * 2' # angr releases at 0 17 * * 2
+  workflow_dispatch:
+
+jobs:
+  update:
+    name: Create angr update PR
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v3
+      - name: Install script dependencies
+        run: pip install --user feedparser
+      - name: Get latest angr version
+        run: ./.github/workflows/update-angr.sh
