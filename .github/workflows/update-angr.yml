@@ -16,3 +16,5 @@ jobs:
         run: pip install --user feedparser
       - name: Get latest angr version
         run: ./.github/workflows/update-angr.sh
+        env:
+          GH_TOKEN: ${{ github.token }}
