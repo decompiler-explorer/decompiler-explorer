@@ -9,7 +9,7 @@ from django.utils import timezone
 from rest_framework import viewsets, permissions, mixins
 from rest_framework.decorators import action
 from rest_framework.permissions import AllowAny, IsAdminUser
-from rest_framework.renderers import TemplateHTMLRenderer
+from rest_framework.renderers import TemplateHTMLRenderer, JSONRenderer
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
@@ -234,7 +234,13 @@ class FaqView(APIView):
 
 
 class QueueView(APIView):
+    renderer_classes = [JSONRenderer, TemplateHTMLRenderer]
     permission_classes = [permissions.AllowAny]
+    template_name = 'explorer/queue.html'
 
     def get(self, request):
-        return Response(DecompilationRequest.get_queue())
+        print(request.accepted_renderer)
+        if request.accepted_renderer.format == 'html':
+            return Response({})
+        else:
+            return Response(DecompilationRequest.get_queue())

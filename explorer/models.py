@@ -10,6 +10,7 @@ from django.db import models
 from django.db.models.signals import post_save
 from django.db.models.constraints import UniqueConstraint, CheckConstraint
 from django.dispatch import receiver
+from django.forms import model_to_dict
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 
@@ -130,6 +131,7 @@ class DecompilationRequest(models.Model):
             if oldest_unfinished is not None:
                 oldest_unfinished = oldest_unfinished.created
             queue[str(d.id)] = {
+                'decompiler': model_to_dict(d),
                 'oldest_unfinished': oldest_unfinished,
                 'queue_length': decompiler_queue.count()
             }

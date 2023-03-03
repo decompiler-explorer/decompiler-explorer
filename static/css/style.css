@@ -28,6 +28,15 @@ header h1 {
     padding: 0 10px;
 }
 
+#queue-url {
+    color: #ffffff;
+    text-decoration: none;
+}
+
+#queue-url:hover, #queue-url:active, #queue-url:focus {
+    text-decoration: underline;
+}
+
 section#content {
     padding-bottom: 40px;
 }
