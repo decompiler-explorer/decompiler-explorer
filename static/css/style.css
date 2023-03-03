@@ -30,7 +30,7 @@ header h1 {
 
 #queue-url {
     color: #ffffff;
-    text-decoration: none;
+    text-decoration: underline;
 }
 
 #queue-url:hover, #queue-url:active, #queue-url:focus {

@@ -61,9 +61,12 @@
     {% if show_banner %}
     <section id="banner" class="container-fluid mb-5 text-light bg-dark">
         <div class="row py-2 px-4">
-            <a id="queue-url" href="{% url 'explorer:queue' %}" title="View queue details">
-                Welcome visitors! We are experiencing a lot of load, sorry if the service is unavailable when you stop by. In the meantime, check out one of the already generated results in the "Samples" section.
-            </a>
+            <span>
+                Welcome visitors! We are experiencing a lot of load, sorry if the service is unavailable when you stop by. In the meantime, check out one of the already generated results in the "Samples" section, or
+                <a id="queue-url" href="{% url 'explorer:queue' %}" title="View queue details">
+                    check the queue to see the wait time.
+                </a>
+            </span>
         </div>
     </section>
     {% endif %}
