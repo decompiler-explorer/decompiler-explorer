@@ -49,10 +49,14 @@ Object.keys(decompilerSelectChecks).forEach((decompiler) => {
     check.addEventListener('change', () => {
         info.featured = check.checked;
         updateFrames();
-        if (check.checked) {
-            umami("Show decompiler " + info.name);
-        } else {
-            umami("Hide decompiler " + info.name);
+        try {
+            if (check.checked) {
+                umami("Show decompiler " + info.name);
+            } else {
+                umami("Hide decompiler " + info.name);
+            }
+        } catch (e) {
+
         }
     });
 });
@@ -294,7 +298,11 @@ function rerunDecompiler(decompiler_name) {
     .catch(err => {
         logError(err, err, true);
     });
-    umami("Rerun decompiler " + decompiler_name);
+    try {
+        umami("Rerun decompiler " + decompiler_name);
+    } catch (e) {
+
+    }
 }
 
 
@@ -355,6 +363,10 @@ if (id !== null) {
 
 setTimeout(() => {
     if (document.getElementById("banner") !== null) {
-        umami("Shown queue banner");
+        try {
+            umami("Shown queue banner");
+        } catch (e) {
+
+        }
     }
 }, 1000);
