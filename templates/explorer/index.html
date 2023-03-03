@@ -72,7 +72,7 @@
     {% endif %}
     <section id="input" class="container">
         <div class="row my-3">
-            <div class="col">
+            <div class="col-md-6">
                 <h3>Upload File</h3>
                 <p>Your file must be <strong>less than 2MB</strong> in size. Uploaded binaries <a href="{% url 'explorer:faq' %}#">are retained</a>.
                 </p>
@@ -80,7 +80,7 @@
                     <input type="file" class="form-control form-control-sm input-group-append" id="file" name="file" value required>
                 </form>
             </div>
-            <div class="col"
+            <div class="col-md-6"
             {% if featured_binaries|length == 0 %}
                 style="display:none"
             {% endif %}
@@ -101,7 +101,7 @@
     <section id="decompilers" class="container flex-grow-1 d-flex flex-column">
         <div class="row" id="decompiler_selectors">
             {% for d in decompilers %}
-            <div class="col">
+            <div class="col-xl col-lg-2 col-md-3 col-sm-4">
                 <label class="decompiler_selector" for="select_{{ d.name }}">
                     <input type="checkbox" class="decompiler_select" id="select_{{ d.name }}">
                     {{ d.name }}
