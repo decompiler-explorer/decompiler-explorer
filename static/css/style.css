@@ -47,6 +47,7 @@ section#input h3 {
 
 section#decompilers {
     max-width: 100%;
+    min-height: 300px;
     padding: 0 20px;
 }
 
@@ -59,6 +60,11 @@ button.btn {
     font-size: 0.875rem;
     padding: 0.25em;
     border: 1px solid #ced4da;
+}
+
+.decompiler {
+    min-width: 300px;
+    min-height: 300px;
 }
 
 .decompiler.with_line {
