@@ -111,7 +111,7 @@
             <div class="col d-flex flex-column decompiler decompiler_container" id="container_{{ d.name }}">
                 <div class="row">
                     <h5 class="d-inline-block">
-                        <a class="decompiler_title" id="title_{{ d.name }}" title="Website for {{ d.name }}" target="_blank" href="{{ d.url }}">{{ d.name }}</a>
+                        <a class="decompiler_title umami--click--url_{{ d.name }}" id="title_{{ d.name }}" title="Website for {{ d.name }}" target="_blank" href="{{ d.url }}">{{ d.name }}</a>
                         <a class="decompiler_rerun" id="rerun_{{ d.name }}" title="Re-run decompilation" hidden><i class='fas fa-redo'></i></a>
                     </h5>
                     <div class="decompiler_version" id="version_{{ d.name }}"></div>
@@ -132,5 +132,6 @@
     </footer>
 </div>
 <script src="{% static 'js/index.js' %}"></script>
+<script async defer data-website-id="e8f5e886-a15e-4aca-9e17-4ebed158a438" src="https://stats.ext.v35.us/yummi.js"></script>
 </body>
 </html>

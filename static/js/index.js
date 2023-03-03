@@ -49,6 +49,11 @@ Object.keys(decompilerSelectChecks).forEach((decompiler) => {
     check.addEventListener('change', () => {
         info.featured = check.checked;
         updateFrames();
+        if (check.checked) {
+            umami("Show decompiler " + info.name);
+        } else {
+            umami("Hide decompiler " + info.name);
+        }
     });
 });
 
@@ -289,6 +294,7 @@ function rerunDecompiler(decompiler_name) {
     .catch(err => {
         logError(err, err, true);
     });
+    umami("Rerun decompiler " + decompiler_name);
 }
 
 
@@ -346,3 +352,9 @@ if (id !== null) {
 
     loadAllDecompilers(id, wasSample);
 }
+
+setTimeout(() => {
+    if (document.getElementById("banner") !== null) {
+        umami("Shown queue banner");
+    }
+}, 1000);
