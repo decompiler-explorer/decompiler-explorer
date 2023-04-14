@@ -1,5 +1,5 @@
 import datetime
-from collections import OrderedDict
+from logging import getLogger
 
 from django.forms import model_to_dict
 from django.http import FileResponse
@@ -20,6 +20,7 @@ from decompiler_explorer.throttle import AnonBurstRateThrottle, AnonSustainedRat
 
 from .permissions import IsWorkerOrAdmin, ReadOnly
 
+logger = getLogger('django')
 
 class DecompilationRequestViewSet(mixins.CreateModelMixin, mixins.RetrieveModelMixin, mixins.ListModelMixin, viewsets.GenericViewSet):
     serializer_class = DecompilationRequestSerializer
@@ -40,7 +41,7 @@ class DecompilationRequestViewSet(mixins.CreateModelMixin, mixins.RetrieveModelM
             )
             if queryset.exists():
                 earliest = queryset.order_by('created')[0]
-                print(f"Giving request {earliest} to {self.request.META['REMOTE_ADDR']}")
+                logger.debug(f"Giving request %s to %s", earliest, self.request.META['REMOTE_ADDR'])
                 earliest.last_attempted = timezone.now()
                 earliest.save(update_fields=['last_attempted'])
                 return [earliest]
@@ -137,17 +138,17 @@ class DecompilationViewSet(viewsets.ModelViewSet):
             results = []
             for q in queryset.all():
                 if q.decompiler in Decompiler.healthy_latest_versions().values():
-                    print(f"Found incomplete {q.binary.id} for healthy {q.decompiler}")
+                    logger.debug(f"Found incomplete %s for healthy %s", q.binary.id, q.decompiler)
                     results.append(q)
                     continue
 
-                print(f"Found incomplete {q.binary.id} for unhealthy {q.decompiler}")
+                logger.debug(f"Found incomplete %s for unhealthy %s", q.binary.id, q.decompiler)
                 latest = True
                 same_decomp = DecompilationRequest.objects.filter(binary=binary, decompiler__name=q.decompiler.name).exclude(decompiler=q.decompiler)
                 for req in same_decomp:
-                    print(f"{q.decompiler} vs {req.decompiler}")
+                    logger.debug(f"%s vs %s", q.decompiler, req.decompiler)
                     if q.decompiler < req.decompiler:
-                        print("Old req found, this one is out!!")
+                        logger.debug("Old req found, this one is out!!")
                         latest = False
                         break
                 if latest:
@@ -239,7 +240,6 @@ class QueueView(APIView):
     template_name = 'explorer/queue.html'
 
     def get(self, request):
-        print(request.accepted_renderer)
         if request.accepted_renderer.format == 'html':
             return Response({})
         else:

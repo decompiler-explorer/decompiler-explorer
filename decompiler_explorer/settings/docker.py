@@ -28,14 +28,14 @@ LOGGING = {
     'disable_existing_loggers': False,
     'handlers': {
         'console': {
-            'level': 'ERROR',
+            'level': 'DEBUG' if DEBUG else 'ERROR',
             'class': 'logging.StreamHandler',
         },
     },
     'loggers': {
         'django': {
             'handlers': ['console'],
-            'level': 'ERROR',
+            'level': 'DEBUG' if DEBUG else 'ERROR',
         },
     }
 }
