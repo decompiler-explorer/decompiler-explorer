@@ -30,9 +30,15 @@ services:
         volumes:
             - "/var/run/docker.sock:/var/run/docker.sock:ro"
         ports:
-            - "80:80"
+            - target: 80
+              published: 80
+              mode: host
+              protocol: tcp
+            - target: 443
+              published: 443
+              mode: host
+              protocol: tcp
             - "8080:8080"
-            - "443:443"
         command:
             - --providers.docker=true
             - --providers.docker.exposedbydefault=false
