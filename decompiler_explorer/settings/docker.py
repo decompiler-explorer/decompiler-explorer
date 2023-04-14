@@ -20,6 +20,13 @@ DATABASES = {
     }
 }
 
+CACHES = {
+    'default': {
+        'BACKEND': 'django.core.cache.backends.memcached.PyMemcacheCache',
+        'LOCATION': 'memcached:11211',
+    }
+}
+
 DEFAULT_FILE_STORAGE = os.getenv('DJANGO_FILE_STORAGE', DEFAULT_FILE_STORAGE)
 AWS_STORAGE_BUCKET_NAME = os.getenv('AWS_STORAGE_BUCKET_NAME')
 

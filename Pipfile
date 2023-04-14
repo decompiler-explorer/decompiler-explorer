@@ -11,6 +11,7 @@ django-storages = "~=1.12"
 gunicorn = "~=20.1"
 psycopg2 = "~=2.9"
 whitenoise = {version = "~=6.0", extras = ["brotli"]}
+pymemcache = "~=4.0"
 
 [dev-packages]
 django-debug-toolbar = "~=3.8.1"

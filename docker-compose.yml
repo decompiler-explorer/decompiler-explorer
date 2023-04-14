@@ -85,9 +85,20 @@ services:
                 constraints:
                     - "node.role==manager"
 
+    memcached:
+        image: memcached:1.6
+        networks:
+            - backend_net
+        deploy:
+            replicas: 1
+            placement:
+                constraints:
+                    - "node.role==manager"
+
     explorer:
         depends_on:
             - database
+            - memcached
         init: true
         build: .
         image: ${IMAGE_NAME:-decompiler_explorer}:explorer
