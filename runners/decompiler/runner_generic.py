@@ -210,6 +210,9 @@ class RunnerWrapper:
             result = proc.stdout
             # Process did not crash but did not produce any stderr output.
             if len(result) == 0:
+                err_out = proc.stderr
+                if len(err_out) > 0:
+                    self.logger.info("Stderr: %s", err_out)
                 raise DecompileError("Empty decompile result")
             return result
         else:
