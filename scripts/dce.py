@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 import argparse
 import os
 import secrets
@@ -16,6 +18,11 @@ SECRETS_DIR = BASE_DIR / 'secrets'
 DATA_DIR = BASE_DIR / 'db_data'
 MEDIA_DIR = BASE_DIR / 'media'
 STATICFILES_DIR = BASE_DIR / 'staticfiles'
+
+BASE_COMPOSE_FILE = BASE_DIR / 'docker-compose.yml'
+PROD_COMPOSE_FILE = BASE_DIR / 'docker-compose.prod.yml'
+DEV_COMPOSE_FILE = BASE_DIR / 'docker-compose.dev.yml'
+S3_COMPOSE_FILE = BASE_DIR / 'docker-compose.s3.yml'
 
 
 DECOMPILERS = [
@@ -102,11 +109,11 @@ def init_server(args):
 
 
 def build_server(args):
-    config_files = '-f docker-compose.yml'
+    config_files = f'-f {BASE_COMPOSE_FILE}'
     if args.prod:
-        config_files += ' -f docker-compose.prod.yml'
+        config_files += f' -f {PROD_COMPOSE_FILE}'
     else:
-        config_files += ' -f docker-compose.dev.yml'
+        config_files += f' -f {DEV_COMPOSE_FILE}'
 
     services = [
         'traefik',
@@ -122,11 +129,11 @@ def build_server(args):
 
 
 def start_server(args):
-    config_files = '-c docker-compose.yml'
+    config_files = f'-c {BASE_COMPOSE_FILE}'
     if args.prod:
-        config_files += ' -c docker-compose.prod.yml'
+        config_files += f' -c {PROD_COMPOSE_FILE}'
     else:
-        config_files += ' -c docker-compose.dev.yml'
+        config_files += f' -c {DEV_COMPOSE_FILE}'
 
     env = os.environ.copy()
     env.update({
@@ -142,7 +149,7 @@ def start_server(args):
         env['DECOMPILER_TIMEOUT'] = args.timeout
 
     if args.s3:
-        config_files += ' -c docker-compose.s3.yml'
+        config_files += f' -c {S3_COMPOSE_FILE}'
         env["AWS_STORAGE_BUCKET_NAME"] = args.s3_bucket
 
     if args.debug:
