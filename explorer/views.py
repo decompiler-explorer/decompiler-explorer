@@ -161,11 +161,19 @@ class DecompilationViewSet(viewsets.ModelViewSet):
     @action(methods=['GET'], detail=True)
     def download(self, *args, **kwargs):
         instance = self.get_object()
+
+        # TODO: This logic can probably be moved to the storage class
         handle = instance.decompiled_file.open()
+        file_header = handle.read(2)
+        handle.seek(0)
+
+        filename = instance.decompiled_file.name.split('/')[-1]
 
         response = FileResponse(handle, content_type='application/octet-stream')
         response['Content-Length'] = instance.decompiled_file.size
-        response['Content-Disposition'] = f'attachment; filename="{instance.decompiled_file.name}"'
+        if file_header == b'\x1f\x8b':
+            response['Content-Encoding'] = 'gzip'
+        response['Content-Disposition'] = f'attachment; filename="{filename}"'
         return response
 
     @action(methods=['POST'], detail=True)
