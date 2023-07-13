@@ -199,7 +199,7 @@ class RunnerWrapper:
             # https://stackoverflow.com/a/4054436
             child_proc = shlex.join([sys.executable, args.script_name])
             bash_timeout = args.timeout + 10
-            bash_cmd = f'set -o monitor ; timeout {bash_timeout} {child_proc} < /dev/stdin ; if [ kill -0 %1 ]; then kill -9 %1 ; fi'
+            bash_cmd = f'set -o monitor ; timeout -s 9 {bash_timeout} {child_proc} < /dev/stdin'
             self.logger.debug(bash_cmd)
             proc = subprocess.run(['/bin/bash', '-c', bash_cmd], input=compiled,
                                   capture_output=True, timeout=args.timeout,
