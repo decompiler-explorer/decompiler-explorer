@@ -5,7 +5,6 @@ import sys
 import tempfile
 from pathlib import Path
 
-
 IDA_INSTALL = Path(os.getenv("IDA_INSTALL_PATH", "/home/decompiler_user/ida"))
 IDA_IDAT = IDA_INSTALL / 'idat'
 IDA_BATCH_PY = IDA_INSTALL / 'batch.py'
