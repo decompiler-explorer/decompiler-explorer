@@ -51,9 +51,9 @@ Object.keys(decompilerSelectChecks).forEach((decompiler) => {
         updateFrames();
         try {
             if (check.checked) {
-                umami("Show decompiler " + info.name);
+                umami.track("Show decompiler " + info.name);
             } else {
-                umami("Hide decompiler " + info.name);
+                umami.track("Hide decompiler " + info.name);
             }
         } catch (e) {
 
@@ -299,7 +299,7 @@ function rerunDecompiler(decompiler_name) {
         logError(err, err, true);
     });
     try {
-        umami("Rerun decompiler " + decompiler_name);
+        umami.track("Rerun decompiler " + decompiler_name);
     } catch (e) {
 
     }
@@ -364,7 +364,7 @@ if (id !== null) {
 setTimeout(() => {
     if (document.getElementById("banner") !== null) {
         try {
-            umami("Shown queue banner");
+            umami.track("Shown queue banner");
         } catch (e) {
 
         }
