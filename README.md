@@ -6,6 +6,7 @@
 ![Decompiler Explorer](/static/img/preview.png)
 
 ## Prerequisites
+
 - python >= 3.8
 - pipenv
 - docker
@@ -13,6 +14,7 @@
 
 
 ## Installation
+
 ```
 pipenv install
 python scripts/dce.py init
@@ -24,6 +26,7 @@ See the instructions [here](runners/decompiler/tools/README.md)
 
 
 ## Running in docker (dev)
+
 ```shell
 pipenv install
 python scripts/dce.py init
@@ -39,17 +42,20 @@ python scripts/dce.py start
 
 
 ## Running in docker (production)
+
 ```shell
 python scripts/dce.py start --prod --replicas 2 --acme-email=<your email>
 ```
 
 
 ## Running in docker (production with s3 storage)
+
 ```shell
 python scripts/dce.py start --prod --acme-email=<your email> --s3-bucket=<s3 bucket name>
 ```
 
 ## Starting dev server (outside Docker)
+
 > This won't start any decompilers, just the frontend
 
 ```shell
@@ -59,6 +65,7 @@ pipenv run python manage.py runserver 0.0.0.0:8000
 
 
 ## Starting decompiler for dev server
+
 ```shell
 export EXPLORER_URL=http://172.17.0.1:8000
 
