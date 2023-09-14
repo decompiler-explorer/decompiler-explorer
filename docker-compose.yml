@@ -63,8 +63,8 @@ services:
                 - traefik.http.services.traefik.loadbalancer.server.port=8080
                 - traefik.http.middlewares.https-redirect.redirectscheme.scheme=https
                 - traefik.http.middlewares.https-redirect.redirectscheme.permanent=true
-                - traefik.http.middlewares.limit.buffering.maxRequestBodyBytes=${MAX_REQUEST_SIZE:-2000000}
-                - traefik.http.middlewares.limit.buffering.memRequestBodyBytes=2000000
+                - traefik.http.middlewares.limit.buffering.maxRequestBodyBytes=${MAX_REQUEST_SIZE:-2097152}
+                - traefik.http.middlewares.limit.buffering.memRequestBodyBytes=2097152
 
     database:
         image: postgres:14
