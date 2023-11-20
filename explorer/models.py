@@ -115,6 +115,8 @@ class DecompilationRequest(models.Model):
         constraints = [
             UniqueConstraint(fields=['binary', 'decompiler'], name='unique_binary_decompiler')
         ]
+        ordering = ['created']
+        index_together = ['created', 'completed']
 
     @staticmethod
     def get_queue():
@@ -123,7 +125,7 @@ class DecompilationRequest(models.Model):
             unfulfilled = DecompilationRequest.objects.filter(
                 completed=False,
                 decompiler__last_health_check__gte=timezone.now() - HEALTHY_CUTOFF,
-            ).order_by('created')
+            )
 
             queue = OrderedDict()
             for d in sorted(Decompiler.healthy_latest_versions().values(), key=lambda d: d.id):
