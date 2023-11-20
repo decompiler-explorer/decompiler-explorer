@@ -104,7 +104,7 @@ class DecompilationRequest(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     binary = models.ForeignKey(Binary, related_name='decompilation_requests', on_delete=models.CASCADE)
     decompiler = models.ForeignKey(Decompiler, related_name='decompilation_requests', on_delete=models.SET_NULL, null=True, editable=False)
-    created = models.DateTimeField(default=timezone.now, editable=False)
+    created = models.DateTimeField(default=timezone.now, editable=False, db_index=True)
     last_attempted = models.DateTimeField(default='0001-01-01 00:00:00', editable=False)
     completed = models.BooleanField(default=False, editable=False)
 
