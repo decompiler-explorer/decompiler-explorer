@@ -6,6 +6,7 @@ from collections import OrderedDict
 from datetime import timedelta
 
 from django.conf import settings
+from django.core.cache import cache
 from django.db import models
 from django.db.models.signals import post_save
 from django.db.models.constraints import UniqueConstraint, CheckConstraint
@@ -117,38 +118,41 @@ class DecompilationRequest(models.Model):
 
     @staticmethod
     def get_queue():
-        queue = OrderedDict()
+        queue_info = cache.get('request_queue_info')
+        if queue_info is None:
+            unfulfilled = DecompilationRequest.objects.filter(
+                completed=False,
+                decompiler__last_health_check__gte=timezone.now() - HEALTHY_CUTOFF,
+            ).order_by('created')
 
-        unfulfilled = DecompilationRequest.objects.filter(
-            completed=False,
-            decompiler__last_health_check__gte=timezone.now() - HEALTHY_CUTOFF,
-        ).order_by('created')
+            queue = OrderedDict()
+            for d in sorted(Decompiler.healthy_latest_versions().values(), key=lambda d: d.id):
+                decompiler_queue = unfulfilled.filter(decompiler__id=d.id)
+                oldest_unfinished = decompiler_queue.first()
+                if oldest_unfinished is not None:
+                    oldest_unfinished = oldest_unfinished.created
+                queue[str(d.id)] = {
+                    'decompiler': model_to_dict(d),
+                    'oldest_unfinished': oldest_unfinished,
+                    'queue_length': decompiler_queue.count()
+                }
 
-
-        for d in sorted(Decompiler.healthy_latest_versions().values(), key=lambda d: d.id):
-            decompiler_queue = unfulfilled.filter(decompiler__id=d.id)
-            oldest_unfinished = decompiler_queue.first()
+            oldest_unfinished = unfulfilled.first()
             if oldest_unfinished is not None:
                 oldest_unfinished = oldest_unfinished.created
-            queue[str(d.id)] = {
-                'decompiler': model_to_dict(d),
+
+            general_queue = {
                 'oldest_unfinished': oldest_unfinished,
-                'queue_length': decompiler_queue.count()
+                'queue_length': unfulfilled.count()
             }
 
-        oldest_unfinished = unfulfilled.first()
-        if oldest_unfinished is not None:
-            oldest_unfinished = oldest_unfinished.created
+            queue_info = {
+                'general': general_queue,
+                'per_decompiler': queue,
+            }
+            cache.set('request_queue_info', queue_info, timeout=5)
 
-        general_queue = {
-            'oldest_unfinished': oldest_unfinished,
-            'queue_length': unfulfilled.count()
-        }
-
-        return {
-            'general': general_queue,
-            'per_decompiler': queue
-        }
+        return queue_info
 
 
 class Decompilation(models.Model):
