@@ -44,6 +44,7 @@ class Binary(models.Model):
         return f'Binary: {self.hash}'
 
 
+#TODO: unique constraint on name, version, revision, url
 class Decompiler(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     name = models.CharField(max_length=255)
@@ -106,7 +107,6 @@ class DecompilationRequest(models.Model):
     decompiler = models.ForeignKey(Decompiler, related_name='decompilation_requests', on_delete=models.SET_NULL, null=True, editable=False)
     created = models.DateTimeField(default=timezone.now, editable=False)
     last_attempted = models.DateTimeField(default='0001-01-01 00:00:00', editable=False)
-    completed = models.BooleanField(default=False, editable=False)
 
     def __str__(self):
         return f'<Decompilation Request: {self.id}>'
@@ -116,14 +116,12 @@ class DecompilationRequest(models.Model):
             UniqueConstraint(fields=['binary', 'decompiler'], name='unique_binary_decompiler')
         ]
         ordering = ['created']
-        index_together = ['created', 'completed']
 
     @staticmethod
     def get_queue():
         queue_info = cache.get('request_queue_info')
         if queue_info is None:
             unfulfilled = DecompilationRequest.objects.filter(
-                completed=False,
                 decompiler__last_health_check__gte=timezone.now() - HEALTHY_CUTOFF,
             )
 
@@ -157,7 +155,6 @@ class DecompilationRequest(models.Model):
 
 class Decompilation(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    request = models.OneToOneField(DecompilationRequest, related_name="decompilation", on_delete=models.PROTECT)
     binary = models.ForeignKey(Binary, related_name='decompilations', on_delete=models.CASCADE, editable=False)
     #TODO: rename to contents
     decompiled_file = models.FileField(upload_to=decompilation_upload_path, max_length=255, null=True)
@@ -189,33 +186,18 @@ class Decompilation(models.Model):
         return self.error is not None or self.decompiled_file is None
 
 
-def rerun_decompilation_request(binary: Binary, decompiler: Decompiler):
-    existing_req = DecompilationRequest.objects.filter(binary=binary, decompiler=decompiler).all()
-    if len(existing_req) == 0:
-        existing_req = None
-    else:
-        existing_req = existing_req[0]
-
-    if existing_req is not None:
-        if not existing_req.completed:
-            raise ValueError("Trying to rerun incomplete request")
-
-        existing_req.decompilation.delete()
+def rerun_binary_decompilation(binary: Binary, decompiler: Decompiler):
+    # Delete any pending requests for the binary+decompiler and add one to the queue
+    try:
+        existing_req = binary.decompilation_requests.get(decompiler=decompiler)
         existing_req.delete()
+    except DecompilationRequest.DoesNotExist:
+        pass
+
+    try:
+        existing_decomp = binary.decompilations.get(decompiler=decompiler)
+        existing_decomp.delete()
+    except Decompilation.DoesNotExist:
+        pass
 
     DecompilationRequest.objects.create(binary=binary, decompiler=decompiler)
-
-
-@receiver(post_save, sender=Binary)
-def create_decompilation_requests(sender, instance, created, *args, **kwargs):
-    # TODO: Whenever multi-version is ready, send to what the user requests
-    for decompiler in Decompiler.healthy_latest_versions().values():
-        if not DecompilationRequest.objects.filter(binary=instance, decompiler=decompiler).exists():
-            DecompilationRequest.objects.create(binary=instance, decompiler=decompiler)
-
-
-@receiver(post_save, sender=Decompilation)
-def mark_request_completed(sender, instance, created, *args, **kwargs):
-    if created and not instance.request.completed:
-        instance.request.completed = True
-        instance.request.save(update_fields=['completed'])

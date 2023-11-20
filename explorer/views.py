@@ -13,7 +13,7 @@ from rest_framework.renderers import TemplateHTMLRenderer, JSONRenderer
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from .models import Binary, Decompilation, DecompilationRequest, Decompiler, rerun_decompilation_request
+from .models import Binary, Decompilation, DecompilationRequest, Decompiler, rerun_binary_decompilation
 from .serializers import DecompilationRequestSerializer, DecompilationSerializer, BinarySerializer, \
     DecompilerSerializer
 from decompiler_explorer.throttle import AnonBurstRateThrottle, AnonSustainedRateThrottle
@@ -28,10 +28,6 @@ class DecompilationRequestViewSet(mixins.CreateModelMixin, mixins.RetrieveModelM
 
     def get_queryset(self):
         queryset = DecompilationRequest.objects.all()
-        completed_str = self.request.query_params.get('completed')
-        if completed_str is not None:
-            completed = completed_str.lower() in ['true', '1']
-            queryset = queryset.filter(completed=completed)
 
         decompiler_id = self.request.query_params.get('decompiler')
         if decompiler_id is not None:
@@ -48,6 +44,16 @@ class DecompilationRequestViewSet(mixins.CreateModelMixin, mixins.RetrieveModelM
 
         return queryset
 
+    @action(methods=['POST'], detail=True)
+    def complete(self, request, pk=None):
+        serializer = DecompilationSerializer(data=request.data, context={'request': request})
+        if serializer.is_valid():
+            instance = self.get_object()
+            serializer.save(binary=instance.binary, decompiler=instance.decompiler)
+            instance.delete()
+            return Response(serializer.data)
+        else:
+            return Response(serializer.errors, status=400)
 
 class DecompilerViewSet(mixins.CreateModelMixin, mixins.RetrieveModelMixin, mixins.ListModelMixin, viewsets.GenericViewSet):
     serializer_class = DecompilerSerializer
@@ -88,6 +94,11 @@ class BinaryViewSet(mixins.CreateModelMixin, mixins.RetrieveModelMixin, mixins.L
             permission_classes = [IsWorkerOrAdmin]
         return [permission() for permission in permission_classes]
 
+    def perform_create(self, serializer):
+        instance = serializer.save()
+        for decompiler in Decompiler.healthy_latest_versions().values():
+            _ = DecompilationRequest.objects.get_or_create(binary=instance, decompiler=decompiler)
+
     @action(methods=['GET'], detail=True)
     def download(self, *args, **kwargs):
         instance = self.get_object()
@@ -106,20 +117,18 @@ class BinaryViewSet(mixins.CreateModelMixin, mixins.RetrieveModelMixin, mixins.L
         # TODO: Whenever multi-version is ready, use all or something?
         for decompiler in Decompiler.healthy_latest_versions().values():
             try:
-                rerun_decompilation_request(instance, decompiler)
+                rerun_binary_decompilation(instance, decompiler)
             except ValueError:
                 pass
         return Response()
 
 
-class DecompilationViewSet(viewsets.ModelViewSet):
+class DecompilationViewSet(mixins.RetrieveModelMixin, mixins.UpdateModelMixin, mixins.DestroyModelMixin, mixins.ListModelMixin, viewsets.GenericViewSet):
     queryset = Decompilation.objects.none()
     serializer_class = DecompilationSerializer
 
     def get_permissions(self):
-        if self.action == 'create':
-            permission_classes = [IsWorkerOrAdmin]
-        elif self.action in ['retrieve', 'list', 'download', 'rerun']:
+        if self.action in ['retrieve', 'list', 'download', 'rerun']:
             permission_classes = [AllowAny]
         else:
             permission_classes = [IsAdminUser]
@@ -128,34 +137,6 @@ class DecompilationViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         binary = self.get_binary()
         queryset = Decompilation.objects.filter(binary=binary)
-        completed_str = self.request.query_params.get('completed')
-        if completed_str is not None:
-            completed = completed_str.lower() in ['true', '1']
-            queryset = queryset.filter(request__completed=completed)
-
-            # TODO: Whenever multi-version is ready, remove this nonsense
-            # Filter decomps for which there is an active request for a newer decompiler
-            results = []
-            for q in queryset.all():
-                if q.decompiler in Decompiler.healthy_latest_versions().values():
-                    logger.debug(f"Found incomplete %s for healthy %s", q.binary.id, q.decompiler)
-                    results.append(q)
-                    continue
-
-                logger.debug(f"Found incomplete %s for unhealthy %s", q.binary.id, q.decompiler)
-                latest = True
-                same_decomp = DecompilationRequest.objects.filter(binary=binary, decompiler__name=q.decompiler.name).exclude(decompiler=q.decompiler)
-                for req in same_decomp:
-                    logger.debug(f"%s vs %s", q.decompiler, req.decompiler)
-                    if q.decompiler < req.decompiler:
-                        logger.debug("Old req found, this one is out!!")
-                        latest = False
-                        break
-                if latest:
-                    results.append(q)
-
-            return results
-
         return queryset
 
     @action(methods=['GET'], detail=True)
@@ -179,27 +160,20 @@ class DecompilationViewSet(viewsets.ModelViewSet):
     @action(methods=['POST'], detail=True)
     def rerun(self, *args, **kwargs):
         instance = self.get_object()
-        req: DecompilationRequest = instance.request
 
         # TODO: Whenever multi-version is ready, use the one they request
-        new_decompiler = Decompiler.healthy_latest_versions().get(req.decompiler.name, None)
+        new_decompiler = Decompiler.healthy_latest_versions().get(instance.decompiler.name, None)
         if new_decompiler is None:
             return Response({
                 "error": "Not re-running decompliation for decompiler with no active runners."
             }, status=400)
 
-        binary = req.binary
-        rerun_decompilation_request(binary, new_decompiler)
+        rerun_binary_decompilation(instance.binary, new_decompiler)
         return Response()
-
 
     def get_binary(self):
         binary_id = self.kwargs.get('binary_id')
         return get_object_or_404(Binary, id=binary_id)
-
-    def perform_create(self, serializer):
-        decomp_req = serializer.validated_data['request']
-        serializer.save(binary=self.get_binary(), decompiler=decomp_req.decompiler)
 
 
 class IndexView(APIView):

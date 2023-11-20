@@ -11,7 +11,7 @@ from .models import Decompilation, DecompilationRequest, Decompiler, Binary
 class DecompilationRequestAdmin(admin.ModelAdmin):
 	model = DecompilationRequest
 	ordering = ('-created', 'decompiler')
-	list_display = ('created', 'decompiler', '_binary', 'completed', 'last_attempted', 'id')
+	list_display = ('created', 'decompiler', '_binary', 'last_attempted', 'id')
 
 	def _binary(self, instance):
 		return mark_safe(f'<a href="/?id={instance.binary.id}">{instance.binary.id}</a>')

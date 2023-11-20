@@ -86,7 +86,7 @@ class RunnerWrapper:
         self.session.headers.update({'X-AUTH-TOKEN': AUTH_TOKEN})
 
         self.decompiler_id = self.register_runner()
-        self.pending_url = f'{SERVER}/api/decompilation_requests/?completed=false&decompiler={self.decompiler_id}'
+        self.pending_url = f'{SERVER}/api/decompilation_requests/?decompiler={self.decompiler_id}'
         self.health_check_url = f'{SERVER}/api/decompilers/{self.decompiler_id}/health_check/'
 
         self.logger.info(f"   REMOTE ID: {self.decompiler_id}")
@@ -96,33 +96,36 @@ class RunnerWrapper:
 
     def register_runner(self) -> str:
         decompilers_url = f'{SERVER}/api/decompilers/'
-        req = self.session.get(decompilers_url)
-        if req.status_code != 200:
-            raise Exception(req.text)
 
-        decompiler_id = None
-        decompilers = req.json()['results']
-        for d in decompilers:
-            info = DecompilerInfo(
-                name=d['name'],
-                version=d['version'],
-                revision=d['revision'],
-                url=d['url'],
-            )
-            if info == self.decompiler_info:
-                decompiler_id = d['id']
-                break
-
-        if decompiler_id is None:
-            req = self.session.post(decompilers_url, json=asdict(self.decompiler_info))
-            if req.status_code != 201:
+        # Try finding existing match
+        next_url = decompilers_url
+        while next_url is not None:
+            req = self.session.get(next_url)
+            if req.status_code != 200:
                 raise Exception(req.text)
-            decompiler_id = req.json()['id']
 
-        if decompiler_id is None:
-            raise Exception('Cannot find decompiler')
+            req_json = req.json()
+            decompilers = req_json['results']
+            next_url = req_json['next']
 
-        return decompiler_id
+            for d in decompilers:
+                info = DecompilerInfo(
+                    name=d['name'],
+                    version=d['version'],
+                    revision=d['revision'],
+                    url=d['url'],
+                )
+                if info == self.decompiler_info:
+                    self.logger.info("   Found matching decompiler instance")
+                    return d['id']
+
+        # No match found, register ourselves
+        self.logger.info("   Did not find match, creating new decompiler instance...")
+        req = self.session.post(decompilers_url, json=asdict(self.decompiler_info))
+        if req.status_code != 201:
+            raise Exception(req.text)
+        req_json = req.json()
+        return req_json['id']
 
 
     def health_check(self):
@@ -157,14 +160,13 @@ class RunnerWrapper:
                         self.logger.debug("Decompilation finished")
 
                         data = {
-                            'request': pending_req['id'],
                             'analysis_time': end_time - start_time,
                         }
                         files = {
                             'decompiled_file': gzip.compress(decompiled, compresslevel=2), # TODO: This should compress in chunks if we ever pass results via files
                         }
 
-                        r = self.session.post(pending_req['decompilations_url'], data=data, files=files)
+                        r = self.session.post(pending_req['completion_url'], data=data, files=files)
 
                         self.logger.debug(">>> %s", r.text)
                         self.logger.info(f"Decompilation request for {pending_req['binary_id']} (req: {pending_req['id']}) finished with success")
@@ -173,10 +175,9 @@ class RunnerWrapper:
                         self.logger.error(f"DECOMPILE ERROR: {e.message}")
                         data = {
                             'error': e.message,
-                            'request': pending_req['id'],
                             'analysis_time': end_time - start_time,
                         }
-                        r = self.session.post(pending_req['decompilations_url'], data=data)
+                        r = self.session.post(pending_req['completion_url'], data=data)
                         self.logger.debug(r.text)
 
             except KeyboardInterrupt:
