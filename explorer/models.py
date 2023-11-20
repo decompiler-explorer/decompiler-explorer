@@ -134,7 +134,6 @@ class DecompilationRequest(models.Model):
                 queue[str(d.id)] = {
                     'decompiler': model_to_dict(d),
                     'oldest_unfinished': oldest_unfinished,
-                    'queue_length': decompiler_queue.count()
                 }
 
             oldest_unfinished = unfulfilled.first()
@@ -143,7 +142,6 @@ class DecompilationRequest(models.Model):
 
             general_queue = {
                 'oldest_unfinished': oldest_unfinished,
-                'queue_length': unfulfilled.count()
             }
 
             queue_info = {

@@ -38,12 +38,10 @@ function setQueue(data) {
 
     let generalContent = document.createElement("p");
 
-    if (data.general.queue_length === 0) {
-        generalContent.innerText = "Queue is empty!";
-    } else {
-        generalContent.append("Queue size: " + data.general.queue_length.toString());
-        generalContent.append(document.createElement("br"));
+    if (data.general.oldest_unfinished) {
         generalContent.append("Oldest unfinished job: " + new Date(data.general.oldest_unfinished).toString());
+    } else {
+        generalContent.innerText = "Queue is empty!";
     }
     queueDiv.append(generalContent);
 
@@ -65,12 +63,10 @@ function setQueue(data) {
         queueDiv.append(decompHeader)
 
         let decompContent = document.createElement("p");
-        if (decompQueue.queue_length === 0) {
-            decompContent.innerText = "Queue is empty!";
-        } else {
-            decompContent.append("Queue size: " + decompQueue.queue_length.toString());
-            decompContent.append(document.createElement("br"));
+        if (decompQueue.oldest_unfinished) {
             decompContent.append("Oldest unfinished job: " + new Date(decompQueue.oldest_unfinished).toString());
+        } else {
+            decompContent.innerText = "Queue is empty!";
         }
         queueDiv.append(decompContent);
     }
