@@ -215,7 +215,7 @@ class IndexView(APIView):
         for d in decompilers:
             decompilers_json[d.name] = model_to_dict(d)
 
-        featured_binaries = sorted(Binary.objects.filter(featured=True), key=lambda b: b.featured_name)
+        featured_binaries = Binary.objects.filter(featured=True).order_by('featured_name')
         queue = DecompilationRequest.get_queue()
         show_banner = False
         oldest_unfinished = queue['general']['oldest_unfinished']
