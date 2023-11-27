@@ -12,6 +12,7 @@ class DecompilationRequestAdmin(admin.ModelAdmin):
 	model = DecompilationRequest
 	ordering = ('-created', 'decompiler')
 	list_display = ('created', 'decompiler', '_binary', 'last_attempted', 'id')
+	raw_id_fields = ('binary',)
 
 	def _binary(self, instance):
 		return mark_safe(f'<a href="/?id={instance.binary.id}">{instance.binary.id}</a>')
@@ -22,6 +23,7 @@ class DecompilationAdmin(admin.ModelAdmin):
 	model = Decompilation
 	ordering = ('-created', 'decompiler')
 	list_display = ('created', 'decompiler', '_binary', '_succeeded', 'id')
+	raw_id_fields = ('binary',)
 
 	def _binary(self, instance):
 		return mark_safe(f'<a href="/?id={instance.binary.id}">{instance.binary.id}</a>')
