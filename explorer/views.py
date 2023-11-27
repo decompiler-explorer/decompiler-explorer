@@ -49,9 +49,11 @@ class DecompilationRequestViewSet(mixins.CreateModelMixin, mixins.RetrieveModelM
         serializer = DecompilationSerializer(data=request.data, context={'request': request})
         if serializer.is_valid():
             instance = self.get_object()
-            serializer.save(binary=instance.binary, decompiler=instance.decompiler)
-            instance.delete()
-            return Response(serializer.data)
+            try:
+                serializer.save(binary=instance.binary, decompiler=instance.decompiler)
+                return Response(serializer.data)
+            finally:
+                instance.delete()
         else:
             return Response(serializer.errors, status=400)
 
