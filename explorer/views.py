@@ -192,19 +192,18 @@ class IndexView(APIView):
             decompilers_json[d.name] = model_to_dict(d)
 
         featured_binaries = Binary.objects.filter(featured=True).order_by('featured_name')
-        # TODO: this needs to be replaced with something that isn't terribly slow
-        # queue = DecompilationRequest.get_queue()
-        # show_banner = False
-        # oldest_unfinished = queue['general']['oldest_unfinished']
-        # if oldest_unfinished is not None:
-        #     show_banner = oldest_unfinished < timezone.now() - datetime.timedelta(minutes=10)
+        queue = DecompilationRequest.get_queue()
+        show_banner = False
+        oldest_unfinished = queue['general']['oldest_unfinished']
+        if oldest_unfinished is not None:
+            show_banner = oldest_unfinished < timezone.now() - datetime.timedelta(minutes=10)
 
         return Response({
             'serializer': BinarySerializer(),
             'decompilers': decompilers,
             'decompilers_json': decompilers_json,
             'featured_binaries': featured_binaries,
-            # 'show_banner': show_banner
+            'show_banner': show_banner
         })
 
 
