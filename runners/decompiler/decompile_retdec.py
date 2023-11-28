@@ -37,9 +37,15 @@ def version():
     output = proc.stdout.decode()
     lines = output.split('\n')
     version_lines = [l for l in lines if l.startswith('RetDec version : ')]
+    commit_lines  = [l for l in lines if l.startswith('Commit hash    : ')]
     assert len(version_lines) == 1
-    revision = version_lines[0][-9:]
-    version = version_lines[0][19:-10]
+    assert len(commit_lines) == 1
+    version = version_lines[0][18:]
+    assert version[0] == 'v'
+    version = version[1:]
+    # strip second hyphen and beyond cause we don't care
+    version = '-'.join(version.split('-')[:2])
+    revision = commit_lines[0][18:26] # 8 chars is enough
 
     print(version)
     print(revision)

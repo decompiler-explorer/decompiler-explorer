@@ -22,6 +22,18 @@ WORKDIR /home/decompiler_user
 
 RUN pip install --user 'requests>=2.27,<3.0'
 
+FROM --platform=amd64 python:3.8-slim-bookworm as base-x86-bookworm
+
+RUN useradd -ms /bin/false decompiler_user
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends curl \
+    && rm -rf /var/lib/apt/lists/*
+
+USER decompiler_user
+WORKDIR /home/decompiler_user
+
+RUN pip install --user 'requests>=2.27,<3.0'
+
 
 # Binary Ninja
 FROM base-x86 as binja
@@ -100,7 +112,7 @@ COPY runner_generic.py .
 ENTRYPOINT [ "./entrypoint.sh", "decompile_snowman.py" ]
 
 # RetDec
-FROM base-x86 as retdec
+FROM base-x86-bookworm as retdec
 USER root
 RUN apt-get update \
     && apt-get install -y --no-install-recommends wget xz-utils \
@@ -108,9 +120,12 @@ RUN apt-get update \
 
 USER decompiler_user
 WORKDIR /home/decompiler_user
-RUN wget https://retdec-tc.avast.com/repository/download/RetDec_LinuxBuild/.lastSuccessful/package/retdec-master-linux-64b.tar.xz?guest=1 \
-    && tar xf 'retdec-master-linux-64b.tar.xz?guest=1' \
-    && rm 'retdec-master-linux-64b.tar.xz?guest=1'
+RUN wget https://github.com/avast/retdec/releases/download/v5.0/RetDec-v5.0-Linux-Release.tar.xz \
+    && mkdir retdec \
+    && cd retdec \
+    && tar xf ../RetDec-v5.0-Linux-Release.tar.xz \
+    && cd .. \
+    && rm RetDec-v5.0-Linux-Release.tar.xz
 COPY decompile_retdec.py .
 
 COPY entrypoint.sh .
