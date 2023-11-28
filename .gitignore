@@ -13,3 +13,4 @@ runners/decompiler/tools/binja/*
 runners/decompiler/tools/hexrays/.idapro
 runners/decompiler/tools/hexrays/ida
 runners/decompiler/tools/relyze/License.txt
+__pycache__
