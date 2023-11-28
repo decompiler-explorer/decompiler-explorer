@@ -44,7 +44,6 @@ class Binary(models.Model):
         return f'Binary: {self.hash}'
 
 
-#TODO: unique constraint on name, version, revision, url
 class Decompiler(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     name = models.CharField(max_length=255)
@@ -54,6 +53,11 @@ class Decompiler(models.Model):
     last_health_check = models.DateTimeField(default=timezone.now, editable=False)
     featured = models.BooleanField('Featured on homepage', default=False)
     created = models.DateTimeField(default=timezone.now, editable=False)
+
+    class Meta:
+        constraints = [
+            UniqueConstraint(fields=['name', 'version', 'revision', 'url'], name='unique_decompiler_info')
+        ]
 
     def __str__(self):
         if len(self.revision) > 0:
