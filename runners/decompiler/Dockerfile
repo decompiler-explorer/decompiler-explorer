@@ -1,4 +1,4 @@
-FROM python:3.8-slim-bullseye as base
+FROM python:3.10-slim-bookworm as base
 
 RUN useradd -ms /bin/false decompiler_user
 RUN apt-get update \
@@ -10,7 +10,7 @@ WORKDIR /home/decompiler_user
 
 RUN pip install --user 'requests>=2.27,<3.0'
 
-FROM --platform=amd64 python:3.8-slim-bullseye as base-x86
+FROM --platform=amd64 python:3.10-slim-bookworm as base-x86
 
 RUN useradd -ms /bin/false decompiler_user
 RUN apt-get update \
@@ -21,19 +21,6 @@ USER decompiler_user
 WORKDIR /home/decompiler_user
 
 RUN pip install --user 'requests>=2.27,<3.0'
-
-FROM --platform=amd64 python:3.8-slim-bookworm as base-x86-bookworm
-
-RUN useradd -ms /bin/false decompiler_user
-RUN apt-get update \
-    && apt-get install -y --no-install-recommends curl \
-    && rm -rf /var/lib/apt/lists/*
-
-USER decompiler_user
-WORKDIR /home/decompiler_user
-
-RUN pip install --user 'requests>=2.27,<3.0'
-
 
 # Binary Ninja
 FROM base-x86 as binja
@@ -78,7 +65,7 @@ RUN apt-get update \
     && rm -rf /var/lib/apt/lists/*
 USER decompiler_user
 
-RUN wget https://github.com/NationalSecurityAgency/ghidra/releases/download/Ghidra_10.3.3_build/ghidra_10.3.3_PUBLIC_20230829.zip -O ghidra.zip \
+RUN wget https://github.com/NationalSecurityAgency/ghidra/releases/download/Ghidra_10.4_build/ghidra_10.4_PUBLIC_20230928.zip -O ghidra.zip \
     && unzip ghidra.zip \
     && rm ghidra.zip \
     && mv ghidra_* ghidra
@@ -112,7 +99,7 @@ COPY runner_generic.py .
 ENTRYPOINT [ "./entrypoint.sh", "decompile_snowman.py" ]
 
 # RetDec
-FROM base-x86-bookworm as retdec
+FROM base-x86 as retdec
 USER root
 RUN apt-get update \
     && apt-get install -y --no-install-recommends wget xz-utils \
@@ -224,7 +211,7 @@ RUN apt-get update \
     && apt-get install -y --no-install-recommends libsecret-1-0 \
     && rm -rf /var/lib/apt/lists/*
 
-RUN /home/decompiler_user/ida/idapyswitch --force-path /usr/local/lib/libpython3.8.so \
+RUN /home/decompiler_user/ida/idapyswitch --force-path /usr/local/lib/libpython3.10.so \
     && chmod +x /home/decompiler_user/ida/efd64 \
     && chown -R decompiler_user /home/decompiler_user/ida \
     && chown -R decompiler_user /home/decompiler_user/.idapro
@@ -250,7 +237,7 @@ RUN apt-get update \
 USER decompiler_user
 WORKDIR /home/decompiler_user
 
-RUN git clone --depth=1 --branch=v0.1.3 https://github.com/fkie-cad/dewolf.git \
+RUN git clone --depth=1 --branch=v0.2.0 https://github.com/fkie-cad/dewolf.git \
     && cd dewolf \
     && pipenv install -r ./requirements.txt \
     && pipenv run python /home/decompiler_user/binaryninja/scripts/install_api.py
