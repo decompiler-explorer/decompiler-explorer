@@ -168,6 +168,32 @@ function displayResult(resultData, is_sample) {
 let refreshSchedule = -1;
 let timerSchedule = -1;
 
+function compareVersions(thisVersionStr, otherVersionStr) {
+    // Compare versions and, if otherer, overwrite
+    let thisVersion = thisVersionStr.split(".").flatMap(version => version.split('-'));
+    let otherVersion = otherVersionStr.split(".").flatMap(version => version.split('-'));
+    for (let i = 0; i < Math.min(thisVersion.length, otherVersion.length); i++) {
+        let thisVi = parseInt(thisVersion[i]);
+        let otherVi = parseInt(otherVersion[i]);
+        if (!isNaN(thisVi) && !isNaN(otherVi)) {
+            if (parseInt(thisVersion[i]) < parseInt(otherVersion[i]))
+                return true;
+            if (parseInt(thisVersion[i]) > parseInt(otherVersion[i]))
+                return false;
+        } else {
+            if (thisVersion[i] < otherVersion[i])
+                return true;
+            if (thisVersion[i] > otherVersion[i])
+                return false;
+        }
+    }
+    if (thisVersion.length < otherVersion.length)
+        return true;
+    if (thisVersion.length > otherVersion.length)
+        return false;
+    return false;
+}
+
 function loadResults(is_sample) {
     let finishedResults = [];
     let startTime = Date.now();
@@ -201,7 +227,23 @@ function loadResults(is_sample) {
                 }
             })
             .then(data => {
+                let bestVersions = {};
                 for (let i of data['results']) {
+                    if (!Object.keys(bestVersions).includes(i['decompiler']['name'])) {
+                        bestVersions[i['decompiler']['name']] = i;
+                        continue;
+                    }
+
+                    let oldBest = bestVersions[i['decompiler']['name']];
+                    let oldVersion = oldBest['decompiler']['version'];
+                    let newVersion = i['decompiler']['version'];
+
+                    if (compareVersions(oldVersion, newVersion)) {
+                        bestVersions[i['decompiler']['name']] = i;
+                    }
+                }
+
+                for (let i of Object.values(bestVersions)) {
                     if (i['decompiler'] === null)
                         continue;
                     let decompilerName = i['decompiler']['name'];
@@ -211,7 +253,8 @@ function loadResults(is_sample) {
                     }
                 }
             })
-            .catch(() => {
+            .catch((e) => {
+                console.error(e);
             })
             .finally(() => {
                 if (finishedResults.length < numDecompilers) {
