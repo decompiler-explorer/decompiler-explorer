@@ -7,7 +7,7 @@ from pathlib import Path
 
 
 REKO_INSTALL = Path(os.getenv("REKO_INSTALL_PATH", "/home/decompiler_user/reko"))
-REKO_DECOMPILE = REKO_INSTALL / 'decompile'
+REKO_DECOMPILE = REKO_INSTALL / 'reko'
 
 
 def main():
@@ -38,12 +38,12 @@ def main():
 
 def version():
     proc = subprocess.run([REKO_DECOMPILE, '--version'], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-    # Decompile.exe version 0.11.2.0 (git:42a17f5d0)
+    # Reko decompiler version 0.11.5.0 (git:36c3481)
     output = proc.stdout.decode().strip()
-    assert 'Decompile.exe version ' in output
-    version = output.split(' ')[2]
+    assert 'Reko decompiler version ' in output
+    version = output.split(' ')[3]
 
-    revision = output.split(' ')[3]
+    revision = output.split(' ')[4]
     assert '(git:' in revision
     revision = revision[5:-1]
 
