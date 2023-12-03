@@ -178,6 +178,8 @@ class RunnerWrapper:
                             'analysis_time': end_time - start_time,
                         }
                         r = self.session.post(pending_req['completion_url'], data=data)
+                        if r.status_code != 200:
+                            self.logger.error(f"Failed submitting data: {r.text}")
                         self.logger.debug(r.text)
 
             except KeyboardInterrupt:
