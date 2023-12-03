@@ -174,7 +174,7 @@ class RunnerWrapper:
                         end_time = time.time()
                         self.logger.error(f"DECOMPILE ERROR: {e.message}")
                         data = {
-                            'error': e.message,
+                            'error': e.message or 'No details provided',
                             'analysis_time': end_time - start_time,
                         }
                         r = self.session.post(pending_req['completion_url'], data=data)
