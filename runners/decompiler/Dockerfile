@@ -40,6 +40,7 @@ COPY entrypoint.sh .
 COPY runner_generic.py .
 ENTRYPOINT [ "./entrypoint.sh", "decompile_bn.py" ]
 
+
 # angr
 FROM base-x86 as angr
 USER root
