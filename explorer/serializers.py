@@ -1,4 +1,5 @@
 import hashlib
+from django.conf import settings
 from rest_framework import serializers
 from rest_framework.reverse import reverse
 
@@ -29,6 +30,11 @@ class DecompilationSerializer(WriteOnceMixin, serializers.ModelSerializer):
         return reverse('decompilation-detail', args=[binary.pk, obj.pk], request=self.context['request'])
 
     def get_download_url(self, obj: Decompilation):
+        if settings.USING_S3:
+            if obj.decompiled_file.name:
+                return obj.decompiled_file.url
+            return None
+
         binary = obj.binary
         return reverse('decompilation-download', args=[binary.pk, obj.pk], request=self.context['request'])
 
@@ -56,6 +62,9 @@ class BinarySerializer(WriteOnceMixin, serializers.ModelSerializer):
             return super().create(validated_data)
 
     def get_download_url(self, obj):
+        if settings.USING_S3:
+            return obj.file.url
+
         return reverse('binary-download', args=[obj.pk], request=self.context['request'])
 
     def get_decompilations_url(self, obj):
@@ -72,6 +81,9 @@ class DecompilationRequestSerializer(serializers.ModelSerializer):
         fields = ['id', 'binary_id', 'decompiler', 'created', 'last_attempted', 'download_url', 'completion_url']
 
     def get_download_url(self, obj):
+        if settings.USING_S3:
+            return obj.binary.file.url
+
         return reverse('binary-download', args=[obj.binary.pk], request=self.context['request'])
 
     def get_completion_url(self, obj):

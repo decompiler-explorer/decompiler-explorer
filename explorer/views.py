@@ -145,11 +145,7 @@ class DecompilationViewSet(mixins.RetrieveModelMixin, mixins.UpdateModelMixin, m
     def download(self, *args, **kwargs):
         instance = self.get_object()
 
-        # TODO: This logic can probably be moved to the storage class
         handle = instance.decompiled_file.open()
-        file_header = handle.read(2)
-        handle.seek(0)
-
         filename = instance.decompiled_file.name.split('/')[-1]
 
         response = FileResponse(handle, content_type='application/octet-stream')

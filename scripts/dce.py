@@ -77,7 +77,9 @@ start_parser.add_argument('--acme-email', default="admin@localhost", help='Email
 start_parser.add_argument('--domain', default="dce.localhost", help='Domain name of host')
 start_parser.add_argument('--replicas', default=1, help='Number of replicas for the decompiler runners')
 start_parser.add_argument('--s3', action='store_true', help='Use S3 for storing uploaded files')
-start_parser.add_argument('--s3-bucket', required='--argument' in sys.argv, help='Name of S3 bucket that will store uploaded files')
+start_parser.add_argument('--s3-bucket', required='--s3' in sys.argv, help='Name of S3 bucket that will store uploaded files')
+start_parser.add_argument('--s3-endpoint', required='--s3' in sys.argv, help='S3-compatible endpoint')
+start_parser.add_argument('--s3-region', required='--s3' in sys.argv, help='S3 region')
 start_parser.add_argument('--timeout', help='Timeout duration for runners (default: 120)')
 
 stop_parser = subparsers.add_parser('stop')
@@ -151,6 +153,8 @@ def start_server(args):
     if args.s3:
         config_files += f' -c {S3_COMPOSE_FILE}'
         env["AWS_STORAGE_BUCKET_NAME"] = args.s3_bucket
+        env["AWS_S3_ENDPOINT_URL"] = args.s3_endpoint
+        env["AWS_S3_REGION_NAME"] = args.s3_region
 
     if args.debug:
         env['DEBUG'] = '1'
