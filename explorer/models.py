@@ -8,9 +8,7 @@ from datetime import timedelta
 from django.conf import settings
 from django.core.cache import cache
 from django.db import models
-from django.db.models.signals import post_save
 from django.db.models.constraints import UniqueConstraint, CheckConstraint
-from django.dispatch import receiver
 from django.forms import model_to_dict
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
@@ -24,7 +22,7 @@ def binary_upload_path(instance, filename):
 
 def decompilation_upload_path(instance, filename):
     ctx = hashlib.sha256()
-    for data in instance.decompiled_file.chunks(1024):
+    for data in instance.decompiled_file.chunks(8192):
         ctx.update(data)
     return f"{settings.UPLOAD_DECOMPILED_PATH}/{ctx.hexdigest()}"
 
