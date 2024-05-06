@@ -154,8 +154,6 @@ class DecompilationViewSet(mixins.RetrieveModelMixin, mixins.UpdateModelMixin, m
 
         response = FileResponse(handle, content_type='application/octet-stream')
         response['Content-Length'] = instance.decompiled_file.size
-        if file_header == b'\x1f\x8b':
-            response['Content-Encoding'] = 'gzip'
         response['Content-Disposition'] = f'attachment; filename="{filename}"'
         return response
 

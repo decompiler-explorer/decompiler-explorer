@@ -147,7 +147,18 @@ function displayResult(resultData, is_sample) {
     }
 
     fetch(url)
-    .then(resp => resp.text())
+    .then(resp => resp.blob())
+    .then(async data => {
+        const ds = new DecompressionStream("gzip");
+        // Try to decompress as gzip, if it isn't valid gzip just pass the data through
+        const decompressedStream = data.stream().pipeThrough(ds);
+        try {
+            return await new Response(decompressedStream).blob();
+        } catch (err) {
+            return data;
+        }
+    })
+    .then(data => data.text())
     .then(data => {
         updateTextEdit(decompiler_name, data);
         loading[decompiler_name] = true;
