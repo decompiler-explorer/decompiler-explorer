@@ -1,5 +1,11 @@
 version: '3.8'
 
+x-decompiler:
+    &default-decompiler-options
+        extra_hosts:
+            - "${AWS_S3_ENDPOINT_HOST}:${AWS_S3_ENDPOINT_IP}"
+
+
 services:
     explorer:
         environment:
@@ -10,6 +16,30 @@ services:
         secrets:
             - s3_access_key_id
             - s3_secret_access_key
+
+    binja:
+        <<: *default-decompiler-options
+    ghidra:
+        <<: *default-decompiler-options
+    angr:
+        <<: *default-decompiler-options
+    snowman:
+        <<: *default-decompiler-options
+    retdec:
+        <<: *default-decompiler-options
+    recstudio:
+        <<: *default-decompiler-options
+    boomerang:
+        <<: *default-decompiler-options
+    reko:
+        <<: *default-decompiler-options
+    hexrays:
+        <<: *default-decompiler-options
+    dewolf:
+        <<: *default-decompiler-options
+    relyze:
+        <<: *default-decompiler-options
+
 
 secrets:
     s3_access_key_id:

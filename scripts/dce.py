@@ -3,10 +3,12 @@
 import argparse
 import os
 import secrets
+import socket
 import subprocess
 import sys
 
 from pathlib import Path
+from urllib.parse import urlparse
 
 REQUIRED_SECRETS = [
     'db_superuser_pass',
@@ -155,6 +157,8 @@ def start_server(args):
         env["AWS_STORAGE_BUCKET_NAME"] = args.s3_bucket
         env["AWS_S3_ENDPOINT_URL"] = args.s3_endpoint
         env["AWS_S3_REGION_NAME"] = args.s3_region
+        env["AWS_S3_ENDPOINT_HOST"] = urlparse(args.s3_endpoint).netloc
+        env["AWS_S3_ENDPOINT_IP"] = socket.gethostbyname(env["AWS_S3_ENDPOINT_HOST"])
 
     if args.debug:
         env['DEBUG'] = '1'
