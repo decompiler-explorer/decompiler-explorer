@@ -31,6 +31,15 @@ DEFAULT_FILE_STORAGE = os.getenv('DJANGO_FILE_STORAGE', DEFAULT_FILE_STORAGE)
 AWS_STORAGE_BUCKET_NAME = os.getenv('AWS_STORAGE_BUCKET_NAME')
 AWS_S3_ENDPOINT_URL = os.getenv('AWS_S3_ENDPOINT_URL')
 AWS_S3_REGION_NAME = os.getenv('AWS_S3_REGION_NAME')
+AWS_IS_GZIPPED = True
+GZIP_CONTENT_TYPES = [
+    'text/css',
+    'text/javascript',
+    'application/javascript',
+    'application/x-javascript',
+    'image/svg',
+    'application/octet-stream',
+]
 
 USING_S3 = AWS_S3_ENDPOINT_URL is not None
 

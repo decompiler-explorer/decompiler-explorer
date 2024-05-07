@@ -1,7 +1,5 @@
 import argparse
-import gzip
 import shlex
-import signal
 from dataclasses import dataclass, asdict
 import logging
 import os
@@ -163,7 +161,7 @@ class RunnerWrapper:
                             'analysis_time': end_time - start_time,
                         }
                         files = {
-                            'decompiled_file': gzip.compress(decompiled, compresslevel=2), # TODO: This should compress in chunks if we ever pass results via files
+                            'decompiled_file': decompiled,
                         }
 
                         r = self.session.post(pending_req['completion_url'], data=data, files=files)
