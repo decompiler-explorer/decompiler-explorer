@@ -8,6 +8,7 @@ x-decompiler:
             - SERVER=${EXPLORER_URL:-http://explorer:8000}
             - DEBUG=${DEBUG:-0}
         networks:
+            - default
             - backend_net
         command: [
             "--timeout", "${DECOMPILER_TIMEOUT:-120}",
