@@ -7,7 +7,7 @@ name = "pypi"
 django = "~=3.2"
 requests = "~=2.27"
 djangorestframework = "~=3.13"
-gunicorn = "~=20.1"
+gunicorn = "~=22.0"
 psycopg2 = "~=2.9"
 whitenoise = {version = "~=6.0", extras = ["brotli"]}
 pymemcache = "~=4.0"
