@@ -31,7 +31,7 @@ See the instructions [here](runners/decompiler/tools/README.md)
 pipenv install
 python scripts/dce.py init
 
-# Build all decompilers with valid keys 
+# Build all decompilers with valid keys
 python scripts/dce.py build
 # If you want to exclude certain decompilers
 # python scripts/dce.py --without-reko build
@@ -51,8 +51,9 @@ python scripts/dce.py start --prod --replicas 2 --acme-email=<your email>
 ## Running in docker (production with s3 storage)
 
 ```shell
-python scripts/dce.py start --prod --acme-email=<your email> --s3-bucket=<s3 bucket name>
+python scripts/dce.py start --prod --replicas 2 --acme-email=<your email> --s3 --s3-bucket=<s3 bucket name> --s3-endpoint=<s3 compatible endpoint> --s3-region=<s3 region>
 ```
+
 
 ## Starting dev server (outside Docker)
 
