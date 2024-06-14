@@ -53,12 +53,18 @@ if __name__ == '__main__':
         version = None
         revision = None
         for line in GHIDRA_APP_PROPERTIES.read_text().splitlines():
-            name, val = line.split('=')
+            parts = line.split('=')
+            if len(parts) < 2:
+                continue
+            name, val = parts
             if name == 'application.version':
                 version = val
                 break
         for line in GHIDRA_APP_PROPERTIES.read_text().splitlines():
-            name, val = line.split('=')
+            parts = line.split('=')
+            if len(parts) < 2:
+                continue
+            name, val = parts
             if name == 'application.revision.ghidra':
                 revision = val
                 break
