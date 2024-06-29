@@ -39,6 +39,8 @@ services:
         <<: *default-decompiler-options
     relyze:
         <<: *default-decompiler-options
+    revng:
+        <<: *default-decompiler-options
 
 
 secrets:

@@ -292,3 +292,21 @@ COPY decompile_relyze.py .
 COPY entrypoint.sh .
 COPY runner_generic.py .
 ENTRYPOINT [ "./entrypoint.sh", "decompile_relyze.py" ]
+
+# rev.ng
+FROM base-x86 as revng
+USER root
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends curl xz-utils \
+    && rm -rf /var/lib/apt/lists/*
+
+# Install rev.ng
+RUN cd / && curl -L -s 'https://rev.ng/downloads/revng-distributable/master/install.sh' | bash
+
+USER decompiler_user
+WORKDIR /home/decompiler_user
+COPY decompile_revng.py .
+
+COPY entrypoint.sh .
+COPY runner_generic.py .
+ENTRYPOINT [ "./entrypoint.sh", "decompile_revng.py" ]

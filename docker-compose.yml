@@ -210,6 +210,13 @@ services:
             context: runners/decompiler
             target: relyze
 
+    revng:
+        <<: *default-decompiler-options
+        image: ${IMAGE_NAME:-decompiler_explorer}:revng
+        build:
+            context: runners/decompiler
+            target: revng
+
 networks:
     backend_net:
 

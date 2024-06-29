@@ -34,6 +34,7 @@ DECOMPILERS = [
     ('recstudio',   'REC Studio'),
     ('reko',        'Reko'),
     ('retdec',      'RetDec'),
+    ('revng',       'rev.ng'),
     ('snowman',     'Snowman')
 ]
 
