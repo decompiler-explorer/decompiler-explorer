@@ -209,7 +209,7 @@ async function fetchArray(url) {
     let results = [];
     let nextUrl = url;
     while (nextUrl !== null) {
-        let resp = await fetch(url);
+        let resp = await fetch(nextUrl);
         let data = await resp.json();
         results.push(...data["results"]);
         nextUrl = data["next"];
