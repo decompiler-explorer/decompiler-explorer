@@ -205,6 +205,18 @@ function compareVersions(thisVersionStr, otherVersionStr) {
     return false;
 }
 
+async function fetchArray(url) {
+    let results = [];
+    let nextUrl = url;
+    while (nextUrl !== null) {
+        let resp = await fetch(url);
+        let data = await resp.json();
+        results.push(...data["results"]);
+        nextUrl = data["next"];
+    }
+    return results;
+}
+
 function loadResults(is_sample) {
     let finishedResults = [];
     let startTime = Date.now();
@@ -229,17 +241,10 @@ function loadResults(is_sample) {
             clearTimeout(refreshSchedule);
         }
 
-        fetch(resultUrl)
-            .then(resp => {
-                if (resp.ok) {
-                    return resp.json();
-                } else {
-                    throw Error("Error fetching results");
-                }
-            })
+        fetchArray(resultUrl)
             .then(data => {
                 let bestVersions = {};
-                for (let i of data['results']) {
+                for (let i of data) {
                     if (!Object.keys(bestVersions).includes(i['decompiler']['name'])) {
                         bestVersions[i['decompiler']['name']] = i;
                         continue;
