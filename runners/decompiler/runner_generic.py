@@ -169,7 +169,7 @@ class RunnerWrapper:
                         self.logger.debug(">>> %s", r.text)
                         self.logger.info(f"Decompilation request for {pending_req['binary_id']} (req: {pending_req['id']}) finished with success")
                     except DecompileError as e:
-                        err_msg = e.message.strip()
+                        err_msg = e.message.strip().replace("\x00", "")
                         end_time = time.time()
                         self.logger.error(f"DECOMPILE ERROR: {err_msg}")
                         data = {
