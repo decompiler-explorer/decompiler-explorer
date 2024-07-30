@@ -49,7 +49,7 @@ RUN apt-get update \
     && rm -rf /var/lib/apt/lists/*
 
 USER decompiler_user
-RUN pip install --user 'angr~=9.2.112'
+RUN pip install --user 'angr~=9.2.113'
 COPY decompile_angr.py .
 
 COPY entrypoint.sh .
