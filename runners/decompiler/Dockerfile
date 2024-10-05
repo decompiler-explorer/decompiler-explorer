@@ -61,7 +61,7 @@ ENTRYPOINT [ "./entrypoint.sh", "decompile_angr.py" ]
 FROM base as ghidra
 USER root
 RUN apt-get update \
-    && apt-get install -y --no-install-recommends unzip wget \
+    && apt-get install -y --no-install-recommends unzip wget libfreetype6 \
     && rm -rf /var/lib/apt/lists/*
 
 RUN wget https://aka.ms/download-jdk/microsoft-jdk-21.0.4-linux-$(uname -m | sed 's/x86_64/x64/').tar.gz \
