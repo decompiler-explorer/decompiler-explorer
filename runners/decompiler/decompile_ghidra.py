@@ -38,8 +38,11 @@ def main():
             output_file
         ]
 
+        env = os.environ.copy()
+        env['PATH'] = f"{parent_dir}/jdk/bin:{env['PATH']}"
+
         if not os.path.exists(output_file):
-            decomp = subprocess.run(decompile_command, capture_output=True)
+            decomp = subprocess.run(decompile_command, capture_output=True, env=env)
             if decomp.returncode != 0 or not os.path.exists(output_file):
                 print(f'{decomp.stdout.decode()}\n{decomp.stderr.decode()}')
                 sys.exit(1)

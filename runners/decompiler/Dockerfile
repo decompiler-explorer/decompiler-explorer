@@ -61,11 +61,17 @@ ENTRYPOINT [ "./entrypoint.sh", "decompile_angr.py" ]
 FROM base as ghidra
 USER root
 RUN apt-get update \
-    && apt-get install -y --no-install-recommends openjdk-17-jdk unzip wget \
+    && apt-get install -y --no-install-recommends unzip wget \
     && rm -rf /var/lib/apt/lists/*
+
+RUN wget https://aka.ms/download-jdk/microsoft-jdk-21.0.4-linux-$(uname -m | sed 's/x86_64/x64/').tar.gz \
+    && tar xf microsoft-jdk-21.0.4-linux-$(uname -m | sed 's/x86_64/x64/').tar.gz \
+    && rm microsoft-jdk-21.0.4-linux-$(uname -m | sed 's/x86_64/x64/').tar.gz \
+    && mv jdk-21.0.4+7 jdk
+
 USER decompiler_user
 
-RUN wget https://github.com/NationalSecurityAgency/ghidra/releases/download/Ghidra_11.1.1_build/ghidra_11.1.1_PUBLIC_20240614.zip -O ghidra.zip \
+RUN wget https://github.com/NationalSecurityAgency/ghidra/releases/download/Ghidra_11.2_build/ghidra_11.2_PUBLIC_20240926.zip -O ghidra.zip \
     && unzip ghidra.zip \
     && rm ghidra.zip \
     && mv ghidra_* ghidra
