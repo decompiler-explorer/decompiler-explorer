@@ -153,7 +153,7 @@ class RunnerWrapper:
                     self.logger.debug("Starting decompilation")
                     start_time = time.time()
                     try:
-                        decompiled = self.decompile_source(self.args, compiled_conts)
+                        decompiled = self.decompile_source(pending_req, self.args, compiled_conts)
                         end_time = time.time()
                         self.logger.debug("Decompilation finished")
 
@@ -195,16 +195,21 @@ class RunnerWrapper:
 
             time.sleep(1)
 
-    def decompile_source(self, args, compiled):
+    def decompile_source(self, req, args, compiled):
         try:
             # Use the shell's job monitor to cleanup children for us
             # https://stackoverflow.com/a/4054436
             child_proc = shlex.join([sys.executable, args.script_name])
-            bash_timeout = args.timeout + 10
+
+            timeout = args.timeout
+            if req['skip_timeout']:
+                timeout = 3600  # Surely an hour is long enough
+
+            bash_timeout = timeout + 10
             bash_cmd = f'set -o monitor ; timeout -s 9 {bash_timeout} {child_proc} < /dev/stdin'
             self.logger.debug(bash_cmd)
             proc = subprocess.run(['/bin/bash', '-c', bash_cmd], input=compiled,
-                                  capture_output=True, timeout=args.timeout,
+                                  capture_output=True, timeout=timeout,
                                   preexec_fn=lambda: set_limits(args.mem_limit_soft, args.mem_limit_hard))
         except subprocess.TimeoutExpired:
             raise DecompileError("Exceeded time limit")
