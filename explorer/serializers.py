@@ -72,16 +72,16 @@ class BinarySerializer(WriteOnceMixin, serializers.ModelSerializer):
 
 
 class DecompilationRequestSerializer(serializers.ModelSerializer):
-    skip_timeout = serializers.SerializerMethodField()
+    extend_timeout = serializers.SerializerMethodField()
     download_url = serializers.SerializerMethodField()
     binary_id = serializers.SerializerMethodField()
     completion_url = serializers.SerializerMethodField()
 
     class Meta:
         model = DecompilationRequest
-        fields = ['id', 'binary_id', 'decompiler', 'created', 'last_attempted', 'skip_timeout', 'download_url', 'completion_url']
+        fields = ['id', 'binary_id', 'decompiler', 'created', 'last_attempted', 'extend_timeout', 'download_url', 'completion_url']
 
-    def get_skip_timeout(self, obj):
+    def get_extend_timeout(self, obj):
         return obj.binary.featured
 
     def get_download_url(self, obj):

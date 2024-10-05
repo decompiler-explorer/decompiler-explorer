@@ -37,6 +37,7 @@ class RunnerWrapper:
         parser = argparse.ArgumentParser(description='Launch a decompiler script')
         parser.add_argument('script_name', help='Script to run')
         parser.add_argument('--timeout', type=int, default=None, help='Maximum time to spend decompiling each file')
+        parser.add_argument('--extended-timeout', type=int, default=None, help='Extended timeout for featured samples')
         parser.add_argument('--mem-limit-hard', type=int, default=resource.RLIM_INFINITY, help='Hard memory limit for decompiling each file')
         parser.add_argument('--mem-limit-soft', type=int, default=resource.RLIM_INFINITY, help='Soft memory limit for decompiling each file')
         parser.add_argument('--debug', action='store_true', help='Log extra debug output')
@@ -202,8 +203,8 @@ class RunnerWrapper:
             child_proc = shlex.join([sys.executable, args.script_name])
 
             timeout = args.timeout
-            if req['skip_timeout']:
-                timeout = 3600  # Surely an hour is long enough
+            if req['extend_timeout']:
+                timeout = args.extended_timeout
 
             bash_timeout = timeout + 10
             bash_cmd = f'set -o monitor ; timeout -s 9 {bash_timeout} {child_proc} < /dev/stdin'
