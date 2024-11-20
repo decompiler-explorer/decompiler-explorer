@@ -35,7 +35,10 @@ def main():
                 ]:
                     continue
                 for i in line.contents.tokens:
-                    if i.type == InstructionTextTokenType.TagToken:
+                    if i.type in [
+                        InstructionTextTokenType.TagToken,
+                        InstructionTextTokenType.CollapseStateIndicatorToken
+                    ]:
                         continue
                     sys.stdout.write(str(i))
                 print("")
