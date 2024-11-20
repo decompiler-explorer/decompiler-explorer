@@ -14,7 +14,7 @@ def main():
     t.write(sys.stdin.buffer.read())
     t.flush()
 
-    bv = binaryninja.open_view(t.name, update_analysis=True)
+    bv = binaryninja.load(t.name, update_analysis=True)
     if bv is None:
         raise Exception("Unable to open view for binary")
 
