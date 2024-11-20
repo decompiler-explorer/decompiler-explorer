@@ -129,7 +129,7 @@ def build_server(args):
         if getattr(args, d[0]):
             services.append(d[0])
 
-    cmd = f"docker-compose {config_files} build"
+    cmd = f"docker compose {config_files} build"
     subprocess.run(cmd.split(' ') + services, check=True)
 
 
