@@ -163,7 +163,7 @@ RUN apt-get update \
 
 USER decompiler_user
 WORKDIR /home/decompiler_user
-RUN git clone --depth=1 https://github.com/uxmal/reko.git \
+RUN git clone --depth=1 --branch=version-0.11.6 https://github.com/uxmal/reko.git \
     && cd reko \
     && dotnet msbuild -p:Platform=x64 -p:Configuration=UnixRelease -t:build_solution -m ./src/BuildTargets/BuildTargets.csproj \
     && dotnet msbuild -p:Platform=x64 -p:Configuration=Release -t:create_runtime_nupkg -m ./src/BuildTargets/BuildTargets.csproj \
