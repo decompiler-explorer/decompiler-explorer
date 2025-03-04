@@ -11,20 +11,21 @@ from django.db import models
 from django.db.models.constraints import UniqueConstraint, CheckConstraint
 from django.forms import model_to_dict
 from django.utils import timezone
-from django.utils.translation import gettext_lazy as _
 
 
 HEALTHY_CUTOFF = timedelta(minutes=1)
 
 
 def binary_upload_path(instance, filename):
-    return f"{settings.UPLOAD_COMPILED_PATH}/{instance.hash}"
+    digest = instance.hash
+    return f"{settings.UPLOAD_COMPILED_PATH}/{digest[:2]}/{digest[2:4]}{digest[4:]}"
 
 def decompilation_upload_path(instance, filename):
     ctx = hashlib.sha256()
     for data in instance.decompiled_file.chunks(8192):
         ctx.update(data)
-    return f"{settings.UPLOAD_DECOMPILED_PATH}/{ctx.hexdigest()}"
+    digest = ctx.hexdigest()
+    return f"{settings.UPLOAD_DECOMPILED_PATH}/{digest[:2]}/{digest[2:4]}{digest[4:]}"
 
 
 class Binary(models.Model):

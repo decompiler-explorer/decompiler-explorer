@@ -158,7 +158,7 @@ def start_server(args):
         env["AWS_STORAGE_BUCKET_NAME"] = args.s3_bucket
         env["AWS_S3_ENDPOINT_URL"] = args.s3_endpoint
         env["AWS_S3_REGION_NAME"] = args.s3_region
-        env["AWS_S3_ENDPOINT_HOST"] = urlparse(args.s3_endpoint).netloc
+        env["AWS_S3_ENDPOINT_HOST"] = urlparse(args.s3_endpoint).hostname
         env["AWS_S3_ENDPOINT_IP"] = socket.gethostbyname(env["AWS_S3_ENDPOINT_HOST"])
 
     if args.debug:
@@ -170,7 +170,7 @@ def start_server(args):
 
 
 def stop_server():
-    cmd = f"docker stack rm dogbolt"
+    cmd = "docker stack rm dogbolt"
     subprocess.run(cmd.split(' '), check=True)
 
 

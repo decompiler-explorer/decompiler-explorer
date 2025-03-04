@@ -9,7 +9,7 @@ x-decompiler:
 services:
     explorer:
         environment:
-            - DJANGO_FILE_STORAGE=storages.backends.s3boto3.S3Boto3Storage
+            - DJANGO_FILE_STORAGE=decompiler_explorer.storage.CustomS3Storage
             - AWS_STORAGE_BUCKET_NAME=${AWS_STORAGE_BUCKET_NAME:?S3 bucket name unset}
             - AWS_S3_ENDPOINT_URL=${AWS_S3_ENDPOINT_URL:?S3 endpoint url unset}
             - AWS_S3_REGION_NAME=${AWS_S3_REGION_NAME:?S3 region name unset}
