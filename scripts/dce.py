@@ -45,7 +45,7 @@ else:
     DECOMPILERS.append(('dewolf', 'dewolf'))
 
 if not (BASE_DIR / 'runners' / 'decompiler' / 'tools' / 'hexrays' / '.idapro' / 'ida.reg').exists() or \
-    not (BASE_DIR / 'runners' / 'decompiler' / 'tools' / 'hexrays' / 'ida' / 'idat64').exists() or \
+    not (BASE_DIR / 'runners' / 'decompiler' / 'tools' / 'hexrays' / 'ida' / 'idat').exists() or \
     not (BASE_DIR / 'runners' / 'decompiler' / 'tools' / 'hexrays' / 'efd64').exists():
     print("IDA install key not detected... Excluding from build")
 else:
