@@ -78,11 +78,11 @@ def main():
   # determine IDA installation directory
   idadir = args.idadir
   if not idadir:
-    idat = shutil.which('idat64')
+    idat = shutil.which('idat')
     if idat:
       idadir = os.path.dirname(idat)
     else:
-      eprint('failed to find idat64, please use -d to specify the path to it')
+      eprint('failed to find idat, please use -d to specify the path to it')
       sys.exit(1)
   while not os.path.isdir(idadir):
     idadir = os.path.dirname(idadir)
@@ -107,8 +107,7 @@ def main():
       continue
 
     # we just ask ida to batch decompile using the option -Ohexrays
-    is64 = bitness == 64
-    idat = os.path.join(idadir, 'idat64' if is64 else 'idat')
+    idat = os.path.join(idadir, 'idat')
     hexopt = '-Ohexrays:-errs:' + input + '.c:ALL'
     try:
       p = subprocess.run([idat, hexopt, '-c', '-A', input], timeout=args.timeout)
@@ -120,7 +119,7 @@ def main():
 
     # delete the database unless asked otherwise
     if not args.keep_idb:
-      delete_files(input, ['.i64' if is64 else '.idb'])
+      delete_files(input, ['.i64', '.idb'])
 
 #----------------------------------------------------------------------------
 main()
