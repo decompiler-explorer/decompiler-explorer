@@ -59,7 +59,7 @@ ENTRYPOINT [ "./entrypoint.sh", "decompile_angr.py" ]
 
 
 # Ghidra
-FROM base AS ghidra
+FROM base-x86 AS ghidra
 USER root
 RUN apt-get update \
     && apt-get install -y --no-install-recommends unzip wget libfreetype6 \
@@ -72,7 +72,7 @@ RUN wget https://aka.ms/download-jdk/microsoft-jdk-21.0.4-linux-$(uname -m | sed
 
 USER decompiler_user
 
-RUN wget https://github.com/NationalSecurityAgency/ghidra/releases/download/Ghidra_11.2_build/ghidra_11.2_PUBLIC_20240926.zip -O ghidra.zip \
+RUN wget https://github.com/NationalSecurityAgency/ghidra/releases/download/Ghidra_11.3.1_build/ghidra_11.3.1_PUBLIC_20250219.zip -O ghidra.zip \
     && unzip ghidra.zip \
     && rm ghidra.zip \
     && mv ghidra_* ghidra
