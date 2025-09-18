@@ -317,4 +317,3 @@ COPY decompile_revng.py .
 COPY entrypoint.sh .
 COPY runner_generic.py .
 ENTRYPOINT [ "./entrypoint.sh", "decompile_revng.py" ]
-
