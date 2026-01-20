@@ -33,7 +33,7 @@ USER decompiler_user
 
 RUN mkdir ~/.binaryninja
 COPY tools/binja/license.dat /home/decompiler_user/.binaryninja/license.dat
-COPY tools/binja/binaryninja /home/decompiler_user/binaryninja/
+COPY tools/binja/binaryninja-5.2.8722 /home/decompiler_user/binaryninja/
 COPY decompile_bn.py .
 ENV PYTHONPATH=/home/decompiler_user/binaryninja/python/:$PYTHONPATH
 
