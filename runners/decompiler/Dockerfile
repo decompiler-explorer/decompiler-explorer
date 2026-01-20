@@ -249,7 +249,7 @@ RUN mkdir ~/.binaryninja
 COPY tools/dewolf/license.dat /home/decompiler_user/.binaryninja/license.dat
 COPY tools/dewolf/binaryninja /home/decompiler_user/binaryninja/
 
-RUN git clone --depth=1 --branch=v2025-01-01 https://github.com/fkie-cad/dewolf.git \
+RUN git clone --depth=1 --branch=v2026-01-01 https://github.com/fkie-cad/dewolf.git \
     && cd dewolf \
     && pipenv install -r ./requirements.txt \
     && pipenv run python /home/decompiler_user/binaryninja/scripts/install_api.py
