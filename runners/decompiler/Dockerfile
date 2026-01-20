@@ -208,8 +208,8 @@ ENTRYPOINT [ "./entrypoint.sh", "decompile_boomerang.py" ]
 # Hex-Rays
 FROM base-x86 AS hexrays
 
-COPY tools/hexrays/.idapro /home/decompiler_user/.idapro/
-COPY tools/hexrays/ida /home/decompiler_user/ida/
+COPY tools/hexrays/.idapro-9.2 /home/decompiler_user/.idapro/
+COPY tools/hexrays/ida-9.2 /home/decompiler_user/ida/
 COPY tools/hexrays/efd64 /home/decompiler_user/ida
 COPY tools/hexrays/batch.py /home/decompiler_user/ida
 COPY tools/hexrays/version.py /home/decompiler_user/ida
