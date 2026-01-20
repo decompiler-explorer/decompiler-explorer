@@ -72,12 +72,13 @@ RUN wget https://aka.ms/download-jdk/microsoft-jdk-21.0.4-linux-$(uname -m | sed
 
 USER decompiler_user
 
-RUN wget https://github.com/NationalSecurityAgency/ghidra/releases/download/Ghidra_11.3.1_build/ghidra_11.3.1_PUBLIC_20250219.zip -O ghidra.zip \
+RUN wget https://github.com/NationalSecurityAgency/ghidra/releases/download/Ghidra_12.0.1_build/ghidra_12.0.1_PUBLIC_20260114.zip -O ghidra.zip \
     && unzip ghidra.zip \
     && rm ghidra.zip \
     && mv ghidra_* ghidra
 
-COPY tools/ghidra/DecompilerExplorer.java .
+RUN mkdir ghidra_scripts
+COPY tools/ghidra/DecompilerExplorer.java ./ghidra_scripts
 COPY decompile_ghidra.py .
 
 COPY entrypoint.sh .

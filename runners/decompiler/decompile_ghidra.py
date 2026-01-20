@@ -31,10 +31,8 @@ def main():
             "temp",
             "-import",
             inname,
-            "-scriptPath",
-            f"{parent_dir}",
             "-postScript",
-            f"{parent_dir}/DecompilerExplorer.java",
+            f"{parent_dir}/ghidra_scripts/DecompilerExplorer.java",
             output_file
         ]
 
