@@ -247,7 +247,7 @@ WORKDIR /home/decompiler_user
 
 RUN mkdir ~/.binaryninja
 COPY tools/dewolf/license.dat /home/decompiler_user/.binaryninja/license.dat
-COPY tools/dewolf/binaryninja /home/decompiler_user/binaryninja/
+COPY tools/binja/binaryninja-5.2.8722 /home/decompiler_user/binaryninja/
 
 RUN git clone --depth=1 --branch=v2026-01-01 https://github.com/fkie-cad/dewolf.git \
     && cd dewolf \
