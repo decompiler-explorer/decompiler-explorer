@@ -75,7 +75,7 @@ class RunnerWrapper:
 
         try:
             with open('/run/secrets/worker_auth_token', 'r') as f:
-                AUTH_TOKEN = f.read()
+                AUTH_TOKEN = f.read().strip()
         except FileNotFoundError:
             self.logger.warning("Auth token file not found, using debug token")
             AUTH_TOKEN = "DEBUG_TOKEN"
