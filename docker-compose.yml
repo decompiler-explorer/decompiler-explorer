@@ -28,7 +28,7 @@ x-decompiler:
 
 services:
     traefik:
-        image: traefik:v2.6
+        image: traefik:v3.6
         init: true
         networks:
             - backend_net
@@ -46,9 +46,9 @@ services:
               protocol: tcp
             - "8080:8080"
         command:
-            - --providers.docker=true
-            - --providers.docker.exposedbydefault=false
-            - --providers.docker.swarmMode=true
+            - --providers.swarm=true
+            - --providers.swarm.watch=true
+            - --providers.swarm.exposedbydefault=false
             - --entrypoints.web.address=:80
             - --entrypoints.websecure.address=:443
             - --entrypoints.web.http.redirections.entryPoint.to=websecure
@@ -130,7 +130,7 @@ services:
                 - traefik.http.routers.explorer.rule=Host(`${DOMAIN:-dce.localhost}`)
                 - traefik.http.routers.explorer.entrypoints=websecure
                 - traefik.http.routers.explorer.tls=true
-                - traefik.http.routers.explorer.middlewares=limit@docker
+                - traefik.http.routers.explorer.middlewares=limit@swarm
 
 
     # Decompilers

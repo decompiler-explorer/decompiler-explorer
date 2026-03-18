@@ -20,9 +20,9 @@ x-decompiler:
 services:
     traefik:
         command:
-            - --providers.docker=true
-            - --providers.docker.swarmMode=true
-            - --providers.docker.exposedbydefault=false
+            - --providers.swarm=true
+            - --providers.swarm.watch=true
+            - --providers.swarm.exposedbydefault=false
             - --entrypoints.web.address=:80
             - --entrypoints.websecure.address=:443
             - --entrypoints.web.http.redirections.entryPoint.to=websecure
