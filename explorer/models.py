@@ -173,7 +173,7 @@ class Decompilation(models.Model):
     class Meta:
         constraints = [
             UniqueConstraint(fields=['binary', 'decompiler'], name='unique_binary_decompilation'),
-            CheckConstraint(check=(
+            CheckConstraint(condition=(
                     models.Q(decompiled_file='', error__isnull=False) |
                     (~models.Q(decompiled_file='') & models.Q(error__isnull=True))
                 ),

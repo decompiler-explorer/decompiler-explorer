@@ -4,7 +4,7 @@ verify_ssl = true
 name = "pypi"
 
 [packages]
-django = "~=4.2"
+django = "~=5.2"
 requests = "~=2.32"
 djangorestframework = "~=3.16"
 gunicorn = "~=25.1"
