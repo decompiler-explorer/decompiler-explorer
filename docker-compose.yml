@@ -19,6 +19,11 @@ x-decompiler:
             - worker_auth_token
         deploy:
             replicas: 1
+        logging:
+            driver: json-file
+            options:
+                max-file: 5
+                max-size: 50m
 
 
 services:
