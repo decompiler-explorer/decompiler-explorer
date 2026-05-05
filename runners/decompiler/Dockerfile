@@ -1,4 +1,4 @@
-FROM python:3.10-slim-bookworm AS base
+FROM python:3.13-slim-bookworm AS base
 
 RUN useradd -ms /bin/false decompiler_user
 RUN apt-get update \
@@ -10,7 +10,7 @@ WORKDIR /home/decompiler_user
 
 RUN pip install --user 'requests>=2.27,<3.0'
 
-FROM --platform=amd64 python:3.10-slim-bookworm AS base-x86
+FROM --platform=amd64 python:3.13-slim-bookworm AS base-x86
 
 RUN useradd -ms /bin/false decompiler_user
 RUN apt-get update \
@@ -219,7 +219,7 @@ RUN apt-get update \
     && apt-get install -y --no-install-recommends libsecret-1-0 \
     && rm -rf /var/lib/apt/lists/*
 
-RUN /home/decompiler_user/ida/idapyswitch --force-path /usr/local/lib/libpython3.10.so \
+RUN /home/decompiler_user/ida/idapyswitch --force-path /usr/local/lib/libpython3.13.so \
     && chmod +x /home/decompiler_user/ida/efd64 \
     && chown -R decompiler_user /home/decompiler_user/ida \
     && chown -R decompiler_user /home/decompiler_user/.idapro
