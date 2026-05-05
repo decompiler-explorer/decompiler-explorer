@@ -1,4 +1,4 @@
-FROM python:3.10-slim-bookworm AS base
+FROM python:3.13-slim-bookworm AS base
 
 RUN useradd -ms /bin/false decompiler_user
 RUN apt-get update \
@@ -10,7 +10,7 @@ WORKDIR /home/decompiler_user
 
 RUN pip install --user 'requests>=2.27,<3.0'
 
-FROM --platform=amd64 python:3.10-slim-bookworm AS base-x86
+FROM --platform=amd64 python:3.13-slim-bookworm AS base-x86
 
 RUN useradd -ms /bin/false decompiler_user
 RUN apt-get update \
@@ -39,6 +39,8 @@ ENV PYTHONPATH=/home/decompiler_user/binaryninja/python/:$PYTHONPATH
 
 COPY entrypoint.sh .
 COPY runner_generic.py .
+
+RUN python3 decompile_bn.py --version
 ENTRYPOINT [ "./entrypoint.sh", "decompile_bn.py" ]
 
 
@@ -55,6 +57,8 @@ COPY decompile_angr.py .
 
 COPY entrypoint.sh .
 COPY runner_generic.py .
+
+RUN python3 decompile_angr.py --version
 ENTRYPOINT [ "./entrypoint.sh", "decompile_angr.py" ]
 
 
@@ -83,6 +87,8 @@ COPY decompile_ghidra.py .
 
 COPY entrypoint.sh .
 COPY runner_generic.py .
+
+RUN python3 decompile_ghidra.py --version
 ENTRYPOINT [ "./entrypoint.sh", "decompile_ghidra.py" ]
 
 # Snowman
@@ -104,6 +110,8 @@ COPY decompile_snowman.py .
 
 COPY entrypoint.sh .
 COPY runner_generic.py .
+
+RUN python3 decompile_snowman.py --version
 ENTRYPOINT [ "./entrypoint.sh", "decompile_snowman.py" ]
 
 # RetDec
@@ -125,6 +133,8 @@ COPY decompile_retdec.py .
 
 COPY entrypoint.sh .
 COPY runner_generic.py .
+
+RUN python3 decompile_retdec.py --version
 ENTRYPOINT [ "./entrypoint.sh", "decompile_retdec.py" ]
 
 # RecStudio
@@ -146,6 +156,8 @@ COPY decompile_recstudio.py .
 
 COPY entrypoint.sh .
 COPY runner_generic.py .
+
+RUN python3 decompile_recstudio.py --version
 ENTRYPOINT [ "./entrypoint.sh", "decompile_recstudio.py" ]
 
 # Reko
@@ -182,6 +194,8 @@ COPY decompile_reko.py .
 
 COPY entrypoint.sh .
 COPY runner_generic.py .
+
+RUN python3 decompile_reko.py --version
 ENTRYPOINT [ "./entrypoint.sh", "decompile_reko.py" ]
 
 # Boomerang
@@ -203,6 +217,8 @@ COPY decompile_boomerang.py .
 
 COPY entrypoint.sh .
 COPY runner_generic.py .
+
+RUN python3 decompile_boomerang.py --version
 ENTRYPOINT [ "./entrypoint.sh", "decompile_boomerang.py" ]
 
 # Hex-Rays
@@ -219,18 +235,21 @@ RUN apt-get update \
     && apt-get install -y --no-install-recommends libsecret-1-0 \
     && rm -rf /var/lib/apt/lists/*
 
-RUN /home/decompiler_user/ida/idapyswitch --force-path /usr/local/lib/libpython3.10.so \
-    && chmod +x /home/decompiler_user/ida/efd64 \
+RUN chmod +x /home/decompiler_user/ida/efd64 \
     && chown -R decompiler_user /home/decompiler_user/ida \
     && chown -R decompiler_user /home/decompiler_user/.idapro
 
 USER decompiler_user
 WORKDIR /home/decompiler_user
 
+RUN /home/decompiler_user/ida/idapyswitch --force-path /usr/local/lib/libpython3.13.so
+
 COPY decompile_hexrays.py .
 
 COPY entrypoint.sh .
 COPY runner_generic.py .
+
+RUN python3 decompile_hexrays.py --version
 ENTRYPOINT [ "./entrypoint.sh", "decompile_hexrays.py" ]
 
 # Dewolf
@@ -259,6 +278,8 @@ ENV PYTHONPATH=/home/decompiler_user/binaryninja/python/:$PYTHONPATH
 COPY decompile_dewolf.py .
 COPY entrypoint.sh .
 COPY runner_generic.py .
+
+RUN python3 decompile_dewolf.py --version
 ENTRYPOINT [ "./entrypoint.sh", "decompile_dewolf.py" ]
 
 # Relyze
@@ -300,6 +321,8 @@ COPY tools/relyze/decompiler_explorer.rb .
 COPY decompile_relyze.py .
 COPY entrypoint.sh .
 COPY runner_generic.py .
+
+RUN python3 decompile_relyze.py --version
 ENTRYPOINT [ "./entrypoint.sh", "decompile_relyze.py" ]
 
 # rev.ng
@@ -318,4 +341,6 @@ COPY decompile_revng.py .
 
 COPY entrypoint.sh .
 COPY runner_generic.py .
+
+RUN python3 decompile_revng.py --version
 ENTRYPOINT [ "./entrypoint.sh", "decompile_revng.py" ]
