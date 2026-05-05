@@ -219,13 +219,14 @@ RUN apt-get update \
     && apt-get install -y --no-install-recommends libsecret-1-0 \
     && rm -rf /var/lib/apt/lists/*
 
-RUN /home/decompiler_user/ida/idapyswitch --force-path /usr/local/lib/libpython3.13.so \
-    && chmod +x /home/decompiler_user/ida/efd64 \
+RUN chmod +x /home/decompiler_user/ida/efd64 \
     && chown -R decompiler_user /home/decompiler_user/ida \
     && chown -R decompiler_user /home/decompiler_user/.idapro
 
 USER decompiler_user
 WORKDIR /home/decompiler_user
+
+RUN /home/decompiler_user/ida/idapyswitch --force-path /usr/local/lib/libpython3.13.so
 
 COPY decompile_hexrays.py .
 
