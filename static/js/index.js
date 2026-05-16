@@ -1,5 +1,7 @@
 ace.config.set('basePath', 'https://cdnjs.cloudflare.com/ajax/libs/ace/1.4.14/');
 
+const initialAceTheme = (window.DETheme && window.DETheme.aceThemeFor(window.DETheme.effective)) || 'ace/theme/chrome';
+
 let decompilerContainers = Object.fromEntries(
     Object.values(document.getElementsByClassName("decompiler_container"))
     .map(i => [i.id.replace(/(^container_)/, ''), i])
@@ -14,9 +16,16 @@ let decompilerFrames = Object.fromEntries(
         editor.setHighlightActiveLine(true);
         editor.setHighlightGutterLine(true);
         editor.session.setMode("ace/mode/c_cpp");
+        editor.setTheme(initialAceTheme);
         return [id, editor];
     })
 );
+
+document.addEventListener('de:themechange', (e) => {
+    if (!window.DETheme) return;
+    const aceTheme = window.DETheme.aceThemeFor(e.detail.effective);
+    Object.values(decompilerFrames).forEach(editor => editor.setTheme(aceTheme));
+});
 
 let decompilerTitles = Object.fromEntries(
     Object.values(document.getElementsByClassName("decompiler_title"))
