@@ -1,3 +1,32 @@
+/*
+ * Custom styles for Decompiler Explorer.
+ * Theme-aware values are driven by Bootstrap 5.3 [data-bs-theme] on <html>.
+ * We define our own custom-property overrides so app-specific surfaces
+ * (header, footer, banner, decompiler borders) follow the active theme.
+ */
+
+:root {
+    --de-header-bg: #F8F9FA;
+    --de-footer-bg: #F8F9FA;
+    --de-link: #000000;
+    --de-decompiler-divider: #000000;
+    --de-btn-bg: #E9ECEF;
+    --de-btn-border: #ced4da;
+    --de-banner-bg: #212529;
+    --de-banner-fg: #f8f9fa;
+}
+
+[data-bs-theme="dark"] {
+    --de-header-bg: #1b1f23;
+    --de-footer-bg: #1b1f23;
+    --de-link: #e6edf3;
+    --de-decompiler-divider: #30363d;
+    --de-btn-bg: #21262d;
+    --de-btn-border: #30363d;
+    --de-banner-bg: #0d1117;
+    --de-banner-fg: #e6edf3;
+}
+
 html, body {
     width: 100%;
     height: 100%;
@@ -5,12 +34,16 @@ html, body {
     padding: 0;
 }
 
+/* Avoid the bright flash when switching themes during initial paint. */
+html { color-scheme: light; }
+html[data-bs-theme="dark"] { color-scheme: dark; }
+
 header {
-    background: #F8F9FA;
+    background: var(--de-header-bg);
 }
 
 header a {
-    color: #000000;
+    color: var(--de-link);
     text-decoration: none;
 }
 
@@ -28,8 +61,13 @@ header h1 {
     padding: 0 10px;
 }
 
+#banner {
+    background: var(--de-banner-bg) !important;
+    color: var(--de-banner-fg) !important;
+}
+
 #queue-url {
-    color: #ffffff;
+    color: var(--de-banner-fg);
     text-decoration: underline;
 }
 
@@ -51,14 +89,14 @@ section#decompilers {
 }
 
 footer {
-    background: #F8F9FA;
+    background: var(--de-footer-bg);
 }
 
 button.btn {
-    background-color: #E9ECEF;
+    background-color: var(--de-btn-bg);
     font-size: 0.875rem;
     padding: 0.25em;
-    border: 1px solid #ced4da;
+    border: 1px solid var(--de-btn-border);
 }
 
 .decompiler {
@@ -67,7 +105,7 @@ button.btn {
 }
 
 .decompiler.with_line {
-    border-left: 1px solid #000000;
+    border-left: 1px solid var(--de-decompiler-divider);
 }
 
 .decompiler.hidden {
@@ -75,12 +113,45 @@ button.btn {
 }
 
 .decompiler_title {
-    color: #000000;
+    color: var(--de-link);
     text-decoration: none;
 }
 
 .decompiler_rerun {
     font-size: 1rem;
-    color: #000000;
+    color: var(--de-link);
     cursor: pointer;
+}
+
+/* Theme toggle button. Sits in the header next to "What is this?". */
+.theme-toggle {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+}
+
+.theme-toggle .dropdown-toggle {
+    background: var(--de-btn-bg);
+    border: 1px solid var(--de-btn-border);
+    color: var(--de-link);
+    padding: 0.25rem 0.5rem;
+    border-radius: 0.25rem;
+    font-size: 0.875rem;
+    line-height: 1;
+}
+
+.theme-toggle .dropdown-toggle:focus-visible {
+    outline: 2px solid #0d6efd;
+    outline-offset: 2px;
+}
+
+.theme-toggle .dropdown-item.active {
+    background-color: rgba(13, 110, 253, 0.15);
+    color: inherit;
+}
+
+.theme-toggle .dropdown-item i {
+    width: 1.1rem;
+    text-align: center;
+    margin-right: 0.4rem;
 }
