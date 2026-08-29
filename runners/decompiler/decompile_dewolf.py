@@ -24,7 +24,7 @@ def main():
         decomp = subprocess.run(['pipenv', 'run', 'python', DEWOLF_DECOMPILE_PY, '-o', outfile.name, infile.name], stdout=subprocess.PIPE, stderr=subprocess.PIPE, cwd=str(DEWOLF_INSTALL))
         if decomp.returncode != 0:
             print(f'{decomp.stdout.decode()}\n{decomp.stderr.decode()}')
-            sys.exit(1)
+            return
 
         infile.close()
 

@@ -20,7 +20,7 @@ def main():
         decomp = subprocess.run([KUNA_BIN, 'decompile-all', infile.name], stdout=subprocess.PIPE, stderr=subprocess.PIPE, cwd=KUNA_INSTALL)
         if decomp.returncode != 0:
             print(f'{decomp.stdout.decode()}\n{decomp.stderr.decode()}')
-            sys.exit(1)
+            return
         infile.close()
 
         sys.stdout.buffer.write(decomp.stdout)

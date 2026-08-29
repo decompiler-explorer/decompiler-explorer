@@ -21,7 +21,7 @@ def main():
         decomp = subprocess.run([REVNG_CLI, "artifact", "decompile-to-single-file", "--analyze", infile.name, "-o", str(ptml_path)], stdout=subprocess.PIPE, stderr=subprocess.PIPE, cwd=tempdir)
         if decomp.returncode != 0:
             print(f'{decomp.stdout.decode()}\n{decomp.stderr.decode()}')
-            sys.exit(1)
+            return
 
         infile.close()
 
@@ -29,7 +29,7 @@ def main():
         parse = subprocess.run([REVNG_CLI, "ptml", "-p", "-o", str(c_path), str(ptml_path)], stdout=subprocess.PIPE, stderr=subprocess.PIPE, cwd=tempdir)
         if parse.returncode != 0:
             print(f'{parse.stdout.decode()}\n{parse.stderr.decode()}')
-            sys.exit(1)
+            return
 
         with open(c_path, "rb") as f:
             sys.stdout.buffer.write(f.read())

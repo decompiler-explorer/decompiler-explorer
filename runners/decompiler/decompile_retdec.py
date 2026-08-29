@@ -22,7 +22,7 @@ def main():
         decomp = subprocess.run([RETDEC_DECOMPILER, '--output', outfile.name, '--cleanup', '--silent', infile.name], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         if decomp.returncode != 0:
             print(f'{decomp.stdout.decode()}\n{decomp.stderr.decode()}')
-            sys.exit(1)
+            return
         infile.close()
 
         with open(outfile.name, 'rb') as f:
