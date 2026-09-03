@@ -1,0 +1,23 @@
+{% comment %}
+Theme toggle dropdown. Included from each page header.
+The data-theme-value attributes are picked up by static/js/theme.js.
+{% endcomment %}
+<div class="theme-toggle dropdown">
+    <button class="dropdown-toggle" type="button" id="themeToggleBtn"
+            data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true"
+            aria-label="Toggle color theme">
+        <i data-theme-icon class="fa-solid fa-circle-half-stroke" aria-hidden="true"></i>
+        <span class="visually-hidden">Toggle color theme</span>
+    </button>
+    <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="themeToggleBtn">
+        <li><button type="button" class="dropdown-item" data-theme-value="light">
+            <i class="fa-solid fa-sun"></i>Light
+        </button></li>
+        <li><button type="button" class="dropdown-item" data-theme-value="dark">
+            <i class="fa-solid fa-moon"></i>Dark
+        </button></li>
+        <li><button type="button" class="dropdown-item" data-theme-value="auto">
+            <i class="fa-solid fa-circle-half-stroke"></i>System
+        </button></li>
+    </ul>
+</div>
