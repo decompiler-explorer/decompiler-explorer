@@ -348,6 +348,7 @@ RUN apt-get update \
     && rm -rf /var/lib/apt/lists/*
 
 # Install rev.ng
+ADD "https://api.github.com/repos/revng/revng/commits?per_page=1" latest_commit
 RUN cd / && curl -L -s 'https://rev.ng/downloads/revng-distributable/master/install.sh' | bash
 
 USER decompiler_user
