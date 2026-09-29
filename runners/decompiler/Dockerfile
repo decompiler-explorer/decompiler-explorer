@@ -33,7 +33,7 @@ USER decompiler_user
 
 RUN mkdir ~/.binaryninja
 COPY tools/binja/license.dat /home/decompiler_user/.binaryninja/license.dat
-COPY tools/binja/binaryninja-5.3.9757 /home/decompiler_user/binaryninja/
+COPY tools/binja/binaryninja-6.0.10601 /home/decompiler_user/binaryninja/
 COPY decompile_bn.py .
 ENV PYTHONPATH=/home/decompiler_user/binaryninja/python/:$PYTHONPATH
 
@@ -281,7 +281,7 @@ WORKDIR /home/decompiler_user
 
 RUN mkdir ~/.binaryninja
 COPY tools/dewolf/license.dat /home/decompiler_user/.binaryninja/license.dat
-COPY tools/binja/binaryninja-5.3.9757 /home/decompiler_user/binaryninja/
+COPY tools/binja/binaryninja-6.0.10601 /home/decompiler_user/binaryninja/
 
 RUN git clone --depth=1 --branch=v2026-04-01 https://github.com/fkie-cad/dewolf.git \
     && cd dewolf \
