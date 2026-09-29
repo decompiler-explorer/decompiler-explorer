@@ -1,4 +1,4 @@
-FROM python:3.13-slim-bookworm AS base
+FROM --platform=linux/amd64 python:3.13-slim-bookworm AS base
 
 RUN useradd -ms /bin/false decompiler_user
 RUN apt-get update \
@@ -10,7 +10,7 @@ WORKDIR /home/decompiler_user
 
 RUN pip install --user 'requests>=2.27,<3.0'
 
-FROM --platform=amd64 python:3.13-slim-bookworm AS base-x86
+FROM --platform=linux/amd64 python:3.13-slim-trixie AS base-trixie
 
 RUN useradd -ms /bin/false decompiler_user
 RUN apt-get update \
@@ -24,7 +24,7 @@ RUN pip install --user 'requests>=2.27,<3.0'
 
 
 # Binary Ninja
-FROM base-x86 AS binja
+FROM base-trixie AS binja
 USER root
 RUN apt-get update \
     && apt-get install -y --no-install-recommends libdbus-1-3 \
@@ -45,7 +45,7 @@ ENTRYPOINT [ "./entrypoint.sh", "decompile_bn.py" ]
 
 
 # angr
-FROM base-x86 AS angr
+FROM base AS angr
 USER root
 RUN apt-get update \
     && apt-get install -y --no-install-recommends build-essential \
@@ -63,7 +63,7 @@ ENTRYPOINT [ "./entrypoint.sh", "decompile_angr.py" ]
 
 
 # Ghidra
-FROM base-x86 AS ghidra
+FROM base AS ghidra
 USER root
 RUN apt-get update \
     && apt-get install -y --no-install-recommends unzip wget libfreetype6 \
@@ -92,7 +92,7 @@ RUN python3 decompile_ghidra.py --version
 ENTRYPOINT [ "./entrypoint.sh", "decompile_ghidra.py" ]
 
 # Snowman
-FROM base-x86 AS snowman
+FROM base AS snowman
 USER root
 RUN apt-get update \
     && apt-get install -y --no-install-recommends build-essential cmake git libboost-dev qtbase5-dev qt5-qmake qtbase5-dev-tools \
@@ -115,7 +115,7 @@ RUN python3 decompile_snowman.py --version
 ENTRYPOINT [ "./entrypoint.sh", "decompile_snowman.py" ]
 
 # RetDec
-FROM base-x86 AS retdec
+FROM base AS retdec
 USER root
 RUN apt-get update \
     && apt-get install -y --no-install-recommends wget xz-utils \
@@ -138,7 +138,7 @@ RUN python3 decompile_retdec.py --version
 ENTRYPOINT [ "./entrypoint.sh", "decompile_retdec.py" ]
 
 # RecStudio
-FROM base-x86 AS recstudio
+FROM base AS recstudio
 USER root
 RUN dpkg --add-architecture i386 \
     && apt-get update \
@@ -161,7 +161,7 @@ RUN python3 decompile_recstudio.py --version
 ENTRYPOINT [ "./entrypoint.sh", "decompile_recstudio.py" ]
 
 # Reko
-FROM base-x86 AS reko
+FROM base AS reko
 USER root
 RUN apt-get update \
     && apt-get install -y --no-install-recommends git build-essential cmake wget gcc g++ libcapstone-dev pkg-config p7zip-full unzip \
@@ -214,7 +214,7 @@ RUN python3 decompile_reko.py --version
 ENTRYPOINT [ "./entrypoint.sh", "decompile_reko.py" ]
 
 # Boomerang
-FROM base-x86 AS boomerang
+FROM base AS boomerang
 USER root
 RUN apt-get update \
     && apt-get install -y --no-install-recommends wget bzip2 libexpat1 qtbase5-dev libcapstone-dev \
@@ -237,7 +237,7 @@ RUN python3 decompile_boomerang.py --version
 ENTRYPOINT [ "./entrypoint.sh", "decompile_boomerang.py" ]
 
 # Hex-Rays
-FROM base-x86 AS hexrays
+FROM base AS hexrays
 
 COPY tools/hexrays/.idapro-9.4 /home/decompiler_user/.idapro/
 COPY tools/hexrays/ida-9.4 /home/decompiler_user/ida/
@@ -268,7 +268,7 @@ RUN python3 decompile_hexrays.py --version
 ENTRYPOINT [ "./entrypoint.sh", "decompile_hexrays.py" ]
 
 # Dewolf
-FROM base-x86 AS dewolf
+FROM base-trixie AS dewolf
 USER root
 RUN apt-get update \
     && apt-get install -y --no-install-recommends libdbus-1-3 \
@@ -298,7 +298,7 @@ RUN python3 decompile_dewolf.py --version
 ENTRYPOINT [ "./entrypoint.sh", "decompile_dewolf.py" ]
 
 # Relyze
-FROM base-x86 AS relyze
+FROM base AS relyze
 USER root
 RUN apt-get update \
     && apt-get install -y --no-install-recommends wget
@@ -341,7 +341,7 @@ RUN python3 decompile_relyze.py --version
 ENTRYPOINT [ "./entrypoint.sh", "decompile_relyze.py" ]
 
 # rev.ng
-FROM base-x86 AS revng
+FROM base AS revng
 USER root
 RUN apt-get update \
     && apt-get install -y --no-install-recommends curl xz-utils \
