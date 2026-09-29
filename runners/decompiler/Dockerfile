@@ -390,3 +390,4 @@ COPY runner_generic.py .
 
 RUN python3 decompile_kuna.py --version
 ENTRYPOINT [ "./entrypoint.sh", "decompile_kuna.py" ]
+
