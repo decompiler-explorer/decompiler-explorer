@@ -285,7 +285,6 @@ function loadResults(is_sample) {
 
 
 function uploadBinary() {
-    resultUrl = undefined;
     const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
 
     let uploadForm = document.getElementById('binary_upload_form');
@@ -318,6 +317,7 @@ function uploadBinary() {
         }
     })
     .then(data => {
+        clearFrameInputs();
         addHistoryEntry(data['id']);
         loadAllDecompilers(data['id'], false);
     })
@@ -367,7 +367,8 @@ function rerunDecompiler(decompiler_name) {
 
 document.getElementById('file').addEventListener('change', (e) => {
     e.preventDefault();
-    clearFrameInputs();
+    // File pickers may report an empty selection after the user cancels.
+    if (!e.target.files || e.target.files.length === 0) return;
     uploadBinary();
 });
 document.getElementById('samples').addEventListener('change', (e) => {
