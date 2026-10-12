@@ -1,5 +1,4 @@
 import argparse
-import shlex
 from dataclasses import dataclass, asdict
 import logging
 import os
@@ -12,6 +11,8 @@ import time
 import traceback
 
 import requests
+
+from output_capture import MAX_OUTPUT_BYTES, OutputLimitExceeded, run_with_bounded_output
 
 SERVER = os.environ.get('SERVER', 'http://127.0.0.1:8000')
 
@@ -208,26 +209,20 @@ class RunnerWrapper:
 
     def decompile_source(self, req, args, compiled):
         try:
-            # Use the shell's job monitor to cleanup children for us
-            # https://stackoverflow.com/a/4054436
-            child_proc = shlex.join([sys.executable, self.script_path])
-
-            timeout = args.timeout
-            if req['extend_timeout']:
-                timeout = args.extended_timeout
-
-            if timeout is None:
-                bash_cmd = f'set -o monitor ; {child_proc} < /dev/stdin'
-            else:
-                bash_timeout = timeout + 10
-                bash_cmd = f'set -o monitor ; timeout -s 9 {bash_timeout} {child_proc} < /dev/stdin'
-            self.logger.debug(bash_cmd)
+            timeout = args.extended_timeout if req['extend_timeout'] else args.timeout
             with tempfile.TemporaryDirectory() as tempdir:
-                proc = subprocess.run(['/bin/bash', '-c', bash_cmd], input=compiled,
-                                      capture_output=True, timeout=timeout, cwd=tempdir,
-                                      preexec_fn=lambda: set_limits(args.mem_limit_soft, args.mem_limit_hard))
+                proc = run_with_bounded_output(
+                    [sys.executable, self.script_path],
+                    input_bytes=compiled,
+                    timeout=timeout,
+                    cwd=tempdir,
+                    preexec_fn=lambda: set_limits(args.mem_limit_soft, args.mem_limit_hard),
+                    max_output_bytes=MAX_OUTPUT_BYTES,
+                )
         except subprocess.TimeoutExpired:
             raise DecompileError("Exceeded time limit")
+        except OutputLimitExceeded as exc:
+            raise DecompileError(str(exc)) from exc
 
         if proc.returncode == 0:
             result = proc.stdout
@@ -239,7 +234,7 @@ class RunnerWrapper:
                 raise DecompileError("Empty decompile result")
             return result
         else:
-            raise DecompileError(f"{proc.stdout.decode()}\n{proc.stderr.decode()}")
+            raise DecompileError(f"{proc.stdout.decode(errors='replace')}\n{proc.stderr.decode(errors='replace')}")
 
 
 if __name__ == '__main__':
