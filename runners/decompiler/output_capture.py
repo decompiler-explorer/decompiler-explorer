@@ -39,7 +39,9 @@ def run_with_bounded_output(command, *, input_bytes=b'', timeout=None, cwd=None,
             preexec_fn=preexec_fn,
             start_new_session=True,
         )
-        chunks = {'stdout': [], 'stderr': []}
+        # Bytearrays avoid retaining millions of Python objects if a child
+        # writes a large number of tiny chunks.
+        chunks = {'stdout': bytearray(), 'stderr': bytearray()}
         captured_bytes = 0
         deadline = None if timeout is None else time.monotonic() + timeout
 
@@ -61,15 +63,15 @@ def run_with_bounded_output(command, *, input_bytes=b'', timeout=None, cwd=None,
                             raise OutputLimitExceeded(
                                 f"Decompiler output exceeded {max_output_bytes} bytes"
                             )
-                        chunks[key.data].append(data)
+                        chunks[key.data].extend(data)
 
             remaining = None if deadline is None else max(0, deadline - time.monotonic())
             process.wait(timeout=remaining)
             return subprocess.CompletedProcess(
                 command,
                 process.returncode,
-                b''.join(chunks['stdout']),
-                b''.join(chunks['stderr']),
+                bytes(chunks['stdout']),
+                bytes(chunks['stderr']),
             )
         except BaseException:
             try:

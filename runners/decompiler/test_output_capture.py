@@ -45,6 +45,21 @@ class OutputCaptureTests(unittest.TestCase):
         with self.assertRaises(OutputLimitExceeded):
             self.run_python('import os; os.write(1, b"x" * 600); os.write(2, b"y" * 600)')
 
+    def test_many_tiny_output_chunks(self):
+        # Exercise repeated short writes; total output still matches exactly.
+        result = self.run_python(
+            'import os; [os.write(1,b"a") for _ in range(2048)]', budget=4096
+        )
+        self.assertEqual(result.stdout, b'a' * 2048)
+
+    def test_child_closes_pipes_but_keeps_running(self):
+        # EOF on both pipes must not bypass the execution deadline.
+        with self.assertRaises(subprocess.TimeoutExpired):
+            self.run_python(
+                'import os,time;os.close(1);os.close(2);time.sleep(30)',
+                timeout=0.2,
+            )
+
     def test_timeout_terminates_process(self):
         started = time.monotonic()
         with self.assertRaises(subprocess.TimeoutExpired):
