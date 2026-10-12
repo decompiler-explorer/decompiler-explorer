@@ -12,7 +12,7 @@ import traceback
 
 import requests
 
-from output_capture import MAX_OUTPUT_BYTES, OutputLimitExceeded, run_with_bounded_output
+from output_capture import MAX_OUTPUT_BYTES, OutputLimitExceeded, bounded_diagnostic, run_with_bounded_output
 
 SERVER = os.environ.get('SERVER', 'http://127.0.0.1:8000')
 
@@ -234,7 +234,7 @@ class RunnerWrapper:
                 raise DecompileError("Empty decompile result")
             return result
         else:
-            raise DecompileError(f"{proc.stdout.decode(errors='replace')}\n{proc.stderr.decode(errors='replace')}")
+            raise DecompileError(f"{bounded_diagnostic(proc.stdout)}\n{bounded_diagnostic(proc.stderr)}")
 
 
 if __name__ == '__main__':

@@ -15,6 +15,17 @@ class OutputLimitExceeded(Exception):
     """The decompiler produced more than the configured output budget."""
 
 
+def bounded_diagnostic(data, max_bytes=8192):
+    """Keep failed decompilations from persisting megabytes of log text."""
+    if max_bytes <= 0:
+        raise ValueError("max_bytes must be positive")
+    preview = data[:max_bytes].decode(errors='replace')
+    if len(data) > max_bytes:
+        preview += "\n...[truncated]"
+    return preview
+
+
+
 def run_with_bounded_output(command, *, input_bytes=b'', timeout=None, cwd=None,
                             preexec_fn=None, max_output_bytes=16 * 1024 * 1024):
     """Run a subprocess without buffering unbounded output in memory.

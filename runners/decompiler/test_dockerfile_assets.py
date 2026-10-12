@@ -21,6 +21,13 @@ class DockerfileRuntimeAssetsTests(unittest.TestCase):
             )
         self.assertGreater(len(runner_stages), 0, 'Expected at least one runner image')
 
+    def test_compose_exposes_output_budget(self):
+        compose = Path(__file__).resolve().parents[2] / 'docker-compose.yml'
+        self.assertIn(
+            '- MAX_DECOMPILER_OUTPUT_BYTES=${MAX_DECOMPILER_OUTPUT_BYTES:-16777216}',
+            compose.read_text(),
+        )
+
 
 if __name__ == '__main__':
     unittest.main()

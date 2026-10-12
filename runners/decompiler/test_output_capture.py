@@ -9,7 +9,7 @@ import unittest
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-from output_capture import OutputLimitExceeded, run_with_bounded_output
+from output_capture import OutputLimitExceeded, bounded_diagnostic, run_with_bounded_output
 
 
 class OutputCaptureTests(unittest.TestCase):
@@ -72,6 +72,14 @@ class OutputCaptureTests(unittest.TestCase):
         )
         self.assertEqual(result.returncode, 7)
         self.assertEqual(result.stderr, b'failed')
+
+    def test_failure_diagnostics_are_bounded_and_utf8_safe(self):
+        data = b'\xff' + b'x' * 20000
+        result = bounded_diagnostic(data)
+        self.assertIn('\ufffd', result)
+        self.assertIn('[truncated]', result)
+        self.assertLess(len(result), 8300)
+        self.assertEqual(bounded_diagnostic(b'error'), 'error')
 
     def test_invalid_budget(self):
         with self.assertRaises(ValueError):
