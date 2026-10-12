@@ -8,7 +8,7 @@ with open('/run/secrets/db_superuser_pass', 'r') as f:
 
 
 with open('/run/secrets/worker_auth_token', 'rb') as f:
-    WORKER_AUTH_TOKEN_HASH = hashlib.sha256(f.read()).hexdigest()
+    WORKER_AUTH_TOKEN_HASH = hashlib.sha256(f.read().strip()).hexdigest()
 
 DATABASES = {
     'default': {
