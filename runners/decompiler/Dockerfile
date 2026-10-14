@@ -62,6 +62,25 @@ RUN python3 decompile_angr.py --version
 ENTRYPOINT [ "./entrypoint.sh", "decompile_angr.py" ]
 
 
+# GNU objdump
+FROM base AS objdump
+USER root
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends binutils-multiarch \
+    && rm -rf /var/lib/apt/lists/*
+
+USER decompiler_user
+WORKDIR /home/decompiler_user
+COPY decompile_objdump.py .
+
+COPY entrypoint.sh .
+COPY runner_generic.py .
+
+RUN python3 decompile_objdump.py --version
+RUN python3 decompile_objdump.py < /bin/true | grep -q "Disassembly of section"
+ENTRYPOINT [ "./entrypoint.sh", "decompile_objdump.py" ]
+
+
 # Ghidra
 FROM base AS ghidra
 USER root
