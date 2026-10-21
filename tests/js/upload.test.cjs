@@ -5,7 +5,7 @@ const path = require('node:path');
 const vm = require('node:vm');
 const {test} = require('node:test');
 
-function fixture({valid = true, response, failure} = {}) {
+function fixture({valid = true, response, failure, fetchResponse} = {}) {
     const handlers = {};
     const calls = {fetch: 0, alerts: [], history: [], validity: 0};
     const state = {text: 'previous decompilation'};
@@ -39,6 +39,7 @@ function fixture({valid = true, response, failure} = {}) {
         alert: error => calls.alerts.push(String(error)),
         fetch: async () => {
             calls.fetch++;
+            if (fetchResponse) return await fetchResponse(calls.fetch);
             if (failure) throw failure;
             return await response;
         },
@@ -118,5 +119,59 @@ test('invalid JSON keeps previous results', async () => {
     await settle();
     assert.equal(f.state.text, 'previous decompilation');
     assert.equal(f.url(), 'old-results');
+    assert.equal(f.calls.alerts.length, 1);
+});
+
+test('older successful upload cannot replace the newest completed upload', async () => {
+    let finishFirst;
+    const first = new Promise(resolve => finishFirst = resolve);
+    const f = fixture({fetchResponse: index => index === 1 ? first :
+        {ok: true, json: async () => ({id: 'newest'})}});
+    f.select(selected);
+    f.select(selected);
+    await settle();
+    assert.equal(f.url(), 'https://example.test/api/binaries/newest/decompilations/');
+    finishFirst({ok: true, json: async () => ({id: 'stale'})});
+    await settle();
+    assert.equal(f.url(), 'https://example.test/api/binaries/newest/decompilations/');
+    assert.deepEqual(f.calls.history, ['newest']);
+});
+
+test('outdated failure cannot show an alert after a newer success', async () => {
+    let rejectFirst;
+    const first = new Promise((_, reject) => rejectFirst = reject);
+    const f = fixture({fetchResponse: index => index === 1 ? first :
+        {ok: true, json: async () => ({id: 'newest'})}});
+    f.select(selected);
+    f.select(selected);
+    await settle();
+    rejectFirst(new Error('stale network failure'));
+    await settle();
+    assert.deepEqual(f.calls.alerts, []);
+    assert.deepEqual(f.calls.history, ['newest']);
+});
+
+test('old completion cannot overwrite existing results when newest upload fails', async () => {
+    let finishFirst;
+    const first = new Promise(resolve => finishFirst = resolve);
+    const f = fixture({fetchResponse: index => index === 1 ? first :
+        {ok: false, status: 500}});
+    f.select(selected);
+    f.select(selected);
+    await settle();
+    finishFirst({ok: true, json: async () => ({id: 'stale'})});
+    await settle();
+    assert.equal(f.url(), 'old-results');
+    assert.equal(f.state.text, 'previous decompilation');
+    assert.deepEqual(f.calls.history, []);
+    assert.equal(f.calls.alerts.length, 1);
+});
+
+test('successful HTTP response without binary ID preserves previous results', async () => {
+    const f = fixture({response: {ok: true, json: async () => ({})}});
+    f.select(selected);
+    await settle();
+    assert.equal(f.url(), 'old-results');
+    assert.equal(f.state.text, 'previous decompilation');
     assert.equal(f.calls.alerts.length, 1);
 });
