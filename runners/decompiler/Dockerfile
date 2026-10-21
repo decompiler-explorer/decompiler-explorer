@@ -10,6 +10,9 @@ WORKDIR /home/decompiler_user
 
 RUN pip install --user 'requests>=2.27,<3.0'
 
+# Shared by every runner derived from this base, including new adapters.
+COPY output_capture.py .
+
 FROM --platform=linux/amd64 python:3.13-slim-trixie AS base-trixie
 
 RUN useradd -ms /bin/false decompiler_user
@@ -21,6 +24,9 @@ USER decompiler_user
 WORKDIR /home/decompiler_user
 
 RUN pip install --user 'requests>=2.27,<3.0'
+
+# Shared by every runner derived from this base, including new adapters.
+COPY output_capture.py .
 
 
 # Binary Ninja
@@ -38,7 +44,7 @@ COPY decompile_bn.py .
 ENV PYTHONPATH=/home/decompiler_user/binaryninja/python/:$PYTHONPATH
 
 COPY entrypoint.sh .
-COPY runner_generic.py output_capture.py ./
+COPY runner_generic.py .
 
 RUN python3 decompile_bn.py --version
 ENTRYPOINT [ "./entrypoint.sh", "decompile_bn.py" ]
@@ -56,7 +62,7 @@ RUN pip install --user 'angr~=10.0.1.post1'
 COPY decompile_angr.py .
 
 COPY entrypoint.sh .
-COPY runner_generic.py output_capture.py ./
+COPY runner_generic.py .
 
 RUN python3 decompile_angr.py --version
 ENTRYPOINT [ "./entrypoint.sh", "decompile_angr.py" ]
@@ -86,7 +92,7 @@ COPY tools/ghidra/DecompilerExplorer.java ./ghidra_scripts
 COPY decompile_ghidra.py .
 
 COPY entrypoint.sh .
-COPY runner_generic.py output_capture.py ./
+COPY runner_generic.py .
 
 RUN python3 decompile_ghidra.py --version
 ENTRYPOINT [ "./entrypoint.sh", "decompile_ghidra.py" ]
@@ -109,7 +115,7 @@ RUN git clone https://github.com/mborgerson/snowman.git \
 COPY decompile_snowman.py .
 
 COPY entrypoint.sh .
-COPY runner_generic.py output_capture.py ./
+COPY runner_generic.py .
 
 RUN python3 decompile_snowman.py --version
 ENTRYPOINT [ "./entrypoint.sh", "decompile_snowman.py" ]
@@ -132,7 +138,7 @@ RUN wget https://github.com/avast/retdec/releases/download/v5.0/RetDec-v5.0-Linu
 COPY decompile_retdec.py .
 
 COPY entrypoint.sh .
-COPY runner_generic.py output_capture.py ./
+COPY runner_generic.py .
 
 RUN python3 decompile_retdec.py --version
 ENTRYPOINT [ "./entrypoint.sh", "decompile_retdec.py" ]
@@ -155,7 +161,7 @@ WORKDIR /home/decompiler_user
 COPY decompile_recstudio.py .
 
 COPY entrypoint.sh .
-COPY runner_generic.py output_capture.py ./
+COPY runner_generic.py .
 
 RUN python3 decompile_recstudio.py --version
 ENTRYPOINT [ "./entrypoint.sh", "decompile_recstudio.py" ]
@@ -208,7 +214,7 @@ WORKDIR /home/decompiler_user
 COPY decompile_reko.py .
 
 COPY entrypoint.sh .
-COPY runner_generic.py output_capture.py ./
+COPY runner_generic.py .
 
 RUN python3 decompile_reko.py --version
 ENTRYPOINT [ "./entrypoint.sh", "decompile_reko.py" ]
@@ -231,7 +237,7 @@ WORKDIR /home/decompiler_user
 COPY decompile_boomerang.py .
 
 COPY entrypoint.sh .
-COPY runner_generic.py output_capture.py ./
+COPY runner_generic.py .
 
 RUN python3 decompile_boomerang.py --version
 ENTRYPOINT [ "./entrypoint.sh", "decompile_boomerang.py" ]
@@ -262,7 +268,7 @@ RUN /home/decompiler_user/ida/idapyswitch --force-path /usr/local/lib/libpython3
 COPY decompile_hexrays.py .
 
 COPY entrypoint.sh .
-COPY runner_generic.py output_capture.py ./
+COPY runner_generic.py .
 
 RUN python3 decompile_hexrays.py --version
 ENTRYPOINT [ "./entrypoint.sh", "decompile_hexrays.py" ]
@@ -292,7 +298,7 @@ RUN git clone --depth=1 --branch=v2026-04-01 https://github.com/fkie-cad/dewolf.
 ENV PYTHONPATH=/home/decompiler_user/binaryninja/python/:$PYTHONPATH
 COPY decompile_dewolf.py .
 COPY entrypoint.sh .
-COPY runner_generic.py output_capture.py ./
+COPY runner_generic.py .
 
 RUN python3 decompile_dewolf.py --version
 ENTRYPOINT [ "./entrypoint.sh", "decompile_dewolf.py" ]
@@ -335,7 +341,7 @@ COPY tools/relyze/License.txt $WINEPREFIX/drive_c/users/decompiler_user/AppData/
 COPY tools/relyze/decompiler_explorer.rb .
 COPY decompile_relyze.py .
 COPY entrypoint.sh .
-COPY runner_generic.py output_capture.py ./
+COPY runner_generic.py .
 
 RUN python3 decompile_relyze.py --version
 ENTRYPOINT [ "./entrypoint.sh", "decompile_relyze.py" ]
@@ -356,7 +362,7 @@ WORKDIR /home/decompiler_user
 COPY decompile_revng.py .
 
 COPY entrypoint.sh .
-COPY runner_generic.py output_capture.py ./
+COPY runner_generic.py .
 
 RUN python3 decompile_revng.py --version
 ENTRYPOINT [ "./entrypoint.sh", "decompile_revng.py" ]
@@ -386,7 +392,7 @@ WORKDIR /home/decompiler_user
 COPY decompile_kuna.py .
 
 COPY entrypoint.sh .
-COPY runner_generic.py output_capture.py ./
+COPY runner_generic.py .
 
 RUN python3 decompile_kuna.py --version
 ENTRYPOINT [ "./entrypoint.sh", "decompile_kuna.py" ]

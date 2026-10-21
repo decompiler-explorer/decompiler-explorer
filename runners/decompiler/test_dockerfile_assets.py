@@ -7,19 +7,30 @@ from pathlib import Path
 
 class DockerfileRuntimeAssetsTests(unittest.TestCase):
     def test_each_runner_image_copies_output_capture(self):
+        stages = {}
+        current = None
+        for line in Path(__file__).with_name('Dockerfile').read_text().splitlines():
+            match = re.match(r'FROM (?:--platform=\S+ )?(\S+) AS (\S+)', line)
+            if match:
+                parent, current = match.groups()
+                stages[current] = set(stages.get(parent, ()))
+            elif current and line.startswith('COPY '):
+                stages[current].update(line.split()[1:-1])
+        runners = {name: files for name, files in stages.items()
+                   if 'runner_generic.py' in files}
+        self.assertTrue(runners)
+        for name, files in runners.items():
+            with self.subTest(stage=name):
+                self.assertIn('output_capture.py', files)
+
+    def test_base_stages_supply_runtime_to_future_runners(self):
         dockerfile = Path(__file__).with_name('Dockerfile').read_text()
-        stages = re.split(r'(?m)^FROM\s+[^\n]+\s+AS\s+(\S+)\s*$', dockerfile)
-        self.assertGreater(len(stages), 1, 'Expected named Docker build stages')
-        runner_stages = []
-        for stage_name, instructions in zip(stages[1::2], stages[2::2]):
-            if 'ENTRYPOINT [ "./entrypoint.sh"' not in instructions:
-                continue
-            runner_stages.append(stage_name)
-            self.assertIn(
-                'COPY runner_generic.py output_capture.py ./', instructions,
-                f'{stage_name} image must include the runner\'s imported output_capture module',
-            )
-        self.assertGreater(len(runner_stages), 0, 'Expected at least one runner image')
+        for base in ('base', 'base-trixie'):
+            with self.subTest(base=base):
+                block = re.search(r' AS ' + base + r'\n(.*?)(?=\nFROM |\Z)',
+                                  dockerfile, re.S).group(1)
+                self.assertIn('COPY output_capture.py .', block)
+
 
     def test_compose_exposes_output_budget(self):
         compose = Path(__file__).resolve().parents[2] / 'docker-compose.yml'
