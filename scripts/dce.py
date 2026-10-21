@@ -32,6 +32,7 @@ DECOMPILERS = [
     ('boomerang',   'Boomerang'),
     ('ghidra',      'Ghidra'),
     ('kuna',        'Kuna'),
+    ('objdump',     'GNU objdump'),
     ('recstudio',   'REC Studio'),
     ('reko',        'Reko'),
     ('retdec',      'RetDec'),
