@@ -31,16 +31,10 @@ def disassemble():
         proc = subprocess.run(
             [OBJDUMP, "--disassemble", "--demangle", "--wide", binary.name],
             cwd=tempdir,
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE,
         )
 
     if proc.returncode != 0:
-        sys.stdout.buffer.write(proc.stdout)
-        sys.stderr.buffer.write(proc.stderr)
         raise SystemExit(proc.returncode)
-
-    sys.stdout.buffer.write(proc.stdout)
 
 
 if __name__ == "__main__":
