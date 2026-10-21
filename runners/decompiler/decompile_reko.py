@@ -16,10 +16,12 @@ def main():
     infile.write(conts)
     infile.flush()
 
-    decomp = subprocess.run([REKO_DECOMPILE, infile.name], stdout=subprocess.PIPE, stderr=subprocess.PIPE, cwd=cwd)
+    # Keep Reko diagnostics out of stdout (which is reserved for decompiled C).
+    # The parent runner bounds stderr and kills this entire process group on overflow.
+    decomp = subprocess.run([REKO_DECOMPILE, infile.name], stdout=sys.stderr,
+                            stderr=sys.stderr, cwd=cwd)
     if decomp.returncode != 0:
-        print(f'{decomp.stdout.decode()}\n{decomp.stderr.decode()}')
-        return
+        raise SystemExit(f"Reko exited with status {decomp.returncode}")
     infile.close()
 
     outputs = Path(infile.name + ".reko")
@@ -27,12 +29,14 @@ def main():
     for source in outputs.glob('*text*.c'):
         with open(source, 'rb') as f:
             seen.add(source)
-            sys.stdout.buffer.write(f.read())
+            for block in iter(lambda: f.read(65536), b''):
+                sys.stdout.buffer.write(block)
     for source in outputs.glob('*.c'):
         if source in seen:
             continue
         with open(source, 'rb') as f:
-            sys.stdout.buffer.write(f.read())
+            for block in iter(lambda: f.read(65536), b''):
+                sys.stdout.buffer.write(block)
 
 
 def version():
