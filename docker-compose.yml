@@ -7,6 +7,7 @@ x-decompiler:
         environment:
             - SERVER=${EXPLORER_URL:-http://explorer:8000}
             - DEBUG=${DEBUG:-0}
+            - MAX_DECOMPILER_OUTPUT_BYTES=${MAX_DECOMPILER_OUTPUT_BYTES:-16777216}
         networks:
             - backend_net
         command: [

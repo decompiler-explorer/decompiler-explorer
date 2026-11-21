@@ -10,6 +10,9 @@ WORKDIR /home/decompiler_user
 
 RUN pip install --user 'requests>=2.27,<3.0'
 
+# Shared by every runner derived from this base, including new adapters.
+COPY output_capture.py .
+
 FROM --platform=linux/amd64 python:3.13-slim-trixie AS base-trixie
 
 RUN useradd -ms /bin/false decompiler_user
@@ -21,6 +24,9 @@ USER decompiler_user
 WORKDIR /home/decompiler_user
 
 RUN pip install --user 'requests>=2.27,<3.0'
+
+# Shared by every runner derived from this base, including new adapters.
+COPY output_capture.py .
 
 
 # Binary Ninja
