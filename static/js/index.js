@@ -65,6 +65,8 @@ document.querySelector("#binary_upload_form input[name='file']").required = true
 
 let numDecompilers = Object.keys(decompilerFrames).length;
 let resultUrl;
+// Only the latest valid upload may replace currently displayed results.
+let latestUploadRequest = 0;
 
 // For keeping track of line change events-- they will also trigger when we update the contents
 // of the textbox, so we need to ignore those.
@@ -285,7 +287,6 @@ function loadResults(is_sample) {
 
 
 function uploadBinary() {
-    resultUrl = undefined;
     const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
 
     let uploadForm = document.getElementById('binary_upload_form');
@@ -294,6 +295,7 @@ function uploadBinary() {
         return;
     }
     let formData = new FormData(uploadForm);
+    const uploadRequest = ++latestUploadRequest;
 
     fetch('/api/binaries/', {
         method: 'POST',
@@ -318,11 +320,14 @@ function uploadBinary() {
         }
     })
     .then(data => {
+        if (uploadRequest !== latestUploadRequest) return;
+        if (!data || !data.id) throw Error("Invalid upload response");
+        clearFrameInputs();
         addHistoryEntry(data['id']);
         loadAllDecompilers(data['id'], false);
     })
     .catch(err => {
-        logError(err, err, true);
+        if (uploadRequest === latestUploadRequest) logError(err, err, true);
     });
 }
 
@@ -367,7 +372,8 @@ function rerunDecompiler(decompiler_name) {
 
 document.getElementById('file').addEventListener('change', (e) => {
     e.preventDefault();
-    clearFrameInputs();
+    // File pickers may report an empty selection after the user cancels.
+    if (!e.target.files || e.target.files.length === 0) return;
     uploadBinary();
 });
 document.getElementById('samples').addEventListener('change', (e) => {
