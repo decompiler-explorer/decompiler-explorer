@@ -23,6 +23,8 @@ services:
         <<: *default-decompiler-options
     angr:
         <<: *default-decompiler-options
+    objdump:
+        <<: *default-decompiler-options
     snowman:
         <<: *default-decompiler-options
     retdec:
